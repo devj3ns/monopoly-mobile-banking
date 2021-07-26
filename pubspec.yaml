@@ -12,6 +12,11 @@ dependencies:
     sdk: flutter
 
   fleasy: ^0.4.1
+  firebase_core: ^1.4.0
+  flutter_bloc: ^7.0.1
+
+  auth_repository:
+    path: packages/auth_repository
 
 dev_dependencies:
   flutter_test:
