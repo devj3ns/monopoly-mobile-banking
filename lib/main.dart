@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 import 'package:auth_repository/auth_repository.dart';
 import 'package:user_repository/user_repository.dart';
@@ -11,8 +12,8 @@ import 'authentication/splash_screen/splash_screen.dart';
 import 'home.dart';
 
 void main() async {
+  setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
 
   runApp(const _MonopolyBanking());
