@@ -41,21 +41,20 @@ class SelectGameScreen extends StatelessWidget {
 
                 final games = snapshot.data!;
 
-                return Column(
-                  children: games.map((game) {
-                    return Card(
-                      child: ListTile(
-                        leading: Text(game.id),
-                        trailing: Text('${game.players.size} Players'),
-                        onTap: () => game.join(user),
-                      ),
-                    );
-                  }).toList(),
-                );
+                return games.isEmpty
+                    ? const Text("There are no lobby's yet.")
+                    : Column(
+                        children: games.map((game) {
+                        return Card(
+                            child: ListTile(
+                                leading: Text(game.id),
+                                trailing: Text('${game.players.size} Players'),
+                                onTap: () => game.join(user)));
+                      }).toList());
               },
             ),
             const ElevatedButton(
-              child: Text('Neues Spiel'),
+              child: Text('New Lobby'),
               onPressed: Game.newOne,
             )
           ],

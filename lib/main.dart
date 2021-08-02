@@ -34,6 +34,7 @@ class _MonopolyBanking extends StatelessWidget {
         ),
         child: MaterialApp(
           title: 'Monopoly Banking',
+          debugShowCheckedModeBanner: false,
           home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
             buildWhen: (p, c) => p.status != c.status,
             builder: (context, state) {

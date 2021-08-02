@@ -102,19 +102,21 @@ class _OtherPlayersBalance extends StatelessWidget {
     return Column(
       children: [
         const Text('Other Players:'),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: otherPlayers.map(
-            (player) {
-              return Card(
-                child: ListTile(
-                  title: Text(player.name),
-                  trailing: Text(_formatBalance(player.balance)),
-                ),
-              );
-            },
-          ).toList(),
-        ),
+        otherPlayers.isEmpty
+            ? const Text('There are not other players yet.')
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: otherPlayers.map(
+                  (player) {
+                    return Card(
+                      child: ListTile(
+                        title: Text(player.name),
+                        trailing: Text(_formatBalance(player.balance)),
+                      ),
+                    );
+                  },
+                ).toList(),
+              ),
       ],
     );
   }

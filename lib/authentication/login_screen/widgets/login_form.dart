@@ -75,7 +75,7 @@ class _LoginButton extends StatelessWidget {
             return state.isSubmitting
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    child: const Text('Login'),
+                    child: const Text('Sign in'),
                     onPressed: submitForm,
                   );
           },
