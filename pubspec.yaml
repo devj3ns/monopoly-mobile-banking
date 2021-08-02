@@ -2,7 +2,7 @@ name: monopoly_banking
 description: A cloud-based monopoly banking app.
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -17,6 +17,7 @@ dependencies:
   flutter_hooks: ^0.18.0
   firebase_auth: ^3.0.1
   kt_dart: ^0.9.1
+  url_strategy: ^0.2.0
 
   auth_repository:
     path: packages/auth_repository
