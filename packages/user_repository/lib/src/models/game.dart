@@ -77,11 +77,11 @@ class Game extends Equatable {
 
     final fromPlayerIndex =
         _players.indexWhere((player) => player.userId == fromUserId);
-    _players[fromPlayerIndex] = _players[fromPlayerIndex].addMoney(amount);
+    _players[fromPlayerIndex] = _players[fromPlayerIndex].subtractMoney(amount);
 
     final toPlayerIndex =
         _players.indexWhere((player) => player.userId == toUserId);
-    _players[toPlayerIndex] = _players[toPlayerIndex].subtractMoney(amount);
+    _players[toPlayerIndex] = _players[toPlayerIndex].addMoney(amount);
 
     return copyWith(players: _players.toImmutableList());
   }
