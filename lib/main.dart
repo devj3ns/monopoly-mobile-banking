@@ -43,7 +43,7 @@ class _MonopolyBanking extends StatelessWidget {
                 case AuthenticationStatus.authenticated:
                   return RepositoryProvider(
                     create: (_) => UserRepository(userId: state.user!.uid),
-                    child: const HomeScreen(),
+                    child: const Home(),
                   );
                 case AuthenticationStatus.unauthenticated:
                   return const LoginScreen();

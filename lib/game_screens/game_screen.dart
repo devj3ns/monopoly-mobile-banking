@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:user_repository/user_repository.dart';
 
 import '../extensions.dart';
+import '../shared_widgets.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({Key? key, required this.user}) : super(key: key);
@@ -15,59 +17,49 @@ class GameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(user.currentGameId != null);
 
-    return StreamBuilder<Game?>(
-      stream: context.userRepository().streamGame(user.currentGameId!),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(),
-            body: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Text(snapshot.error?.toString() ?? 'ERROR');
-        }
-        final game = snapshot.data;
+    return BasicScaffold(
+      appBar: AppBar(
+        title: const Text('Monopoly Banking'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Leave',
+            onPressed: () => context.userRepository().leaveGame(),
+          )
+        ],
+      ),
+      child: StreamBuilder<Game?>(
+        stream: context.userRepository().streamGame(user.currentGameId!),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text(snapshot.error?.toString() ?? 'ERROR');
+          }
+          final game = snapshot.data;
 
-        //debugPrint('GAME STREAM REBUILDS');
-        //debugPrint(game.toString());
+          //debugPrint('GAME STREAM REBUILDS');
+          //debugPrint(game.toString());
 
-        if (game == null) {
-          debugPrint(
-              '[WARNING] User was disconnected from any game, because it does not exist anymore.');
-          context.userRepository().leaveGame();
-        }
-        assert(game != null);
+          if (game == null) {
+            debugPrint(
+                '[WARNING] User was disconnected from any game, because the current one does not exist anymore.');
+            context.userRepository().leaveGame();
+          }
+          assert(game != null);
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(user.name),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: 'Disconnect',
-                onPressed: () => context.userRepository().leaveGame(),
-              )
+          return ListView(
+            children: [
+              const SizedBox(height: 15),
+              _MyBalanceText(game: game!, user: user),
+              const SizedBox(height: 20),
+              _OtherPlayersBalance(game: game, user: user),
+              const SizedBox(height: 20),
+              _NewTransactionForm(game: game, user: user),
             ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  _MyBalanceText(game: game!, user: user),
-                  const Divider(height: 25),
-                  _OtherPlayersBalance(game: game, user: user),
-                  const Divider(height: 25),
-                  _NewTransactionForm(game: game, user: user),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -82,9 +74,21 @@ class _MyBalanceText extends StatelessWidget {
   Widget build(BuildContext context) {
     final myBalance = game.getPlayer(user.id).balance;
 
-    return Text(
-      _formatBalance(myBalance),
-      style: const TextStyle(fontSize: 22),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          _formatBalance(myBalance),
+          style: const TextStyle(fontSize: 25),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(bottom: 3),
+          child: Icon(
+            Icons.attach_money_rounded,
+            size: 27,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -97,13 +101,30 @@ class _OtherPlayersBalance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final otherPlayers = game.otherPlayers(user.id);
+    final otherPlayers = game.otherPlayers(user.id)..sort((a, b) => a.balance);
 
     return Column(
       children: [
-        const Text('Other Players:'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(
+              Icons.people_rounded,
+              color: Colors.black54,
+            ),
+            SizedBox(width: 5),
+            Text(
+              'Other Players:',
+              style: TextStyle(fontSize: 17),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
         otherPlayers.isEmpty
-            ? const Text('There are not other players yet.')
+            ? const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('There are no other players yet.'),
+              )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: otherPlayers.map(
@@ -111,7 +132,23 @@ class _OtherPlayersBalance extends StatelessWidget {
                     return Card(
                       child: ListTile(
                         title: Text(player.name),
-                        trailing: Text(_formatBalance(player.balance)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _formatBalance(player.balance),
+                              style: const TextStyle(fontSize: 17),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 1),
+                              child: Icon(
+                                Icons.attach_money_rounded,
+                                color: Colors.black87,
+                                size: 20,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -156,7 +193,21 @@ class _NewTransactionForm extends HookWidget {
 
     return Column(
       children: [
-        const Text('New transaction:'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            FaIcon(
+              FontAwesomeIcons.moneyCheckAlt,
+              size: 17,
+              color: Colors.black54,
+            ),
+            SizedBox(width: 5),
+            Text(
+              'New Transaction:',
+              style: TextStyle(fontSize: 17),
+            ),
+          ],
+        ),
         DropdownButtonFormField<Player>(
           value: player.value,
           items: otherUsers
@@ -168,7 +219,7 @@ class _NewTransactionForm extends HookWidget {
               )
               .toList(),
           decoration: const InputDecoration(
-            labelText: 'Select Player',
+            labelText: 'Player',
           ),
           onChanged: (user) => player.value = user ?? player.value,
         ),
@@ -192,7 +243,11 @@ class _NewTransactionForm extends HookWidget {
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: isFormNotEmpty() ? submitForm : null,
-          child: const Text('Transfer'),
+          child: const IconText(
+            text: 'Send money',
+            icon: FontAwesomeIcons.solidPaperPlane,
+            iconSize: 16,
+          ),
         )
       ],
     );
@@ -212,7 +267,7 @@ String _formatBalance(int balance) {
     newString = chars[i] + newString;
   }
 
-  return '$newString €';
+  return newString;
 }
 
 class _ThousandsSeparatorInputFormatter extends TextInputFormatter {

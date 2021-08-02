@@ -14,6 +14,9 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Monopoly Banking'),
+      ),
       body: BlocProvider(
         create: (_) => LoginCubit(context.read<AuthenticationCubit>()),
         child: BlocListener<LoginCubit, LoginState>(

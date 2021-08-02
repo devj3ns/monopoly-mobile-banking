@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 
+import '../../../shared_widgets.dart';
 import '../cubit/login_cubit.dart';
 
 class LoginForm extends StatelessWidget {
@@ -19,28 +20,28 @@ class LoginForm extends StatelessWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Form(
-        key: formKey,
-        child: ListView(
-          children: [
-            SizedBox(height: context.screenHeight * 0.3),
-            const Text(
-              'Monopoly Banking',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 20),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 800),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: formKey,
+            child: ListView(
+              children: [
+                SizedBox(height: context.screenHeight * 0.3),
+                _NameInput(),
+                _LoginButton(submitForm),
+              ],
             ),
-            _nameInput(),
-            _LoginButton(submitForm),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _nameInput extends StatelessWidget {
+class _NameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -53,7 +54,7 @@ class _nameInput extends StatelessWidget {
         decoration: const InputDecoration(
           labelText: 'Name',
         ),
-        validator: (value) => value.isBlank ? 'Please type in your name' : null,
+        validator: (value) => value.isBlank ? 'Please enter your name' : null,
       ),
     );
   }
@@ -75,7 +76,10 @@ class _LoginButton extends StatelessWidget {
             return state.isSubmitting
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    child: const Text('Sign in'),
+                    child: const IconText(
+                      text: 'Sign in',
+                      icon: Icons.login_rounded,
+                    ),
                     onPressed: submitForm,
                   );
           },

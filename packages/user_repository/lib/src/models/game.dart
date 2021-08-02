@@ -21,7 +21,7 @@ class Game extends Equatable {
   @override
   List<Object> get props => [id, players];
 
-  static int startBalance = 100000;
+  static int startBalance = 5000;
 
   static Game fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data()!;

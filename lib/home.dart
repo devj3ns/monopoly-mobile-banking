@@ -4,11 +4,11 @@ import 'package:user_repository/user_repository.dart';
 
 import 'authentication/splash_screen/splash_screen.dart';
 import 'extensions.dart';
-import 'game_screen/game_screen.dart';
-import 'game_screen/select_game_screen.dart';
+import 'game_screens/game_screen.dart';
+import 'game_screens/select_game_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class Home extends StatelessWidget {
+  const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
