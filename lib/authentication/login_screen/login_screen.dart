@@ -4,6 +4,7 @@ import 'package:fleasy/fleasy.dart';
 
 import 'package:auth_repository/auth_repository.dart';
 
+import '../../authentication/cubit/authentication_cubit.dart';
 import 'cubit/login_cubit.dart';
 import 'widgets/login_form.dart';
 
@@ -14,7 +15,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
-        create: (_) => LoginCubit(context.read<AuthRepository>()),
+        create: (_) => LoginCubit(context.read<AuthenticationCubit>()),
         child: BlocListener<LoginCubit, LoginState>(
           listenWhen: (previous, current) =>
               previous.authResult != current.authResult &&
@@ -24,8 +25,7 @@ class LoginScreen extends StatelessWidget {
             switch (state.authResult) {
               case AuthResult.failure:
               default:
-                context.showErrorFlashbar(
-                    message: 'Es ist ein Fehler aufgetreten.');
+                context.showErrorFlashbar();
                 break;
             }
 

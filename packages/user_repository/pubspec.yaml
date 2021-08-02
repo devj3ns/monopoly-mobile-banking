@@ -1,5 +1,5 @@
-name: auth_repository
-description: Dart package which manages the authentication process.
+name: user_repository
+description: Dart package which manages the user and game data.
 version: 1.0.0
 
 publish_to: none
@@ -13,8 +13,9 @@ dependencies:
 
   fleasy: ^0.4.1
   firebase_core: ^1.4.0
-  firebase_auth: ^3.0.1
+  cloud_firestore: ^2.4.0
   equatable: ^2.0.3
+  kt_dart: ^0.9.1
 
 dev_dependencies:
   flutter_test:

@@ -13,10 +13,15 @@ dependencies:
 
   fleasy: ^0.4.1
   firebase_core: ^1.4.0
-  flutter_bloc: ^7.0.1
+  flutter_bloc: ^7.1.0
+  flutter_hooks: ^0.18.0
+  firebase_auth: ^3.0.1
+  kt_dart: ^0.9.1
 
   auth_repository:
     path: packages/auth_repository
+  user_repository:
+    path: packages/user_repository
 
 dev_dependencies:
   flutter_test:

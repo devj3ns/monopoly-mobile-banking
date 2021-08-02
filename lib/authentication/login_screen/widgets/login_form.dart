@@ -19,34 +19,41 @@ class LoginForm extends StatelessWidget {
       }
     }
 
-    return Form(
-      key: formKey,
-      child: ListView(
-        children: [
-          const SizedBox(height: Insets.xxl * 2),
-          _FirstNameInput(),
-          _LoginButton(submitForm),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Form(
+        key: formKey,
+        child: ListView(
+          children: [
+            SizedBox(height: context.screenHeight * 0.3),
+            const Text(
+              'Monopoly Banking',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20),
+            ),
+            _nameInput(),
+            _LoginButton(submitForm),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _FirstNameInput extends StatelessWidget {
+class _nameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Insets.m),
       child: TextFormField(
         autofillHints: const [AutofillHints.username],
-        onChanged: (firstName) =>
-            context.read<LoginCubit>().firstNameChanged(firstName.trim()),
+        onChanged: (name) =>
+            context.read<LoginCubit>().nameChanged(name.trim()),
         keyboardType: TextInputType.text,
         decoration: const InputDecoration(
-          labelText: 'Vorname',
+          labelText: 'Name',
         ),
-        validator: (value) =>
-            value.isBlank ? 'Bitte gib deinen Vornamen ein' : null,
+        validator: (value) => value.isBlank ? 'Please type in your name' : null,
       ),
     );
   }
@@ -68,7 +75,7 @@ class _LoginButton extends StatelessWidget {
             return state.isSubmitting
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    child: const Text('Einloggen'),
+                    child: const Text('Login'),
                     onPressed: submitForm,
                   );
           },

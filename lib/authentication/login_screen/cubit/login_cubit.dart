@@ -2,16 +2,17 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:auth_repository/auth_repository.dart';
+import 'package:monopoly_banking/authentication/cubit/authentication_cubit.dart';
 
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit(this.authRepository) : super(const LoginState());
+  LoginCubit(this.authenticationCubit) : super(const LoginState());
 
-  final AuthRepository authRepository;
+  final AuthenticationCubit authenticationCubit;
 
-  void firstNameChanged(String firstName) {
-    emit(state.copyWith(firstName: firstName));
+  void nameChanged(String name) {
+    emit(state.copyWith(name: name));
   }
 
   void resetAuthResult() {
@@ -21,16 +22,9 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> onFormSubmitted() async {
     emit(state.copyWith(isSubmitting: true));
 
-    final authResult = await authRepository.signIn(
-      firstName: state.firstName,
-    );
+    final authResult =
+        await authenticationCubit.signIn(name: state.name);
 
-    if (authResult == AuthResult.success) {
-      // Don't set isSubmitting to false because of the time
-      // the auth_repository needs to get the user data from the database
-      emit(state.copyWith(authResult: authResult));
-    } else {
-      emit(state.copyWith(isSubmitting: false, authResult: authResult));
-    }
+    emit(state.copyWith(isSubmitting: false, authResult: authResult));
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:auth_repository/auth_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:auth_repository/auth_repository.dart';
+import 'package:user_repository/user_repository.dart';
 
 import 'authentication/cubit/authentication_cubit.dart';
 import 'authentication/login_screen/login_screen.dart';
@@ -13,11 +15,11 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  runApp(const _App());
+  runApp(const _MonopolyBanking());
 }
 
-class _App extends StatelessWidget {
-  const _App({Key? key}) : super(key: key);
+class _MonopolyBanking extends StatelessWidget {
+  const _MonopolyBanking({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,47 +30,27 @@ class _App extends StatelessWidget {
       child: BlocProvider(
         create: (_) => AuthenticationCubit(
           authRepository: authRepository,
+          createUserFunction: UserRepository.createUser,
         ),
-        child: BlocBuilder<AuthenticationCubit, AuthenticationState>(
-          builder: (context, state) {
-            switch (state.status) {
-              case AuthenticationStatus.authenticated:
-                assert(state.user != null);
-
-                //final user = state.user!;
-
-                // todo: init other repositories
-
-                return const _AppView();
-              default:
-                return const _AppView();
-            }
-          },
+        child: MaterialApp(
+          title: 'Monopoly Banking',
+          home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
+            buildWhen: (p, c) => p.status != c.status,
+            builder: (context, state) {
+              switch (state.status) {
+                case AuthenticationStatus.authenticated:
+                  return RepositoryProvider(
+                    create: (_) => UserRepository(userId: state.user!.uid),
+                    child: const HomeScreen(),
+                  );
+                case AuthenticationStatus.unauthenticated:
+                  return const LoginScreen();
+                default:
+                  return const SplashScreen();
+              }
+            },
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _AppView extends StatelessWidget {
-  const _AppView({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Monopoly Banking',
-      home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
-        buildWhen: (previous, current) => previous.status != current.status,
-        builder: (context, state) {
-          switch (state.status) {
-            case AuthenticationStatus.authenticated:
-              return const HomeScreen();
-            case AuthenticationStatus.unauthenticated:
-              return const LoginScreen();
-            default:
-              return const SplashScreen();
-          }
-        },
       ),
     );
   }
