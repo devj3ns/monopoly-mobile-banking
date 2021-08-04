@@ -28,36 +28,28 @@ class GameScreen extends StatelessWidget {
           )
         ],
       ),
-      child: StreamBuilder<Game?>(
+      child: EasyStreamBuilder<Game?>(
         stream: context.userRepository().streamGame(user.currentGameId!),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text(snapshot.error?.toString() ?? 'ERROR');
-          }
-          final game = snapshot.data;
-
-          //debugPrint('GAME STREAM REBUILDS');
+        loadingIndicator: const Center(child: CircularProgressIndicator()),
+        dataBuilder: (context, game) {
+          //debugPrint('GAME STREAM BUILDER REBUILDS');
           //debugPrint(game.toString());
 
           if (game == null) {
-            debugPrint(
-                '[WARNING] User was disconnected from any game, because the current one does not exist anymore.');
             context.userRepository().leaveGame();
+            throw ('User was disconnected from any game, because the current one does not exist anymore.');
+          } else {
+            return ListView(
+              children: [
+                const SizedBox(height: 15),
+                _MyBalanceText(game: game, user: user),
+                const SizedBox(height: 20),
+                _OtherPlayersBalance(game: game, user: user),
+                const SizedBox(height: 20),
+                _NewTransactionForm(game: game, user: user),
+              ],
+            );
           }
-          assert(game != null);
-
-          return ListView(
-            children: [
-              const SizedBox(height: 15),
-              _MyBalanceText(game: game!, user: user),
-              const SizedBox(height: 20),
-              _OtherPlayersBalance(game: game, user: user),
-              const SizedBox(height: 20),
-              _NewTransactionForm(game: game, user: user),
-            ],
-          );
         },
       ),
     );

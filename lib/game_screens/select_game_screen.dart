@@ -7,10 +7,15 @@ import '../extensions.dart';
 import '../shared_widgets.dart';
 import 'app_info_screen.dart';
 
-class SelectGameScreen extends StatelessWidget {
+class SelectGameScreen extends StatefulWidget {
   const SelectGameScreen({Key? key, required this.user}) : super(key: key);
   final User user;
 
+  @override
+  _SelectGameScreenState createState() => _SelectGameScreenState();
+}
+
+class _SelectGameScreenState extends State<SelectGameScreen> {
   @override
   Widget build(BuildContext context) {
     return BasicListViewScaffold(
@@ -64,7 +69,7 @@ class SelectGameScreen extends StatelessWidget {
       children: [
         const SizedBox(height: 20),
         Text(
-          'Hey ${user.name} 👋',
+          'Hey ${widget.user.name} 👋',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
         ),
@@ -75,16 +80,12 @@ class SelectGameScreen extends StatelessWidget {
           style: TextStyle(fontSize: 18),
         ),
         const SizedBox(height: 10),
-        StreamBuilder<List<Game>>(
+        EasyStreamBuilder<List<Game>>(
           stream: context.userRepository().allGames,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Text(snapshot.error?.toString() ?? 'ERROR');
-            }
-
-            final games = snapshot.data!;
+          loadingIndicator: const Center(child: CircularProgressIndicator()),
+          dataBuilder: (context, games) {
+            //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
+            //debugPrint(games.toString());
 
             return games.isEmpty
                 ? const Text(
@@ -97,7 +98,7 @@ class SelectGameScreen extends StatelessWidget {
                         child: ListTile(
                             leading: Text(game.id),
                             trailing: Text('${game.players.size} Players'),
-                            onTap: () => game.join(user)));
+                            onTap: () => game.join(widget.user)));
                   }).toList());
           },
         ),

@@ -1,8 +1,8 @@
+import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 
 import 'package:user_repository/user_repository.dart';
 
-import 'authentication/splash_screen/splash_screen.dart';
 import 'extensions.dart';
 import 'game_screens/game_screen.dart';
 import 'game_screens/select_game_screen.dart';
@@ -12,20 +12,12 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User>(
+    return EasyStreamBuilder<User>(
       stream: context.userRepository().streamUserData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SplashScreen();
-        } else if (snapshot.hasError) {
-          return Text(snapshot.error?.toString() ?? 'ERROR');
-        }
-
-        assert(snapshot.data != null);
-        final user = snapshot.data!;
-
-        //debugPrint('USER STREAM REBUILDS');
-        //debugPrint(user.currentGameId);
+      loadingIndicator: const Center(child: CircularProgressIndicator()),
+      dataBuilder: (context, user) {
+        //debugPrint('USER STREAM BUILDER REBUILDS');
+        //debugPrint(user.toString());
 
         return user.currentGameId != null
             ? GameScreen(user: user)
