@@ -1,7 +1,7 @@
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 
-import 'package:user_repository/user_repository.dart';
+import 'package:banking_repository/banking_repository.dart';
 
 import 'extensions.dart';
 import 'game_screens/game_screen.dart';
@@ -13,7 +13,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EasyStreamBuilder<User>(
-      stream: context.userRepository().streamUserData(),
+      stream: context.bankingRepository().streamUserData(),
       loadingIndicator: const Center(child: CircularProgressIndicator()),
       dataBuilder: (context, user) {
         //debugPrint('USER STREAM BUILDER REBUILDS');

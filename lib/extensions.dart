@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:auth_repository/auth_repository.dart';
-import 'package:user_repository/user_repository.dart' hide User;
+import 'package:banking_repository/banking_repository.dart' hide User;
 
 extension ContextExtensions on BuildContext {
   /// Reads the AuthRepository.
@@ -11,10 +11,10 @@ extension ContextExtensions on BuildContext {
   /// NOTE: Only call this when there is an ancestor provider of type AuthRepository!
   AuthRepository authRepository() => read<AuthRepository>();
 
-  /// Reads the UserRepository.
+  /// Reads the BankingRepository.
   ///
-  /// NOTE: Only call this when there is an ancestor provider of type UserRepository!
-  UserRepository userRepository() => read<UserRepository>();
+  /// NOTE: Only call this when there is an ancestor provider of type BankingRepository!
+  BankingRepository bankingRepository() => read<BankingRepository>();
 
   /// Returns the correctly formatted balance based on the current locale.
   String formatBalance(int balance) {

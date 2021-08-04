@@ -2,8 +2,7 @@ import 'package:kt_dart/kt.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:user_repository/user_repository.dart';
-
+import '../../banking_repository.dart';
 import 'player.dart';
 
 class Game extends Equatable {
@@ -113,15 +112,15 @@ class Game extends Equatable {
     final _players = players.toMutableList();
 
     if (!containsUser(user.id)) {
-      _players.add(
-          Player(userId: user.id, name: user.name, balance: startBalance));
+      _players
+          .add(Player(userId: user.id, name: user.name, balance: startBalance));
     }
 
     final updatedGame = copyWith(players: _players.toList());
 
     await databaseDoc.set(updatedGame);
 
-    await UserRepository(userId: user.id).joinGame(this);
+    await BankingRepository(userId: user.id).joinGame(this);
   }
 
   /// Creates a new game lobby.

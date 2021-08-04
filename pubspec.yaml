@@ -25,8 +25,8 @@ dependencies:
 
   auth_repository:
     path: packages/auth_repository
-  user_repository:
-    path: packages/user_repository
+  banking_repository:
+    path: packages/banking_repository
 
 dev_dependencies:
   flutter_test:

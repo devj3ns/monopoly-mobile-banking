@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'models/models.dart';
 
-class UserRepository {
-  const UserRepository({required this.userId});
+class BankingRepository {
+  const BankingRepository({required this.userId});
   final String userId;
 
   // #### Firebase instances:
@@ -33,9 +33,7 @@ class UserRepository {
     required String name,
     required String authId,
   }) async {
-    await _usersCollection
-        .doc(authId)
-        .set(User(id: authId, name: name));
+    await _usersCollection.doc(authId).set(User(id: authId, name: name));
   }
 
   /// Streams all games.

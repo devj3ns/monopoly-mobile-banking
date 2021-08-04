@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
-import 'package:user_repository/user_repository.dart';
+import 'package:banking_repository/banking_repository.dart';
 
 import '../extensions.dart';
 import '../shared_widgets.dart';
@@ -25,19 +25,19 @@ class GameScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Leave',
-            onPressed: () => context.userRepository().leaveGame(),
+            onPressed: () => context.bankingRepository().leaveGame(),
           )
         ],
       ),
       child: EasyStreamBuilder<Game?>(
-        stream: context.userRepository().streamGame(user.currentGameId!),
+        stream: context.bankingRepository().streamGame(user.currentGameId!),
         loadingIndicator: const Center(child: CircularProgressIndicator()),
         dataBuilder: (context, game) {
           //debugPrint('GAME STREAM BUILDER REBUILDS');
           //debugPrint(game.toString());
 
           if (game == null) {
-            context.userRepository().leaveGame();
+            context.bankingRepository().leaveGame();
             throw ('User was disconnected from any game, because the current one does not exist anymore.');
           } else {
             return ListView(

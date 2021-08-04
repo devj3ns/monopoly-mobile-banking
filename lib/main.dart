@@ -5,7 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'package:auth_repository/auth_repository.dart';
-import 'package:user_repository/user_repository.dart';
+import 'package:banking_repository/banking_repository.dart';
 
 import 'authentication/cubit/authentication_cubit.dart';
 import 'authentication/login_screen/login_screen.dart';
@@ -32,7 +32,7 @@ class _MonopolyBanking extends StatelessWidget {
       child: BlocProvider(
         create: (_) => AuthenticationCubit(
           authRepository: authRepository,
-          createUserFunction: UserRepository.createUser,
+          createUserFunction: BankingRepository.createUser,
         ),
         child: MaterialApp(
           title: 'Monopoly Banking',
@@ -51,7 +51,7 @@ class _MonopolyBanking extends StatelessWidget {
               switch (state.status) {
                 case AuthenticationStatus.authenticated:
                   return RepositoryProvider(
-                    create: (_) => UserRepository(userId: state.user!.uid),
+                    create: (_) => BankingRepository(userId: state.user!.uid),
                     child: const Home(),
                   );
                 case AuthenticationStatus.unauthenticated:

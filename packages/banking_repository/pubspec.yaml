@@ -1,5 +1,5 @@
-name: user_repository
-description: Dart package which manages the user and game data.
+name: banking_repository
+description: Dart package which manages the banking logic and data.
 version: 1.0.0
 
 publish_to: none

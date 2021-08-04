@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 
-import 'package:user_repository/user_repository.dart';
+import 'package:banking_repository/banking_repository.dart';
 
 import '../extensions.dart';
 import '../shared_widgets.dart';
@@ -81,7 +81,7 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
         ),
         const SizedBox(height: 10),
         EasyStreamBuilder<List<Game>>(
-          stream: context.userRepository().allGames,
+          stream: context.bankingRepository().allGames,
           loadingIndicator: const Center(child: CircularProgressIndicator()),
           dataBuilder: (context, games) {
             //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
