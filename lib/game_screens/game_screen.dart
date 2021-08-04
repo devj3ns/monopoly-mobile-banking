@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 import 'package:user_repository/user_repository.dart';
 
@@ -66,21 +67,10 @@ class _MyBalanceText extends StatelessWidget {
   Widget build(BuildContext context) {
     final myBalance = game.getPlayer(user.id).balance;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          _formatBalance(myBalance),
-          style: const TextStyle(fontSize: 25),
-        ),
-        const Padding(
-          padding: EdgeInsets.only(bottom: 3),
-          child: Icon(
-            Icons.attach_money_rounded,
-            size: 27,
-          ),
-        ),
-      ],
+    return Text(
+      context.formatBalance(myBalance),
+      textAlign: TextAlign.center,
+      style: const TextStyle(fontSize: 25),
     );
   }
 }
@@ -124,22 +114,9 @@ class _OtherPlayersBalance extends StatelessWidget {
                     return Card(
                       child: ListTile(
                         title: Text(player.name),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _formatBalance(player.balance),
-                              style: const TextStyle(fontSize: 17),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 1),
-                              child: Icon(
-                                Icons.attach_money_rounded,
-                                color: Colors.black87,
-                                size: 20,
-                              ),
-                            ),
-                          ],
+                        trailing: Text(
+                          context.formatBalance(player.balance),
+                          style: const TextStyle(fontSize: 17),
                         ),
                       ),
                     );
@@ -222,14 +199,23 @@ class _NewTransactionForm extends HookWidget {
             keyboardType: TextInputType.number,
             controller: amountController,
             inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              _ThousandsSeparatorInputFormatter()
+              CurrencyTextInputFormatter(
+                locale: Localizations.localeOf(context).toLanguageTag(),
+                symbol: '\$',
+                decimalDigits: 0,
+              )
             ],
-            validator: (v) => int.parse(v!.replaceAll('.', '')) > myBalance
-                ? "You don't have enough money!"
-                : null,
-            onChanged: (v) =>
-                amount.value = v.isBlank ? 0 : int.parse(v.replaceAll('.', '')),
+            validator: (value) {
+              final balance =
+                  int.parse(value!.replaceAll('.', '').replaceAll(',', ''));
+
+              return balance > myBalance
+                  ? "You don't have enough money!"
+                  : null;
+            },
+            onChanged: (value) => amount.value = value.isBlank
+                ? 0
+                : int.parse(value.replaceAll('.', '').replaceAll(',', '')),
           ),
         ),
         const SizedBox(height: 10),
@@ -243,68 +229,5 @@ class _NewTransactionForm extends HookWidget {
         )
       ],
     );
-  }
-}
-
-// #################### Formatters ###################
-
-String _formatBalance(int balance) {
-  final chars = balance.toString().split('');
-
-  var newString = '';
-  for (var i = chars.length - 1; i >= 0; i--) {
-    if ((chars.length - 1 - i) % 3 == 0 && i != chars.length - 1) {
-      newString = '.$newString';
-    }
-    newString = chars[i] + newString;
-  }
-
-  return newString;
-}
-
-class _ThousandsSeparatorInputFormatter extends TextInputFormatter {
-  static const separator = '.';
-
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    // Short-circuit if the new value is empty
-    if (newValue.text.isEmpty) {
-      return newValue.copyWith(text: '');
-    }
-
-    // Handle "deletion" of separator character
-    final oldValueText = oldValue.text.replaceAll(separator, '');
-    var newValueText = newValue.text.replaceAll(separator, '');
-
-    if (oldValue.text.endsWith(separator) &&
-        oldValue.text.length == newValue.text.length + 1) {
-      newValueText = newValueText.substring(0, newValueText.length - 1);
-    }
-
-    // Only process if the old value and new value are different
-    if (oldValueText != newValueText) {
-      final selectionIndex =
-          newValue.text.length - newValue.selection.extentOffset;
-      final chars = newValueText.split('');
-
-      var newString = '';
-      for (var i = chars.length - 1; i >= 0; i--) {
-        if ((chars.length - 1 - i) % 3 == 0 && i != chars.length - 1) {
-          newString = separator + newString;
-        }
-        newString = chars[i] + newString;
-      }
-
-      return TextEditingValue(
-        text: newString.toString(),
-        selection: TextSelection.collapsed(
-          offset: newString.length - selectionIndex,
-        ),
-      );
-    }
-
-    // If the new value and old value are the same, just return as-is
-    return newValue;
   }
 }

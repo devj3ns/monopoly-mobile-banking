@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   fleasy: ^0.4.1
   firebase_core: ^1.4.0
@@ -19,6 +21,7 @@ dependencies:
   kt_dart: ^0.9.1
   url_strategy: ^0.2.0
   font_awesome_flutter: ^9.1.0
+  currency_text_input_formatter: ^2.1.1
 
   auth_repository:
     path: packages/auth_repository

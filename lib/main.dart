@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 import 'package:auth_repository/auth_repository.dart';
@@ -35,6 +36,14 @@ class _MonopolyBanking extends StatelessWidget {
         ),
         child: MaterialApp(
           title: 'Monopoly Banking',
+          // If this is not set Localizations.localeOf(context) won't work.
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          // If this is not set Localizations.localeOf(context) won't work.
+          supportedLocales: const [Locale('en'), Locale('de')],
           debugShowCheckedModeBanner: false,
           home: BlocBuilder<AuthenticationCubit, AuthenticationState>(
             buildWhen: (p, c) => p.status != c.status,
