@@ -77,8 +77,8 @@ class _LoginButton extends StatelessWidget {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     child: const IconText(
-                      text: 'Sign in',
-                      icon: Icons.login_rounded,
+                      text: Text('Sign in'),
+                      icon: Icon(Icons.login_rounded),
                     ),
                     onPressed: submitForm,
                   );

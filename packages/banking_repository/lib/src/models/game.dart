@@ -1,6 +1,6 @@
 import 'package:kt_dart/kt.dart';
 import 'package:equatable/equatable.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 
 import '../../banking_repository.dart';
 import 'player.dart';
@@ -9,6 +9,7 @@ class Game extends Equatable {
   const Game({
     required this.id,
     required this.players,
+    required this.transactions,
   });
 
   /// The unique id of the game.
@@ -17,10 +18,21 @@ class Game extends Equatable {
   /// The players and their balance in this game.
   final KtList<Player> players;
 
+  /// The transaction history of this game.
+  final KtList<Transaction> transactions;
+
   @override
-  List<Object> get props => [id, players];
+  List<Object> get props => [id, players, transactions];
 
   static int startBalance = 5000;
+
+  static Game empty() {
+    return const Game(
+      id: '',
+      players: KtList<Player>.empty(),
+      transactions: KtList<Transaction>.empty(),
+    );
+  }
 
   static Game fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data()!;
@@ -31,6 +43,10 @@ class Game extends Equatable {
           (List<Map<String, dynamic>>.from(data['players'] as List<dynamic>))
               .map(Player.fromJson)
               .toImmutableList(),
+      transactions: (List<Map<String, dynamic>>.from(
+              data['transactions'] as List<dynamic>))
+          .map(Transaction.fromJson)
+          .toImmutableList(),
     );
   }
 
@@ -39,13 +55,17 @@ class Game extends Equatable {
       'players': players.isEmpty()
           ? <Player>[]
           : players.map((player) => player.toJson()).asList(),
+      'transactions': transactions.isEmpty()
+          ? <Transaction>[]
+          : transactions.map((transaction) => transaction.toJson()).asList(),
     };
   }
 
-  Game copyWith({KtList<Player>? players}) {
+  Game copyWith({KtList<Player>? players, KtList<Transaction>? transactions}) {
     return Game(
       id: id,
       players: players ?? this.players,
+      transactions: transactions ?? this.transactions,
     );
   }
 
@@ -68,21 +88,37 @@ class Game extends Equatable {
 
   /// Returns a new instance which represents the game after the transaction.
   Game _makeTransaction({
-    required String fromUserId,
-    required String toUserId,
+    required User fromUser,
+    required User toUser,
     required int amount,
   }) {
+    // Create new/updated players list:
     final _players = players.toMutableList().asList();
 
     final fromPlayerIndex =
-        _players.indexWhere((player) => player.userId == fromUserId);
+        _players.indexWhere((player) => player.userId == fromUser.id);
     _players[fromPlayerIndex] = _players[fromPlayerIndex].subtractMoney(amount);
 
     final toPlayerIndex =
-        _players.indexWhere((player) => player.userId == toUserId);
+        _players.indexWhere((player) => player.userId == toUser.id);
     _players[toPlayerIndex] = _players[toPlayerIndex].addMoney(amount);
 
-    return copyWith(players: _players.toImmutableList());
+    // Create new/updated transactions list:
+    final _transactions = transactions.toMutableList().asList();
+
+    final transaction = Transaction(
+      fromUser: fromUser,
+      toUser: toUser,
+      amount: amount,
+      // This gets replaced with the server time later:
+      timestamp: DateTime.now(),
+    );
+
+    _transactions.add(transaction);
+
+    return copyWith(
+        players: _players.toImmutableList(),
+        transactions: _transactions.toImmutableList());
   }
 
   // ### Database functions:
@@ -97,14 +133,16 @@ class Game extends Equatable {
 
   /// Transfers money from one player to another.
   Future<void> makeTransaction({
-    required String fromUserId,
-    required String toUserId,
+    required User fromUser,
+    required User toUser,
     required int amount,
   }) async {
-    final updatedGame = _makeTransaction(
-        fromUserId: fromUserId, toUserId: toUserId, amount: amount);
+    final updatedGame =
+        _makeTransaction(fromUser: fromUser, toUser: toUser, amount: amount);
 
     await databaseDoc.set(updatedGame);
+
+    //todo: update timestamp to server timestamp!
   }
 
   /// Connects the player to the game and sets his start balance.
@@ -125,10 +163,8 @@ class Game extends Equatable {
 
   /// Creates a new game lobby.
   static Future<void> newOne() async {
-    final newGame = Game(players: <Player>[].toImmutableList(), id: '');
-
     await FirebaseFirestore.instance
         .collection('games')
-        .add(newGame.toDocument());
+        .add(Game.empty().toDocument());
   }
 }

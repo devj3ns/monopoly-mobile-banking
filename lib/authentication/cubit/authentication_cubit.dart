@@ -25,8 +25,8 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   }
 
   final AuthRepository _authRepository;
-  final Future<void> Function(
-      {required String name, required String authId}) _createUserFunction;
+  final Future<void> Function({required String name, required String authId})
+      _createUserFunction;
   StreamSubscription<User?>? _userSubscription;
 
   User? get user => state.user;

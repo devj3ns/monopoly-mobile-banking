@@ -40,7 +40,7 @@ class GameScreen extends StatelessWidget {
             context.bankingRepository().leaveGame();
             throw ('User was disconnected from any game, because the current one does not exist anymore.');
           } else {
-            return ListView(
+            return Column(
               children: [
                 const SizedBox(height: 15),
                 _MyBalanceText(game: game, user: user),
@@ -48,6 +48,10 @@ class GameScreen extends StatelessWidget {
                 _OtherPlayersBalance(game: game, user: user),
                 const SizedBox(height: 20),
                 _NewTransactionForm(game: game, user: user),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: _TransactionHistory(game: game, user: user),
+                ),
               ],
             );
           }
@@ -87,19 +91,16 @@ class _OtherPlayersBalance extends StatelessWidget {
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(
-              Icons.people_rounded,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 5),
-            Text(
-              'Other Players:',
-              style: TextStyle(fontSize: 17),
-            ),
-          ],
+        const IconText(
+          icon: Icon(
+            Icons.people_rounded,
+            color: Colors.black54,
+          ),
+          text: Text(
+            'Other Players:',
+            style: TextStyle(fontSize: 17),
+          ),
+          iconAfterText: false,
         ),
         const SizedBox(height: 5),
         otherPlayers.isEmpty
@@ -148,8 +149,8 @@ class _NewTransactionForm extends HookWidget {
     void submitForm() {
       if (_formKey.currentState!.validate()) {
         game.makeTransaction(
-            fromUserId: user.id,
-            toUserId: player.value!.userId,
+            fromUser: user,
+            toUser: User(id: player.value!.userId, name: player.value!.name),
             amount: amount.value);
 
         player.value = null;
@@ -162,20 +163,17 @@ class _NewTransactionForm extends HookWidget {
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            FaIcon(
-              FontAwesomeIcons.moneyCheckAlt,
-              size: 17,
-              color: Colors.black54,
-            ),
-            SizedBox(width: 5),
-            Text(
-              'New Transaction:',
-              style: TextStyle(fontSize: 17),
-            ),
-          ],
+        const IconText(
+          icon: FaIcon(
+            FontAwesomeIcons.exchangeAlt,
+            size: 17,
+            color: Colors.black54,
+          ),
+          text: Text(
+            'New Transaction:',
+            style: TextStyle(fontSize: 17),
+          ),
+          iconAfterText: false,
         ),
         DropdownButtonFormField<Player>(
           value: player.value,
@@ -207,7 +205,7 @@ class _NewTransactionForm extends HookWidget {
             ],
             validator: (value) {
               final balance =
-                  int.parse(value!.replaceAll('.', '').replaceAll(',', ''));
+                  int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
 
               return balance > myBalance
                   ? "You don't have enough money!"
@@ -215,18 +213,84 @@ class _NewTransactionForm extends HookWidget {
             },
             onChanged: (value) => amount.value = value.isBlank
                 ? 0
-                : int.parse(value.replaceAll('.', '').replaceAll(',', '')),
+                : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
           ),
         ),
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: isFormNotEmpty() ? submitForm : null,
           child: const IconText(
-            text: 'Send money',
-            icon: FontAwesomeIcons.solidPaperPlane,
-            iconSize: 16,
+            text: Text('Send money'),
+            icon: FaIcon(
+              FontAwesomeIcons.solidPaperPlane,
+              size: 16,
+            ),
           ),
         )
+      ],
+    );
+  }
+}
+
+class _TransactionHistory extends StatelessWidget {
+  const _TransactionHistory({
+    Key? key,
+    required this.game,
+    required this.user,
+  }) : super(key: key);
+
+  final Game game;
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    final transactions = game.transactions.asList().toList()
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+    return Column(
+      children: [
+        const IconText(
+          icon: FaIcon(
+            FontAwesomeIcons.history,
+            size: 17,
+            color: Colors.black54,
+          ),
+          text: Text(
+            'Transaction History:',
+            style: TextStyle(fontSize: 17),
+          ),
+          iconAfterText: false,
+        ),
+        const SizedBox(height: 6),
+        transactions.isEmpty
+            ? const Center(
+                child: Text('There are no transactions yet.'),
+              )
+            : Flexible(
+                child: ListView.builder(
+                  itemCount: transactions.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final transaction = transactions[index];
+
+                    final text = transaction.fromUser.id == user.id
+                        ? 'You sent ${context.formatBalance(transaction.amount)} to ${transaction.toUser.name}.'
+                        : transaction.toUser.id == user.id
+                            ? 'You got ${context.formatBalance(transaction.amount)} from ${transaction.fromUser.name}.'
+                            : '${transaction.fromUser.name} sent ${context.formatBalance(transaction.amount)} to ${transaction.toUser.name}.';
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(text),
+                        trailing: Text(
+                          transaction.timestamp.format('Hms'),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }

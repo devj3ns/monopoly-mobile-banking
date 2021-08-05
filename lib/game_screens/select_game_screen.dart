@@ -31,22 +31,20 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
               const PopupMenuItem<int>(
                 value: 0,
                 child: IconText(
-                  text: 'About the App',
-                  icon: Icons.info_outline_rounded,
+                  text: Text('About the App'),
+                  icon: Icon(Icons.info_outline_rounded, color: Colors.black87),
                   gap: 10,
                   iconAfterText: false,
-                  color: Colors.black87,
                   mainAxisAlignment: MainAxisAlignment.start,
                 ),
               ),
               const PopupMenuItem(
                 value: 1,
                 child: IconText(
-                  text: 'Sign out',
-                  icon: Icons.logout,
+                  text: Text('Sign out'),
+                  icon: Icon(Icons.logout, color: Colors.black87),
                   gap: 10,
                   iconAfterText: false,
-                  color: Colors.black87,
                   mainAxisAlignment: MainAxisAlignment.start,
                 ),
               ),
@@ -83,31 +81,27 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
         EasyStreamBuilder<List<Game>>(
           stream: context.bankingRepository().allGames,
           loadingIndicator: const Center(child: CircularProgressIndicator()),
+          isEmptyText: "There are no lobby's yet.",
           dataBuilder: (context, games) {
             //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
             //debugPrint(games.toString());
 
-            return games.isEmpty
-                ? const Text(
-                    "There are no lobby's yet.",
-                    textAlign: TextAlign.center,
-                  )
-                : Column(
-                    children: games.map((game) {
-                    return Card(
-                        child: ListTile(
-                            leading: Text(game.id),
-                            trailing: Text('${game.players.size} Players'),
-                            onTap: () => game.join(widget.user)));
-                  }).toList());
+            return Column(
+                children: games.map((game) {
+              return Card(
+                  child: ListTile(
+                      leading: Text(game.id),
+                      trailing: Text('${game.players.size} Players'),
+                      onTap: () => game.join(widget.user)));
+            }).toList());
           },
         ),
         const SizedBox(height: 5),
         const Center(
           child: ElevatedButton(
             child: IconText(
-              text: 'Create lobby',
-              icon: Icons.add_rounded,
+              text: Text('Create lobby'),
+              icon: Icon(Icons.add_rounded),
             ),
             onPressed: Game.newOne,
           ),

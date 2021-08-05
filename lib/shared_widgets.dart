@@ -1,6 +1,5 @@
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// A Scaffold with a pre-defined layout.
 class BasicScaffold extends StatelessWidget {
@@ -67,20 +66,14 @@ class IconText extends StatelessWidget {
     this.mainAxisSize = MainAxisSize.min,
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.gap = 5,
-    this.iconSize,
-    this.fontSize,
-    this.color,
     this.iconAfterText = true,
   }) : super(key: key);
 
-  final IconData icon;
-  final String text;
+  final Widget icon;
+  final Widget text;
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
   final double gap;
-  final double? iconSize;
-  final double? fontSize;
-  final Color? color;
   final bool iconAfterText;
 
   @override
@@ -92,26 +85,15 @@ class IconText extends StatelessWidget {
         mainAxisAlignment: mainAxisAlignment,
         children: [
           if (!iconAfterText) ...[
-            FaIcon(
-              icon,
-              size: iconSize,
-              color: color,
-            ),
+            icon,
             SizedBox(width: gap),
           ],
           Flexible(
-            child: Text(
-              text,
-              style: TextStyle(fontSize: fontSize, color: color),
-            ),
+            child: text,
           ),
           if (iconAfterText) ...[
             SizedBox(width: gap),
-            FaIcon(
-              icon,
-              size: iconSize,
-              color: color,
-            ),
+            icon,
           ]
         ],
       ),
