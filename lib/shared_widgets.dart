@@ -109,11 +109,13 @@ class BalanceFormField extends StatelessWidget {
     required this.controller,
     required this.myBalance,
     required this.onChanged,
+    required this.onSubmit,
   }) : super(key: key);
 
   final TextEditingController controller;
   final int myBalance;
   final Function(int) onChanged;
+  final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +140,7 @@ class BalanceFormField extends StatelessWidget {
             ? 0
             : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
       ),
+      onEditingComplete: onSubmit,
     );
   }
 }

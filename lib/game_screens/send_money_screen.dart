@@ -73,6 +73,7 @@ class _NewTransactionForm extends HookWidget {
             controller: amountController,
             myBalance: myBalance,
             onChanged: (balance) => amount.value = balance,
+            onSubmit: submitForm,
           ),
         ),
         const SizedBox(height: 10),

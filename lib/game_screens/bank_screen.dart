@@ -63,6 +63,7 @@ class _GetMoneyForm extends HookWidget {
             controller: amountController,
             myBalance: myBalance,
             onChanged: (balance) => amount.value = balance,
+            onSubmit: submitForm,
           ),
         ),
         ElevatedButton(
@@ -108,6 +109,7 @@ class _PayMoneyForm extends HookWidget {
             controller: amountController,
             myBalance: myBalance,
             onChanged: (balance) => amount.value = balance,
+            onSubmit: submitForm,
           ),
         ),
         ElevatedButton(
