@@ -1,3 +1,4 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 
@@ -96,6 +97,46 @@ class IconText extends StatelessWidget {
             icon,
           ]
         ],
+      ),
+    );
+  }
+}
+
+/// A form field which can be used as a money input.
+class BalanceFormField extends StatelessWidget {
+  const BalanceFormField({
+    Key? key,
+    required this.controller,
+    required this.myBalance,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final TextEditingController controller;
+  final int myBalance;
+  final Function(int) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      decoration: const InputDecoration(hintText: 'Amount'),
+      keyboardType: TextInputType.number,
+      controller: controller,
+      inputFormatters: [
+        CurrencyTextInputFormatter(
+          locale: Localizations.localeOf(context).toLanguageTag(),
+          symbol: '\$',
+          decimalDigits: 0,
+        )
+      ],
+      validator: (value) {
+        final balance = int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
+
+        return balance > myBalance ? "You don't have enough money!" : null;
+      },
+      onChanged: (value) => onChanged(
+        value.toString().isBlank
+            ? 0
+            : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
       ),
     );
   }

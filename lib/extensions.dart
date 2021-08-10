@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:auth_repository/auth_repository.dart';
-import 'package:banking_repository/banking_repository.dart' hide User;
+import 'package:banking_repository/banking_repository.dart';
 
 extension ContextExtensions on BuildContext {
   /// Reads the AuthRepository.

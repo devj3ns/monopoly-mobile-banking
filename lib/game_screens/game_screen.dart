@@ -1,14 +1,15 @@
+import 'package:intl/intl.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 import 'package:banking_repository/banking_repository.dart';
+import 'package:monopoly_banking/game_screens/bank_screen.dart';
 
 import '../extensions.dart';
 import '../shared_widgets.dart';
+import 'bank_screen.dart';
+import 'send_money_screen.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({Key? key, required this.user}) : super(key: key);
@@ -24,7 +25,7 @@ class GameScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Leave',
+            tooltip: 'Leave game',
             onPressed: () => context.bankingRepository().leaveGame(),
           )
         ],
@@ -47,7 +48,18 @@ class GameScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 _OtherPlayersBalance(game: game, user: user),
                 const SizedBox(height: 20),
-                _NewTransactionForm(game: game, user: user),
+                ElevatedButton(
+                  child: const IconText(
+                    text: Text('Bank'),
+                    gap: 8,
+                    icon: FaIcon(
+                      FontAwesomeIcons.building,
+                      size: 16,
+                    ),
+                  ),
+                  onPressed: () =>
+                      context.pushPage(BankScreen(game: game, user: user)),
+                ),
                 const SizedBox(height: 20),
                 Expanded(
                   child: _TransactionHistory(game: game, user: user),
@@ -62,8 +74,12 @@ class GameScreen extends StatelessWidget {
 }
 
 class _MyBalanceText extends StatelessWidget {
-  const _MyBalanceText({Key? key, required this.game, required this.user})
-      : super(key: key);
+  const _MyBalanceText({
+    Key? key,
+    required this.game,
+    required this.user,
+  }) : super(key: key);
+
   final Game game;
   final User user;
 
@@ -80,14 +96,18 @@ class _MyBalanceText extends StatelessWidget {
 }
 
 class _OtherPlayersBalance extends StatelessWidget {
-  const _OtherPlayersBalance({Key? key, required this.game, required this.user})
-      : super(key: key);
+  const _OtherPlayersBalance({
+    Key? key,
+    required this.game,
+    required this.user,
+  }) : super(key: key);
+
   final Game game;
   final User user;
 
   @override
   Widget build(BuildContext context) {
-    final otherPlayers = game.otherPlayers(user.id)..sort((a, b) => a.balance);
+    final otherPlayers = game.otherPlayers(user.id);
 
     return Column(
       children: [
@@ -110,124 +130,63 @@ class _OtherPlayersBalance extends StatelessWidget {
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: otherPlayers.map(
-                  (player) {
-                    return Card(
-                      child: ListTile(
-                        title: Text(player.name),
-                        trailing: Text(
-                          context.formatBalance(player.balance),
-                          style: const TextStyle(fontSize: 17),
-                        ),
+                children: otherPlayers
+                    .map(
+                      (player) => _PlayerCard(
+                        game: game,
+                        player: player,
+                        user: user,
                       ),
-                    );
-                  },
-                ).toList(),
+                    )
+                    .toList(),
               ),
       ],
     );
   }
 }
 
-class _NewTransactionForm extends HookWidget {
-  const _NewTransactionForm({Key? key, required this.game, required this.user})
-      : super(key: key);
-  final Game game;
-  final User user;
+class _PlayerCard extends StatelessWidget {
+  const _PlayerCard({
+    Key? key,
+    required this.game,
+    required this.player,
+    required this.user,
+  }) : super(key: key);
 
-  static final _formKey = GlobalKey<FormState>();
+  final Game game;
+  final Player player;
+  final User user;
 
   @override
   Widget build(BuildContext context) {
-    final otherUsers = game.otherPlayers(user.id);
-    final myBalance = game.getPlayer(user.id).balance;
-
-    final player = useState<Player?>(null);
-    final amountController = useTextEditingController();
-    final amount = useState(0);
-
-    void submitForm() {
-      if (_formKey.currentState!.validate()) {
-        game.makeTransaction(
-            fromUser: user,
-            toUser: User(id: player.value!.userId, name: player.value!.name),
-            amount: amount.value);
-
-        player.value = null;
-        amountController.clear();
-        amount.value = 0;
-      }
-    }
-
-    bool isFormNotEmpty() => player.value != null && amount.value > 0;
-
-    return Column(
-      children: [
-        const IconText(
-          icon: FaIcon(
-            FontAwesomeIcons.exchangeAlt,
-            size: 17,
-            color: Colors.black54,
-          ),
-          text: Text(
-            'New Transaction:',
-            style: TextStyle(fontSize: 17),
-          ),
-          iconAfterText: false,
-        ),
-        DropdownButtonFormField<Player>(
-          value: player.value,
-          items: otherUsers
-              .map(
-                (player) => DropdownMenuItem(
-                  child: Text(player.name),
-                  value: player,
-                ),
-              )
-              .toList(),
-          decoration: const InputDecoration(
-            labelText: 'Player',
-          ),
-          onChanged: (user) => player.value = user ?? player.value,
-        ),
-        Form(
-          key: _formKey,
-          child: TextFormField(
-            decoration: const InputDecoration(hintText: 'Amount'),
-            keyboardType: TextInputType.number,
-            controller: amountController,
-            inputFormatters: [
-              CurrencyTextInputFormatter(
-                locale: Localizations.localeOf(context).toLanguageTag(),
-                symbol: '\$',
-                decimalDigits: 0,
-              )
+    return Card(
+      child: Tooltip(
+        message: 'Send money to ${player.name}',
+        child: ListTile(
+          title: Text(player.name),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                context.formatBalance(player.balance),
+                style: const TextStyle(fontSize: 17),
+              ),
+              const SizedBox(width: 15),
+              const Icon(
+                FontAwesomeIcons.paperPlane,
+                size: 19,
+              ),
             ],
-            validator: (value) {
-              final balance =
-                  int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
-
-              return balance > myBalance
-                  ? "You don't have enough money!"
-                  : null;
-            },
-            onChanged: (value) => amount.value = value.isBlank
-                ? 0
-                : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
           ),
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: isFormNotEmpty() ? submitForm : null,
-          child: const IconText(
-            text: Text('Send money'),
-            icon: FaIcon(
-              FontAwesomeIcons.solidPaperPlane,
-              size: 16,
+          onTap: () => context.pushPage(
+            SendMoneyScreen(
+              game: game,
+              user: user,
+              toPlayer: player,
             ),
           ),
-        )
-      ],
+        ),
+      ),
     );
   }
 }
@@ -244,8 +203,7 @@ class _TransactionHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final transactions = game.transactions.asList().toList()
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    final transactions = game.transactions.asList();
 
     return Column(
       children: [
@@ -270,28 +228,54 @@ class _TransactionHistory extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: transactions.length,
                   shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final transaction = transactions[index];
-
-                    final text = transaction.fromUser.id == user.id
-                        ? 'You sent ${context.formatBalance(transaction.amount)} to ${transaction.toUser.name}.'
-                        : transaction.toUser.id == user.id
-                            ? 'You got ${context.formatBalance(transaction.amount)} from ${transaction.fromUser.name}.'
-                            : '${transaction.fromUser.name} sent ${context.formatBalance(transaction.amount)} to ${transaction.toUser.name}.';
-
-                    return Card(
-                      child: ListTile(
-                        title: Text(text),
-                        trailing: Text(
-                          transaction.timestamp.format('Hms'),
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    );
-                  },
+                  itemBuilder: (context, index) => _TransactionCard(
+                    user: user,
+                    transaction: transactions[index],
+                  ),
                 ),
               ),
       ],
+    );
+  }
+}
+
+class _TransactionCard extends StatelessWidget {
+  const _TransactionCard({
+    Key? key,
+    required this.user,
+    required this.transaction,
+  }) : super(key: key);
+
+  final User user;
+  final Transaction transaction;
+
+  String getText(BuildContext context) {
+    final toName =
+        user.id == transaction.toUser?.id ? 'you' : transaction.toUser?.name;
+    final fromName = user.id == transaction.fromUser?.id
+        ? 'you'
+        : transaction.fromUser?.name;
+    final amount = context.formatBalance(transaction.amount);
+
+    if (transaction.fromUser == null) {
+      return toBeginningOfSentenceCase('$toName got $amount from the bank.')!;
+    } else if (transaction.toUser == null) {
+      return toBeginningOfSentenceCase('$fromName paid the bank $amount.')!;
+    } else {
+      return toBeginningOfSentenceCase('$fromName sent $amount to $toName.')!;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(getText(context)),
+        trailing: Text(
+          transaction.timestamp.format('Hms'),
+          style: const TextStyle(color: Colors.grey),
+        ),
+      ),
     );
   }
 }

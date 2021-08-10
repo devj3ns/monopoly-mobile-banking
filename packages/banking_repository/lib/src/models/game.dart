@@ -15,10 +15,10 @@ class Game extends Equatable {
   /// The unique id of the game.
   final String id;
 
-  /// The players and their balance in this game.
+  /// The players connected to this game, sorted by balance.
   final KtList<Player> players;
 
-  /// The transaction history of this game.
+  /// The transaction history of this game, sorted by timestamp.
   final KtList<Transaction> transactions;
 
   @override
@@ -37,16 +37,24 @@ class Game extends Equatable {
   static Game fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data()!;
 
+    final _players =
+        ((List<Map<String, dynamic>>.from(data['players'] as List<dynamic>))
+                .map(Player.fromJson)
+                .toList()
+                  ..sort((a, b) => b.balance.compareTo(a.balance)))
+            .toImmutableList();
+
+    final _transactions = ((List<Map<String, dynamic>>.from(
+                data['transactions'] as List<dynamic>))
+            .map(Transaction.fromJson)
+            .toList()
+              ..sort((a, b) => b.timestamp.compareTo(a.timestamp)))
+        .toImmutableList();
+
     return Game(
       id: snap.id,
-      players:
-          (List<Map<String, dynamic>>.from(data['players'] as List<dynamic>))
-              .map(Player.fromJson)
-              .toImmutableList(),
-      transactions: (List<Map<String, dynamic>>.from(
-              data['transactions'] as List<dynamic>))
-          .map(Transaction.fromJson)
-          .toImmutableList(),
+      players: _players,
+      transactions: _transactions,
     );
   }
 
@@ -81,27 +89,39 @@ class Game extends Equatable {
     return players[players.indexOfFirst((player) => player.userId == userId)];
   }
 
-  /// Returns all players except of the one with the given id.
+  /// Returns all players except of the one with the given id, sorted by balance.
   List<Player> otherPlayers(String userId) {
     return players.asList().where((player) => player.userId != userId).toList();
   }
 
   /// Returns a new instance which represents the game after the transaction.
+  ///
+  /// If fromUser is null, the money comes from the bank.
+  /// If toUser is null, the money goes to the bank.
   Game _makeTransaction({
-    required User fromUser,
-    required User toUser,
+    User? fromUser,
+    User? toUser,
     required int amount,
   }) {
+    assert(fromUser != null || toUser != null);
+
     // Create new/updated players list:
     final _players = players.toMutableList().asList();
 
-    final fromPlayerIndex =
-        _players.indexWhere((player) => player.userId == fromUser.id);
-    _players[fromPlayerIndex] = _players[fromPlayerIndex].subtractMoney(amount);
+    if (fromUser != null) {
+      // Subtract money from the player:
+      final fromPlayerIndex =
+          _players.indexWhere((player) => player.userId == fromUser.id);
+      _players[fromPlayerIndex] =
+          _players[fromPlayerIndex].subtractMoney(amount);
+    }
 
-    final toPlayerIndex =
-        _players.indexWhere((player) => player.userId == toUser.id);
-    _players[toPlayerIndex] = _players[toPlayerIndex].addMoney(amount);
+    if (toUser != null) {
+      // Add money to the other player:
+      final toPlayerIndex =
+          _players.indexWhere((player) => player.userId == toUser.id);
+      _players[toPlayerIndex] = _players[toPlayerIndex].addMoney(amount);
+    }
 
     // Create new/updated transactions list:
     final _transactions = transactions.toMutableList().asList();
@@ -132,13 +152,42 @@ class Game extends Equatable {
       );
 
   /// Transfers money from one player to another.
+  ///
+  /// If fromUser is null, the money comes from the bank.
+  /// If toUser is null, the money goes to the bank.
   Future<void> makeTransaction({
-    required User fromUser,
-    required User toUser,
+    User? fromUser,
+    User? toUser,
     required int amount,
   }) async {
     final updatedGame =
         _makeTransaction(fromUser: fromUser, toUser: toUser, amount: amount);
+
+    await databaseDoc.set(updatedGame);
+
+    //todo: update timestamp to server timestamp!
+  }
+
+  /// Transfers money from the bank to the player.
+  Future<void> getMoneyFromBank({
+    required User user,
+    required int amount,
+  }) async {
+    final updatedGame =
+        _makeTransaction(fromUser: null, toUser: user, amount: amount);
+
+    await databaseDoc.set(updatedGame);
+
+    //todo: update timestamp to server timestamp!
+  }
+
+  /// Transfers money from the player to the bank.
+  Future<void> sendMoneyToBank({
+    required User user,
+    required int amount,
+  }) async {
+    final updatedGame =
+        _makeTransaction(fromUser: user, toUser: null, amount: amount);
 
     await databaseDoc.set(updatedGame);
 
