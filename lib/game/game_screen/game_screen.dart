@@ -1,15 +1,14 @@
 import 'package:intl/intl.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:banking_repository/banking_repository.dart';
-import 'package:monopoly_banking/game_screens/bank_screen.dart';
 
-import '../extensions.dart';
-import '../shared_widgets.dart';
-import 'bank_screen.dart';
-import 'send_money_screen.dart';
+import '../../extensions.dart';
+import '../../shared_widgets.dart';
+import 'transaction_modal_bottom_sheet.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({Key? key, required this.user}) : super(key: key);
@@ -45,25 +44,12 @@ class GameScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 15),
                 _MyBalanceText(game: game, user: user),
-                const SizedBox(height: 20),
+                const Divider(height: 30),
                 _OtherPlayersBalance(game: game, user: user),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  child: const IconText(
-                    text: Text('Bank'),
-                    gap: 8,
-                    icon: FaIcon(
-                      FontAwesomeIcons.building,
-                      size: 16,
-                    ),
-                  ),
-                  onPressed: () =>
-                      context.pushPage(BankScreen(game: game, user: user)),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: _TransactionHistory(game: game, user: user),
-                ),
+                const Divider(height: 30),
+                _BankButtons(game: game, user: user),
+                const Divider(height: 30),
+                _TransactionHistory(game: game, user: user),
               ],
             );
           }
@@ -117,7 +103,7 @@ class _OtherPlayersBalance extends StatelessWidget {
             color: Colors.black54,
           ),
           text: Text(
-            'Other Players:',
+            'Other Players',
             style: TextStyle(fontSize: 17),
           ),
           iconAfterText: false,
@@ -173,20 +159,98 @@ class _PlayerCard extends StatelessWidget {
               ),
               const SizedBox(width: 15),
               const Icon(
-                FontAwesomeIcons.paperPlane,
+                FontAwesomeIcons.handHoldingUsd,
                 size: 19,
               ),
             ],
           ),
-          onTap: () => context.pushPage(
-            SendMoneyScreen(
+          onTap: () => showCupertinoModalBottomSheet<Widget>(
+            context: context,
+            builder: (context) => TransactionModalBottomSheet(
               game: game,
               user: user,
-              toPlayer: player,
+              toUser: User(id: player.userId, name: player.name),
+              fromUser: user,
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _BankButtons extends StatelessWidget {
+  const _BankButtons({
+    Key? key,
+    required this.game,
+    required this.user,
+  }) : super(key: key);
+
+  final Game game;
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const IconText(
+          icon: FaIcon(
+            FontAwesomeIcons.solidBuilding,
+            size: 17,
+            color: Colors.black54,
+          ),
+          text: Text(
+            'Bank',
+            style: TextStyle(fontSize: 17),
+          ),
+          iconAfterText: false,
+        ),
+        const SizedBox(height: 6),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              child: const IconText(
+                text: Text('Pay'),
+                gap: 8,
+                icon: FaIcon(
+                  FontAwesomeIcons.handHoldingUsd,
+                  size: 16,
+                ),
+              ),
+              onPressed: () => showCupertinoModalBottomSheet<Widget>(
+                context: context,
+                builder: (context) => TransactionModalBottomSheet(
+                  user: user,
+                  game: game,
+                  toUser: null,
+                  fromUser: user,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              child: const IconText(
+                text: Text('Get'),
+                gap: 8,
+                icon: FaIcon(
+                  Icons.payments_outlined,
+                  size: 19,
+                ),
+              ),
+              onPressed: () => showCupertinoModalBottomSheet<Widget>(
+                context: context,
+                builder: (context) => TransactionModalBottomSheet(
+                  user: user,
+                  game: game,
+                  toUser: user,
+                  fromUser: null,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -205,36 +269,38 @@ class _TransactionHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     final transactions = game.transactions.asList();
 
-    return Column(
-      children: [
-        const IconText(
-          icon: FaIcon(
-            FontAwesomeIcons.history,
-            size: 17,
-            color: Colors.black54,
+    return Expanded(
+      child: Column(
+        children: [
+          const IconText(
+            icon: FaIcon(
+              FontAwesomeIcons.history,
+              size: 17,
+              color: Colors.black54,
+            ),
+            text: Text(
+              'Transaction History',
+              style: TextStyle(fontSize: 17),
+            ),
+            iconAfterText: false,
           ),
-          text: Text(
-            'Transaction History:',
-            style: TextStyle(fontSize: 17),
-          ),
-          iconAfterText: false,
-        ),
-        const SizedBox(height: 6),
-        transactions.isEmpty
-            ? const Center(
-                child: Text('There are no transactions yet.'),
-              )
-            : Flexible(
-                child: ListView.builder(
-                  itemCount: transactions.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => _TransactionCard(
-                    user: user,
-                    transaction: transactions[index],
+          const SizedBox(height: 6),
+          transactions.isEmpty
+              ? const Center(
+                  child: Text('There are no transactions yet.'),
+                )
+              : Flexible(
+                  child: ListView.builder(
+                    itemCount: transactions.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) => _TransactionCard(
+                      user: user,
+                      transaction: transactions[index],
+                    ),
                   ),
                 ),
-              ),
-      ],
+        ],
+      ),
     );
   }
 }

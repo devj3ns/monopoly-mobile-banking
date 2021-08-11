@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../shared_widgets.dart';
+import 'shared_widgets.dart';
 
 class AppInfoScreen extends StatelessWidget {
   const AppInfoScreen({Key? key}) : super(key: key);

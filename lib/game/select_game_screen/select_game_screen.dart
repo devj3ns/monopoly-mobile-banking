@@ -3,22 +3,17 @@ import 'package:fleasy/fleasy.dart';
 
 import 'package:banking_repository/banking_repository.dart';
 
-import '../extensions.dart';
-import '../shared_widgets.dart';
-import 'app_info_screen.dart';
+import '../../app_info_screen.dart';
+import '../../extensions.dart';
+import '../../shared_widgets.dart';
 
-class SelectGameScreen extends StatefulWidget {
+class SelectGameScreen extends StatelessWidget {
   const SelectGameScreen({Key? key, required this.user}) : super(key: key);
   final User user;
 
   @override
-  _SelectGameScreenState createState() => _SelectGameScreenState();
-}
-
-class _SelectGameScreenState extends State<SelectGameScreen> {
-  @override
   Widget build(BuildContext context) {
-    return BasicListViewScaffold(
+    return BasicScaffold(
       appBar: AppBar(
         title: const Text('Monopoly Banking'),
         actions: [
@@ -64,10 +59,24 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
           ),
         ],
       ),
+      applyPadding: false,
+      child: _SelectGameView(user: user),
+    );
+  }
+}
+
+class _SelectGameView extends StatelessWidget {
+  const _SelectGameView({Key? key, required this.user}) : super(key: key);
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(8.0),
       children: [
         const SizedBox(height: 20),
         Text(
-          'Hey ${widget.user.name} 👋',
+          'Hey ${user.name} 👋',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 24),
         ),
@@ -92,7 +101,7 @@ class _SelectGameScreenState extends State<SelectGameScreen> {
                   child: ListTile(
                       leading: Text(game.id),
                       trailing: Text('${game.players.size} Players'),
-                      onTap: () => game.join(widget.user)));
+                      onTap: () => game.join(user)));
             }).toList());
           },
         ),

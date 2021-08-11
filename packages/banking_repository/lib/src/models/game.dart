@@ -168,32 +168,6 @@ class Game extends Equatable {
     //todo: update timestamp to server timestamp!
   }
 
-  /// Transfers money from the bank to the player.
-  Future<void> getMoneyFromBank({
-    required User user,
-    required int amount,
-  }) async {
-    final updatedGame =
-        _makeTransaction(fromUser: null, toUser: user, amount: amount);
-
-    await databaseDoc.set(updatedGame);
-
-    //todo: update timestamp to server timestamp!
-  }
-
-  /// Transfers money from the player to the bank.
-  Future<void> sendMoneyToBank({
-    required User user,
-    required int amount,
-  }) async {
-    final updatedGame =
-        _makeTransaction(fromUser: user, toUser: null, amount: amount);
-
-    await databaseDoc.set(updatedGame);
-
-    //todo: update timestamp to server timestamp!
-  }
-
   /// Connects the player to the game and sets his start balance.
   Future<void> join(User user) async {
     final _players = players.toMutableList();

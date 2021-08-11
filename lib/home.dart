@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:banking_repository/banking_repository.dart';
 
 import 'extensions.dart';
-import 'game_screens/game_screen.dart';
-import 'game_screens/select_game_screen.dart';
+import 'game/game_screen/game_screen.dart';
+import 'game/select_game_screen/select_game_screen.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);

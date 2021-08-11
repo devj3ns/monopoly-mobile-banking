@@ -1,17 +1,18 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 
-/// A Scaffold with a pre-defined layout.
+/// A Scaffold with a pre-defined max width and padding.
 class BasicScaffold extends StatelessWidget {
   const BasicScaffold({
     Key? key,
     required this.child,
     required this.appBar,
+    this.applyPadding = true,
   }) : super(key: key);
 
   final AppBar appBar;
   final Widget child;
+  final bool applyPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -21,36 +22,8 @@ class BasicScaffold extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(applyPadding ? 8.0 : 0.0),
             child: child,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A Scaffold with a pre-defined layout.
-class BasicListViewScaffold extends StatelessWidget {
-  const BasicListViewScaffold({
-    Key? key,
-    required this.children,
-    required this.appBar,
-  }) : super(key: key);
-
-  final AppBar appBar;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 800),
-          child: ListView(
-            padding: const EdgeInsets.all(8.0),
-            children: children,
           ),
         ),
       ),
@@ -98,49 +71,6 @@ class IconText extends StatelessWidget {
           ]
         ],
       ),
-    );
-  }
-}
-
-/// A form field which can be used as a money input.
-class BalanceFormField extends StatelessWidget {
-  const BalanceFormField({
-    Key? key,
-    required this.controller,
-    required this.myBalance,
-    required this.onChanged,
-    required this.onSubmit,
-  }) : super(key: key);
-
-  final TextEditingController controller;
-  final int myBalance;
-  final Function(int) onChanged;
-  final VoidCallback onSubmit;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      decoration: const InputDecoration(hintText: 'Amount'),
-      keyboardType: TextInputType.number,
-      controller: controller,
-      inputFormatters: [
-        CurrencyTextInputFormatter(
-          locale: Localizations.localeOf(context).toLanguageTag(),
-          symbol: '\$',
-          decimalDigits: 0,
-        )
-      ],
-      validator: (value) {
-        final balance = int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
-
-        return balance > myBalance ? "You don't have enough money!" : null;
-      },
-      onChanged: (value) => onChanged(
-        value.toString().isBlank
-            ? 0
-            : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
-      ),
-      onEditingComplete: onSubmit,
     );
   }
 }
