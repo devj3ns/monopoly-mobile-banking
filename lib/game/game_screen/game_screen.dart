@@ -43,7 +43,11 @@ class GameScreen extends StatelessWidget {
             return Column(
               children: [
                 const SizedBox(height: 15),
-                _MyBalanceText(game: game, user: user),
+                _AnimatedBalanceText(
+                  balance: game.getPlayer(user.id).balance,
+                  textStyle: const TextStyle(
+                      fontSize: 25, fontWeight: FontWeight.w600),
+                ),
                 const Divider(height: 30),
                 _OtherPlayersBalance(game: game, user: user),
                 const Divider(height: 30),
@@ -59,24 +63,31 @@ class GameScreen extends StatelessWidget {
   }
 }
 
-class _MyBalanceText extends StatelessWidget {
-  const _MyBalanceText({
+class _AnimatedBalanceText extends StatelessWidget {
+  const _AnimatedBalanceText({
     Key? key,
-    required this.game,
-    required this.user,
+    required this.balance,
+    this.textStyle,
   }) : super(key: key);
 
-  final Game game;
-  final User user;
+  final int balance;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
-    final myBalance = game.getPlayer(user.id).balance;
-
-    return Text(
-      context.formatBalance(myBalance),
-      textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 25),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return ScaleTransition(
+          child: child,
+          scale: CurveTween(curve: Curves.easeInOut).animate(animation),
+        );
+      },
+      child: Text(
+        context.formatBalance(balance),
+        key: ValueKey(context.formatBalance(balance)),
+        style: textStyle,
+      ),
     );
   }
 }
@@ -153,9 +164,9 @@ class _PlayerCard extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                context.formatBalance(player.balance),
-                style: const TextStyle(fontSize: 17),
+              _AnimatedBalanceText(
+                balance: player.balance,
+                textStyle: const TextStyle(fontSize: 17),
               ),
               const SizedBox(width: 15),
               const Icon(
