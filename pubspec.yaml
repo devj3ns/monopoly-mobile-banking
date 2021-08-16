@@ -22,6 +22,7 @@ dependencies:
   font_awesome_flutter: ^9.1.0
   currency_text_input_formatter: ^2.1.2
   modal_bottom_sheet: ^2.0.0
+  flutter_native_splash: ^1.2.1
 
   user_repository:
     path: packages/user_repository
@@ -36,3 +37,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+flutter_native_splash:
+  color: "#0175C2"
