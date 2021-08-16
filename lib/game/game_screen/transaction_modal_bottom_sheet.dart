@@ -93,6 +93,9 @@ class TransactionModalBottomSheet extends HookWidget {
                   myBalance: myBalance,
                   onChanged: (balance) => amount.value = balance,
                   onSubmit: submitForm,
+                  // Only check if the player has enough money for this transaction
+                  // when a fromUser is specified (not from bank):
+                  checkIfEnoughMoney: fromUser != null,
                 ),
               ),
             ],
@@ -110,12 +113,14 @@ class _BalanceFormField extends StatelessWidget {
     required this.myBalance,
     required this.onChanged,
     required this.onSubmit,
+    required this.checkIfEnoughMoney,
   }) : super(key: key);
 
   final TextEditingController controller;
   final int myBalance;
   final Function(int) onChanged;
   final VoidCallback onSubmit;
+  final bool checkIfEnoughMoney;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +136,13 @@ class _BalanceFormField extends StatelessWidget {
         )
       ],
       validator: (value) {
-        final balance = int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
+        if (checkIfEnoughMoney) {
+          final balance = int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
 
-        return balance > myBalance ? "You don't have enough money!" : null;
+          return balance > myBalance ? "You don't have enough money!" : null;
+        } else {
+          return null;
+        }
       },
       onChanged: (value) => onChanged(
         value.toString().isBlank
