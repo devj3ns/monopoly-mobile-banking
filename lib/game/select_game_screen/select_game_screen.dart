@@ -99,21 +99,23 @@ class _SelectGameView extends StatelessWidget {
             return Column(
                 children: games.map((game) {
               return Card(
-                  child: ListTile(
-                      leading: Text(game.id),
-                      trailing: Text('${game.players.size} Players'),
-                      onTap: () => game.join(user)));
+                child: ListTile(
+                  leading: Text(game.id),
+                  trailing: Text('${game.players.size} Players'),
+                  onTap: () => context.read<BankingRepository>().joinGame(game),
+                ),
+              );
             }).toList());
           },
         ),
         const SizedBox(height: 5),
-        const Center(
+        Center(
           child: ElevatedButton(
-            child: IconText(
+            child: const IconText(
               text: Text('Create lobby'),
               icon: Icon(Icons.add_rounded),
             ),
-            onPressed: Game.newOne,
+            onPressed: () => context.read<BankingRepository>().newGame(),
           ),
         )
       ],

@@ -14,20 +14,19 @@ class User extends Equatable {
   static const none = User(id: '', name: '');
 
   @override
-  List<Object?> get props => [
-        id,
-        name,
-        currentGameId,
-      ];
+  List<Object?> get props => [id, name, currentGameId];
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['uid'],
-        name: json['name'],
-        currentGameId: json['currentGameId'],
+  static User fromJson(
+    Map<String, dynamic> json, {
+    required String snapshotId,
+  }) =>
+      User(
+        id: snapshotId,
+        name: json['name'] as String,
+        currentGameId: json['currentGameId'] as String?,
       );
 
-  Map<String, dynamic> toJson() => {
-        'uid': id,
+  Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
         'currentGameId': currentGameId,
       };

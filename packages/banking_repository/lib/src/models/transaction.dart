@@ -22,7 +22,6 @@ class Transaction extends Equatable {
   /// The amount of money which was sent.
   final int amount;
 
-  // todo: use server timestamp!
   /// The timestamp when the transaction took place.
   final DateTime timestamp;
 

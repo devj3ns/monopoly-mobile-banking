@@ -99,7 +99,7 @@ class Game extends Equatable {
   ///
   /// If fromUser is null, the money comes from the bank.
   /// If toUser is null, the money goes to the bank.
-  Game _makeTransaction({
+  Game makeTransaction({
     User? fromUser,
     User? toUser,
     required int amount,
@@ -142,35 +142,8 @@ class Game extends Equatable {
         transactions: _transactions.toImmutableList());
   }
 
-  // ### Database functions:
-  /// Returns the DocumentReference of this game in the database.
-  DocumentReference<Game> get databaseDoc => FirebaseFirestore.instance
-      .collection('games')
-      .doc(id)
-      .withConverter<Game>(
-        fromFirestore: (snap, _) => fromSnapshot(snap),
-        toFirestore: (model, _) => model.toDocument(),
-      );
-
-  /// Transfers money from one player to another.
-  ///
-  /// If fromUser is null, the money comes from the bank.
-  /// If toUser is null, the money goes to the bank.
-  Future<void> makeTransaction({
-    User? fromUser,
-    User? toUser,
-    required int amount,
-  }) async {
-    final updatedGame =
-        _makeTransaction(fromUser: fromUser, toUser: toUser, amount: amount);
-
-    await databaseDoc.set(updatedGame);
-
-    //todo: update timestamp to server timestamp!
-  }
-
-  /// Connects the player to the game and sets his start balance.
-  Future<void> join(User user) async {
+  /// Returns a new instance which represents the the game after the player was added and his start balance was set.
+  Game addPlayer(User user) {
     final _players = players.toMutableList();
 
     if (!containsUser(user.id)) {
@@ -178,17 +151,6 @@ class Game extends Equatable {
           .add(Player(userId: user.id, name: user.name, balance: startBalance));
     }
 
-    final updatedGame = copyWith(players: _players.toList());
-
-    await databaseDoc.set(updatedGame);
-
-    await BankingRepository(userId: user.id).joinGame(this);
-  }
-
-  /// Creates a new game lobby.
-  static Future<void> newOne() async {
-    await FirebaseFirestore.instance
-        .collection('games')
-        .add(Game.empty().toDocument());
+    return copyWith(players: _players.toList());
   }
 }

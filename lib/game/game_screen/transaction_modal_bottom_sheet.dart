@@ -5,10 +5,24 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:monopoly_banking/app/cubit/app_cubit.dart';
 import 'package:user_repository/user_repository.dart';
 
+extension ShowTransactionModalBottomSheet on BuildContext {
+  /// Shows the given [TransactionModalBottomSheet].
+  void show(TransactionModalBottomSheet transactionModalBottomSheet) {
+    showCupertinoModalBottomSheet<Widget>(
+      context: this,
+      builder: (_) => RepositoryProvider.value(
+          value: read<BankingRepository>(), child: transactionModalBottomSheet),
+    );
+  }
+}
+
 /// A modal bottom sheet for transactions.
+///
+/// Use context.show(TransactionModalBottomSheet(...)) to open it.
 class TransactionModalBottomSheet extends HookWidget {
   const TransactionModalBottomSheet({
     Key? key,
@@ -39,11 +53,12 @@ class TransactionModalBottomSheet extends HookWidget {
 
     void submitForm() {
       if (_formKey.currentState!.validate()) {
-        game.makeTransaction(
-          fromUser: fromUser,
-          toUser: toUser,
-          amount: amount.value,
-        );
+        context.read<BankingRepository>().makeTransaction(
+              game: game,
+              fromUser: fromUser,
+              toUser: toUser,
+              amount: amount.value,
+            );
 
         amountController.clear();
         amount.value = 0;

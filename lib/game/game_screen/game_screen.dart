@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -176,9 +175,8 @@ class _PlayerCard extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => showCupertinoModalBottomSheet<Widget>(
-            context: context,
-            builder: (context) => TransactionModalBottomSheet(
+          onTap: () => context.show(
+            TransactionModalBottomSheet(
               game: game,
               toUser: User(id: player.userId, name: player.name),
               fromUser: user,
@@ -229,9 +227,8 @@ class _BankButtons extends StatelessWidget {
                   size: 16,
                 ),
               ),
-              onPressed: () => showCupertinoModalBottomSheet<Widget>(
-                context: context,
-                builder: (context) => TransactionModalBottomSheet(
+              onPressed: () => context.show(
+                TransactionModalBottomSheet(
                   game: game,
                   toUser: null,
                   fromUser: user,
@@ -248,9 +245,8 @@ class _BankButtons extends StatelessWidget {
                   size: 19,
                 ),
               ),
-              onPressed: () => showCupertinoModalBottomSheet<Widget>(
-                context: context,
-                builder: (context) => TransactionModalBottomSheet(
+              onPressed: () => context.show(
+                TransactionModalBottomSheet(
                   game: game,
                   toUser: user,
                   fromUser: null,
