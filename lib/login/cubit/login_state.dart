@@ -4,25 +4,25 @@ class LoginState extends Equatable {
   const LoginState({
     this.name = '',
     this.isSubmitting = false,
-    this.authResult = AuthResult.none,
+    this.loginFailure = AppFailure.none,
   });
 
   final String name;
   final bool isSubmitting;
-  final AuthResult authResult;
+  final AppFailure loginFailure;
 
   @override
-  List<Object> get props => [name, isSubmitting, authResult];
+  List<Object> get props => [name, isSubmitting, loginFailure];
 
   LoginState copyWith({
     String? name,
     bool? isSubmitting,
-    AuthResult? authResult,
+    AppFailure? loginFailure,
   }) {
     return LoginState(
       name: name ?? this.name,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      authResult: authResult ?? this.authResult,
+      loginFailure: loginFailure ?? this.loginFailure,
     );
   }
 }

@@ -3,19 +3,22 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
+import 'package:monopoly_banking/app/cubit/app_cubit.dart';
+import 'package:user_repository/user_repository.dart';
 
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
 import 'transaction_modal_bottom_sheet.dart';
 
 class GameScreen extends StatelessWidget {
-  const GameScreen({Key? key, required this.user}) : super(key: key);
-  final User user;
+  const GameScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
     assert(user.currentGameId != null);
 
     return BasicScaffold(
@@ -29,7 +32,7 @@ class GameScreen extends StatelessWidget {
           )
         ],
       ),
-      child: EasyStreamBuilder<Game?>(
+      body: EasyStreamBuilder<Game?>(
         stream: context.bankingRepository().streamGame(user.currentGameId!),
         loadingIndicator: const Center(child: CircularProgressIndicator()),
         dataBuilder: (context, game) {
@@ -49,11 +52,11 @@ class GameScreen extends StatelessWidget {
                       fontSize: 25, fontWeight: FontWeight.w600),
                 ),
                 const Divider(height: 30),
-                _OtherPlayersBalance(game: game, user: user),
+                _OtherPlayersBalance(game: game),
                 const Divider(height: 30),
-                _BankButtons(game: game, user: user),
+                _BankButtons(game: game),
                 const Divider(height: 30),
-                _TransactionHistory(game: game, user: user),
+                _TransactionHistory(game: game),
               ],
             );
           }
@@ -96,14 +99,13 @@ class _OtherPlayersBalance extends StatelessWidget {
   const _OtherPlayersBalance({
     Key? key,
     required this.game,
-    required this.user,
   }) : super(key: key);
 
   final Game game;
-  final User user;
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
     final otherPlayers = game.otherPlayers(user.id);
 
     return Column(
@@ -132,7 +134,6 @@ class _OtherPlayersBalance extends StatelessWidget {
                       (player) => _PlayerCard(
                         game: game,
                         player: player,
-                        user: user,
                       ),
                     )
                     .toList(),
@@ -147,15 +148,15 @@ class _PlayerCard extends StatelessWidget {
     Key? key,
     required this.game,
     required this.player,
-    required this.user,
   }) : super(key: key);
 
   final Game game;
   final Player player;
-  final User user;
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
     return Card(
       child: Tooltip(
         message: 'Send money to ${player.name}',
@@ -179,7 +180,6 @@ class _PlayerCard extends StatelessWidget {
             context: context,
             builder: (context) => TransactionModalBottomSheet(
               game: game,
-              user: user,
               toUser: User(id: player.userId, name: player.name),
               fromUser: user,
             ),
@@ -194,14 +194,14 @@ class _BankButtons extends StatelessWidget {
   const _BankButtons({
     Key? key,
     required this.game,
-    required this.user,
   }) : super(key: key);
 
   final Game game;
-  final User user;
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
     return Column(
       children: [
         const IconText(
@@ -232,7 +232,6 @@ class _BankButtons extends StatelessWidget {
               onPressed: () => showCupertinoModalBottomSheet<Widget>(
                 context: context,
                 builder: (context) => TransactionModalBottomSheet(
-                  user: user,
                   game: game,
                   toUser: null,
                   fromUser: user,
@@ -252,7 +251,6 @@ class _BankButtons extends StatelessWidget {
               onPressed: () => showCupertinoModalBottomSheet<Widget>(
                 context: context,
                 builder: (context) => TransactionModalBottomSheet(
-                  user: user,
                   game: game,
                   toUser: user,
                   fromUser: null,
@@ -270,11 +268,9 @@ class _TransactionHistory extends StatelessWidget {
   const _TransactionHistory({
     Key? key,
     required this.game,
-    required this.user,
   }) : super(key: key);
 
   final Game game;
-  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -304,10 +300,8 @@ class _TransactionHistory extends StatelessWidget {
                   child: ListView.builder(
                     itemCount: transactions.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) => _TransactionCard(
-                      user: user,
-                      transaction: transactions[index],
-                    ),
+                    itemBuilder: (context, index) =>
+                        _TransactionCard(transaction: transactions[index]),
                   ),
                 ),
         ],
@@ -319,35 +313,35 @@ class _TransactionHistory extends StatelessWidget {
 class _TransactionCard extends StatelessWidget {
   const _TransactionCard({
     Key? key,
-    required this.user,
     required this.transaction,
   }) : super(key: key);
 
-  final User user;
   final Transaction transaction;
-
-  String getText(BuildContext context) {
-    final toName =
-        user.id == transaction.toUser?.id ? 'you' : transaction.toUser?.name;
-    final fromName = user.id == transaction.fromUser?.id
-        ? 'you'
-        : transaction.fromUser?.name;
-    final amount = context.formatBalance(transaction.amount);
-
-    if (transaction.fromUser == null) {
-      return toBeginningOfSentenceCase('$toName got $amount from the bank.')!;
-    } else if (transaction.toUser == null) {
-      return toBeginningOfSentenceCase('$fromName paid the bank $amount.')!;
-    } else {
-      return toBeginningOfSentenceCase('$fromName sent $amount to $toName.')!;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
+    String getText() {
+      final toName =
+          user.id == transaction.toUser?.id ? 'you' : transaction.toUser?.name;
+      final fromName = user.id == transaction.fromUser?.id
+          ? 'you'
+          : transaction.fromUser?.name;
+      final amount = context.formatBalance(transaction.amount);
+
+      if (transaction.fromUser == null) {
+        return toBeginningOfSentenceCase('$toName got $amount from the bank.')!;
+      } else if (transaction.toUser == null) {
+        return toBeginningOfSentenceCase('$fromName paid the bank $amount.')!;
+      } else {
+        return toBeginningOfSentenceCase('$fromName sent $amount to $toName.')!;
+      }
+    }
+
     return Card(
       child: ListTile(
-        title: Text(getText(context)),
+        title: Text(getText()),
         trailing: Text(
           transaction.timestamp.format('Hms'),
           style: const TextStyle(color: Colors.grey),

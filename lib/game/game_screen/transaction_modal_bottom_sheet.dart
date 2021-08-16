@@ -2,15 +2,17 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
+import 'package:monopoly_banking/app/cubit/app_cubit.dart';
+import 'package:user_repository/user_repository.dart';
 
 /// A modal bottom sheet for transactions.
 class TransactionModalBottomSheet extends HookWidget {
   const TransactionModalBottomSheet({
     Key? key,
     required this.game,
-    required this.user,
     this.toUser,
     this.fromUser,
   })  : assert(toUser != null || fromUser != null),
@@ -18,9 +20,6 @@ class TransactionModalBottomSheet extends HookWidget {
 
   /// The current game.
   final Game game;
-
-  /// The authenticated user.
-  final User user;
 
   /// The user who should receive the money (if null its the bank).
   final User? toUser;
@@ -32,6 +31,7 @@ class TransactionModalBottomSheet extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
     final myBalance = game.getPlayer(user.id).balance;
 
     final amountController = useTextEditingController();

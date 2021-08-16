@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-
-import '../../banking_repository.dart';
+import 'package:user_repository/user_repository.dart';
 
 class Transaction extends Equatable {
   const Transaction({

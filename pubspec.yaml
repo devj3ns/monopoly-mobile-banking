@@ -23,10 +23,12 @@ dependencies:
   currency_text_input_formatter: ^2.1.2
   modal_bottom_sheet: ^2.0.0
 
-  auth_repository:
-    path: packages/auth_repository
+  user_repository:
+    path: packages/user_repository
   banking_repository:
     path: packages/banking_repository
+  shared:
+    path: packages/shared
 
 dev_dependencies:
   flutter_test:

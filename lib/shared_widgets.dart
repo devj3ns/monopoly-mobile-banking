@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 class BasicScaffold extends StatelessWidget {
   const BasicScaffold({
     Key? key,
-    required this.child,
-    required this.appBar,
+    required this.body,
+    this.appBar,
     this.applyPadding = true,
   }) : super(key: key);
 
-  final AppBar appBar;
-  final Widget child;
+  final Widget body;
+  final AppBar? appBar;
   final bool applyPadding;
 
   @override
@@ -21,9 +21,13 @@ class BasicScaffold extends StatelessWidget {
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
-          child: Padding(
-            padding: EdgeInsets.all(applyPadding ? 8.0 : 0.0),
-            child: child,
+          child: SafeArea(
+            child: applyPadding
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: body,
+                  )
+                : body,
           ),
         ),
       ),

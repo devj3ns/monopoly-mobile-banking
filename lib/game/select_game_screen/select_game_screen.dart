@@ -1,15 +1,15 @@
+import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
-
-import 'package:banking_repository/banking_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../app/cubit/app_cubit.dart';
 
 import '../../app_info_screen.dart';
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
 
 class SelectGameScreen extends StatelessWidget {
-  const SelectGameScreen({Key? key, required this.user}) : super(key: key);
-  final User user;
+  const SelectGameScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class SelectGameScreen extends StatelessWidget {
                   context.pushPage(const AppInfoScreen());
                   break;
                 case 1:
-                  context.authRepository().signOut();
+                  context.read<AppCubit>().signOut();
                   break;
                 default:
                   break;
@@ -60,17 +60,18 @@ class SelectGameScreen extends StatelessWidget {
         ],
       ),
       applyPadding: false,
-      child: _SelectGameView(user: user),
+      body: const _SelectGameView(),
     );
   }
 }
 
 class _SelectGameView extends StatelessWidget {
-  const _SelectGameView({Key? key, required this.user}) : super(key: key);
-  final User user;
+  const _SelectGameView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
     return ListView(
       padding: const EdgeInsets.all(8.0),
       children: [

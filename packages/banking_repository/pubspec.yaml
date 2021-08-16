@@ -1,5 +1,5 @@
 name: banking_repository
-description: Dart package which manages the banking logic and data.
+description: Package which manages the banking logic and data.
 version: 1.0.0
 
 publish_to: none
@@ -17,6 +17,5 @@ dependencies:
   equatable: ^2.0.3
   kt_dart: ^0.9.1
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  user_repository:
+    path: ../user_repository

@@ -1,0 +1,51 @@
+import 'dart:developer';
+
+import 'package:banking_repository/banking_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import '../../game/game_screen/game_screen.dart';
+import '../../game/select_game_screen/select_game_screen.dart';
+import '../../login/login_page.dart';
+
+import '../cubit/app_cubit.dart';
+
+class AppView extends StatelessWidget {
+  const AppView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Monopoly Banking',
+      // If this is not set Localizations.localeOf(context) won't work.
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      // If this is not set Localizations.localeOf(context) won't work.
+      supportedLocales: const [Locale('en'), Locale('de')],
+      debugShowCheckedModeBanner: false,
+      home: BlocBuilder<AppCubit, AppState>(
+        builder: (context, state) {
+          if (state.isUnauthenticated) {
+            return const LoginPage();
+          } else if (state.isAuthenticated || state.isNewlyAuthenticated) {
+            return RepositoryProvider(
+              create: (_) => BankingRepository(userId: state.user.id),
+              child: state.user.currentGameId != null
+                  ? const GameScreen()
+                  : const SelectGameScreen(),
+            );
+          } else {
+            //todo:
+            log(state.failure.toString());
+
+            return const LoginPage();
+          }
+        },
+      ),
+    );
+  }
+}
