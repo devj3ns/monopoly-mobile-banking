@@ -11,7 +11,7 @@ class User extends Equatable {
   final String name;
   final String? currentGameId;
 
-  static const none = User(id: '', name: '');
+  static const none = User(id: '', name: ''); //todo: remove this?!
 
   @override
   List<Object?> get props => [id, name, currentGameId];

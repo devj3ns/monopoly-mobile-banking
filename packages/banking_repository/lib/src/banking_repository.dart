@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:user_repository/user_repository.dart';
 
 import 'models/models.dart';
@@ -49,21 +49,18 @@ class BankingRepository {
 
   /// Creates a new game lobby.
   Future<void> newGame() async {
-    await _gamesCollection.add(Game.empty());
+    await _gamesCollection.add(Game.newOne());
   }
 
   /// Transfers money from one player to another.
   ///
-  /// If fromUser is null, the money comes from the bank.
-  /// If toUser is null, the money goes to the bank.
+  /// Use custom constructors for the transaction object:
+  /// For example Transaction.fromBank(...) or Transaction.toPlayer(...).
   Future<void> makeTransaction({
     required Game game,
-    User? fromUser,
-    User? toUser,
-    required int amount,
+    required Transaction transaction,
   }) async {
-    final updatedGame = game.makeTransaction(
-        fromUser: fromUser, toUser: toUser, amount: amount);
+    final updatedGame = game.makeTransaction(transaction);
 
     await _gamesCollection.doc(game.id).set(updatedGame);
 

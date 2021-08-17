@@ -64,7 +64,11 @@ class _NameInput extends StatelessWidget {
         decoration: const InputDecoration(
           labelText: 'Name',
         ),
-        validator: (value) => value.isBlank ? 'Please enter your name' : null,
+        validator: (value) => value.isBlank
+            ? 'Please enter your name'
+            : value!.trim().length > 15
+                ? 'The length of your username has to be below 15 characters'
+                : null,
       ),
     );
   }
