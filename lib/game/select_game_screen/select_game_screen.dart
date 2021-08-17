@@ -2,6 +2,7 @@ import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:monopoly_banking/game/create_game_screen/create_game_screen.dart';
 import '../../app/cubit/app_cubit.dart';
 
 import '../../app_info_screen.dart';
@@ -83,7 +84,7 @@ class _SelectGameView extends StatelessWidget {
         ),
         const SizedBox(height: 50),
         const Text(
-          'Lobbys:',
+          'Join game:',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 18),
         ),
@@ -91,7 +92,7 @@ class _SelectGameView extends StatelessWidget {
         EasyStreamBuilder<List<Game>>(
           stream: context.bankingRepository().allGames,
           loadingIndicator: const Center(child: CircularProgressIndicator()),
-          isEmptyText: "There are no lobby's yet.",
+          isEmptyText: 'There are no games yet.',
           dataBuilder: (context, games) {
             //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
             //debugPrint(games.toString());
@@ -112,10 +113,13 @@ class _SelectGameView extends StatelessWidget {
         Center(
           child: ElevatedButton(
             child: const IconText(
-              text: Text('Create lobby'),
+              text: Text('Create game'),
               icon: Icon(Icons.add_rounded),
             ),
-            onPressed: () => context.read<BankingRepository>().newGame(),
+            onPressed: () => context.pushPage(
+              CreateGameScreen(
+                  bankingRepository: context.read<BankingRepository>()),
+            ),
           ),
         )
       ],

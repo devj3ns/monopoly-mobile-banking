@@ -12,7 +12,7 @@ class Game extends Equatable {
     required this.players,
     required this.transactionHistory,
     required this.startingCapital,
-    required this.enableFreeParking,
+    required this.enableFreeParkingMoney,
     required this.freeParkingMoney,
     required this.salary,
   });
@@ -34,9 +34,9 @@ class Game extends Equatable {
   /// How it works:
   /// 1. Anytime someone pays a fee or tax (Jail, Income, Luxury, etc.), put the money in the middle of the board.
   /// 2. When someone lands on Free Parking, they get that money. If there is no money, they receive $100.
-  final bool enableFreeParking;
+  final bool enableFreeParkingMoney;
 
-  /// If [enableFreeParking] is true:
+  /// If [enableFreeParkingMoney] is true:
   /// The amount of money which is currently in the middle of the playing field.
   final int freeParkingMoney;
 
@@ -44,19 +44,27 @@ class Game extends Equatable {
   final int salary;
 
   @override
-  List<Object> get props =>
-      [id, players, transactionHistory, enableFreeParking, freeParkingMoney];
+  List<Object> get props => [
+        id,
+        players,
+        transactionHistory,
+        enableFreeParkingMoney,
+        freeParkingMoney
+      ];
 
-  //todo: make this configurable! create a form when the game is created!
-  static Game newOne() {
-    return const Game(
-      id: '',
-      players: KtList<Player>.empty(),
-      transactionHistory: KtList<Transaction>.empty(),
-      startingCapital: 1500,
-      enableFreeParking: false,
+  static Game newOne({
+    required int startingCapital,
+    required int salary,
+    required bool enableFreeParkingMoney,
+  }) {
+    return Game(
+      id: '', // the id gets set once the game is created in firestore
+      players: const KtList<Player>.empty(),
+      transactionHistory: const KtList<Transaction>.empty(),
+      startingCapital: startingCapital,
+      enableFreeParkingMoney: enableFreeParkingMoney,
       freeParkingMoney: 0,
-      salary: 200,
+      salary: salary,
     );
   }
 
@@ -82,7 +90,7 @@ class Game extends Equatable {
       players: _players,
       transactionHistory: _transactionHistory,
       startingCapital: data['startingCapital'] as int,
-      enableFreeParking: data['enableFreeParking'] as bool,
+      enableFreeParkingMoney: data['enableFreeParkingMoney'] as bool,
       freeParkingMoney: data['freeParkingMoney'] as int,
       salary: data['salary'] as int,
     );
@@ -99,7 +107,7 @@ class Game extends Equatable {
               .map((transaction) => transaction.toJson())
               .asList(),
       'startingCapital': startingCapital,
-      'enableFreeParking': enableFreeParking,
+      'enableFreeParkingMoney': enableFreeParkingMoney,
       'freeParkingMoney': freeParkingMoney,
       'salary': salary,
     };
@@ -117,7 +125,7 @@ class Game extends Equatable {
       transactionHistory: transactionHistory ?? this.transactionHistory,
       startingCapital: startingCapital ?? this.startingCapital,
       freeParkingMoney: freeParkingMoney ?? this.freeParkingMoney,
-      enableFreeParking: enableFreeParking,
+      enableFreeParkingMoney: enableFreeParkingMoney,
       salary: salary,
     );
   }

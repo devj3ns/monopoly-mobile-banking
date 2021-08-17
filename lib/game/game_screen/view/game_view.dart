@@ -110,7 +110,7 @@ class _PayArea extends StatelessWidget {
                 ),
               ),
             ),
-            if (game.enableFreeParking)
+            if (game.enableFreeParkingMoney)
               Expanded(
                 flex: 2,
                 child: Card(
@@ -272,7 +272,7 @@ class _ReceiveArea extends StatelessWidget {
                 ),
               ),
             ),
-            if (game.enableFreeParking)
+            if (game.enableFreeParkingMoney)
               Expanded(
                 child: Card(
                   child: ListTile(

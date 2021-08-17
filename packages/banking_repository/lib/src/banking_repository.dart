@@ -47,9 +47,21 @@ class BankingRepository {
     await userRepository.setCurrentGameId(game.id);
   }
 
-  /// Creates a new game lobby.
-  Future<void> newGame() async {
-    await _gamesCollection.add(Game.newOne());
+  /// Creates a new game lobby and returns itself.
+  Future<Game> newGame({
+    required int startingCapital,
+    required int salary,
+    required bool enableFreeParkingMoney,
+  }) async {
+    final docRef = await _gamesCollection.add(Game.newOne(
+      startingCapital: startingCapital,
+      salary: salary,
+      enableFreeParkingMoney: enableFreeParkingMoney,
+    ));
+
+    final game = (await docRef.get()).data()!;
+
+    return game;
   }
 
   /// Transfers money from one player to another.
