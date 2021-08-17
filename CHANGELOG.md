@@ -1,3 +1,11 @@
+# 0.3.0
+- Add scale animation when money balance changes
+- Add free parking money & salary
+- Add native splash screen
+- Add page with form to create and customize new game (adjust salary, starting capital etc.)
+- Fix bug that does not allow you to get more money from the bank than you currently have (#7)
+- Refactor authentication, user and banking logic
+
 # 0.2.0
 - Use modal bottom sheet for transactions
 - Improve game screen UI
