@@ -1,12 +1,11 @@
 {
-    "name": "monopoly_banking",
-    "short_name": "monopoly_banking",
+    "name": "Monopoly Banking",
+    "short_name": "Monopoly Banking",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "A cloudbased monopoly banking app.",
-    "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
         {

@@ -163,36 +163,33 @@ class _PlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Tooltip(
-        message: 'Send money to ${player.name}',
-        child: ListTile(
-          title: IconText(
-            icon: const FaIcon(
-              FontAwesomeIcons.solidUser,
-              color: Colors.black45,
-              size: 17,
-            ),
-            gap: 10,
-            text: Text(
-              player.name,
-              style: const TextStyle(fontSize: 16),
-            ),
-            iconAfterText: false,
-            mainAxisAlignment: MainAxisAlignment.start,
+      child: ListTile(
+        title: IconText(
+          icon: const FaIcon(
+            FontAwesomeIcons.solidUser,
+            color: Colors.black45,
+            size: 17,
           ),
-          trailing: AnimatedBalanceText(
-            balance: player.balance,
-            textStyle: const TextStyle(
-              fontSize: 17,
-              color: Colors.black54,
-            ),
+          gap: 10,
+          text: Text(
+            player.name,
+            style: const TextStyle(fontSize: 16),
           ),
-          onTap: () => context.showTransactionModalBottomSheet(
-            TransactionForm(
-              game: game,
-              transactionType: TransactionType.toPlayer,
-              toUser: User(id: player.userId, name: player.name),
-            ),
+          iconAfterText: false,
+          mainAxisAlignment: MainAxisAlignment.start,
+        ),
+        trailing: AnimatedBalanceText(
+          balance: player.balance,
+          textStyle: const TextStyle(
+            fontSize: 17,
+            color: Colors.black54,
+          ),
+        ),
+        onTap: () => context.showTransactionModalBottomSheet(
+          TransactionForm(
+            game: game,
+            transactionType: TransactionType.toPlayer,
+            toUser: User(id: player.userId, name: player.name),
           ),
         ),
       ),
