@@ -19,6 +19,9 @@ class AppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Monopoly Banking',
+      theme: ThemeData(brightness: Brightness.light),
+      darkTheme: ThemeData(brightness: Brightness.dark),
+      themeMode: ThemeMode.system,
       // If this is not set Localizations.localeOf(context) won't work.
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

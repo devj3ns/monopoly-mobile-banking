@@ -131,7 +131,7 @@ class _PayArea extends StatelessWidget {
                       balance: game.freeParkingMoney,
                       textStyle: const TextStyle(
                         fontSize: 17,
-                        color: Colors.black54,
+                        color: Colors.grey,
                       ),
                     ),
                     onTap: () => context.showTransactionModalBottomSheet(
@@ -164,10 +164,9 @@ class _PlayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        title: IconText(
+        leading: IconText(
           icon: const FaIcon(
             FontAwesomeIcons.solidUser,
-            color: Colors.black45,
             size: 17,
           ),
           gap: 10,
@@ -182,7 +181,7 @@ class _PlayerCard extends StatelessWidget {
           balance: player.balance,
           textStyle: const TextStyle(
             fontSize: 17,
-            color: Colors.black54,
+            color: Colors.grey,
           ),
         ),
         onTap: () => context.showTransactionModalBottomSheet(

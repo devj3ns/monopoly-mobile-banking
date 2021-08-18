@@ -10,12 +10,13 @@ class AppInfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Monopoly Banking'),
       ),
-      body: const Text(
+      body: Text(
         'Version 0.3.0\n'
         'Monopoly Banking\n\n'
         'Made by Jens Becker\n'
         'jensbecker.dev\n',
         textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.subtitle1,
       ),
     );
   }

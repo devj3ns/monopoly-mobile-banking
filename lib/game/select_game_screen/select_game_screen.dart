@@ -28,7 +28,7 @@ class SelectGameScreen extends StatelessWidget {
                 value: 0,
                 child: IconText(
                   text: Text('About the App'),
-                  icon: Icon(Icons.info_outline_rounded, color: Colors.black87),
+                  icon: Icon(Icons.info_outline_rounded, color: Colors.grey),
                   gap: 10,
                   iconAfterText: false,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -38,7 +38,7 @@ class SelectGameScreen extends StatelessWidget {
                 value: 1,
                 child: IconText(
                   text: Text('Sign out'),
-                  icon: Icon(Icons.logout, color: Colors.black87),
+                  icon: Icon(Icons.logout, color: Colors.grey),
                   gap: 10,
                   iconAfterText: false,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -80,13 +80,13 @@ class _SelectGameView extends StatelessWidget {
         Text(
           'Hey ${user.name} 👋',
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 24),
+          style: Theme.of(context).textTheme.headline5,
         ),
         const SizedBox(height: 50),
-        const Text(
+        Text(
           'Join game:',
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18),
+          style: Theme.of(context).textTheme.headline6,
         ),
         const SizedBox(height: 10),
         EasyStreamBuilder<List<Game>>(
