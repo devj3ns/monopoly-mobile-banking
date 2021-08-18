@@ -17,33 +17,49 @@ class GameScreen extends StatelessWidget {
     final user = context.read<AppCubit>().state.user;
     assert(user.currentGameId != null);
 
-    return BasicScaffold(
-      appBar: AppBar(
-        title: const Text('Monopoly Banking'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Leave game',
-            onPressed: () => context.bankingRepository().leaveGame(),
-          )
-        ],
-      ),
-      applyPadding: false,
-      body: EasyStreamBuilder<Game?>(
-        stream: context.bankingRepository().streamGame(user.currentGameId!),
-        loadingIndicator: const Center(child: CircularProgressIndicator()),
-        dataBuilder: (context, game) {
-          //debugPrint('GAME STREAM BUILDER REBUILDS');
-          //debugPrint(game.toString());
+    return EasyStreamBuilder<Game?>(
+      stream: context.bankingRepository().streamGame(user.currentGameId!),
+      loadingIndicator: const Center(child: CircularProgressIndicator()),
+      dataBuilder: (context, game) {
+        //debugPrint('GAME STREAM BUILDER REBUILDS');
+        //debugPrint(game.toString());
 
-          if (game == null) {
-            context.bankingRepository().leaveGame();
-            throw ('User was disconnected from any game, because the current one does not exist anymore.');
-          } else {
-            return GameView(game: game);
-          }
-        },
-      ),
+        if (game == null) {
+          context.bankingRepository().leaveGame();
+          throw ('User was disconnected from any game, because the current one does not exist anymore.');
+        } else {
+          return BasicScaffold(
+            appBar: AppBar(
+              title: Text('Game #${game.id}'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  tooltip: 'Leave game',
+                  onPressed: () => context.bankingRepository().leaveGame(),
+                )
+              ],
+            ),
+            applyPadding: false,
+            body: EasyStreamBuilder<Game?>(
+              stream:
+                  context.bankingRepository().streamGame(user.currentGameId!),
+              loadingIndicator:
+                  const Center(child: CircularProgressIndicator()),
+              dataBuilder: (context, game) {
+                //debugPrint('GAME STREAM BUILDER REBUILDS');
+                //debugPrint(game.toString());
+
+                if (game == null) {
+                  context.bankingRepository().leaveGame();
+                  throw ('User was disconnected from any game, because the current one does not exist anymore.');
+                } else {
+                  return GameView(game: game);
+                }
+              },
+            ),
+          );
+        }
+      },
     );
   }
 }

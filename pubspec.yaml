@@ -21,6 +21,7 @@ dependencies:
   font_awesome_flutter: ^9.1.0
   currency_text_input_formatter: ^2.1.2
   modal_bottom_sheet: ^2.0.0
+  confetti: ^0.6.0-nullsafety
 
   user_repository:
     path: packages/user_repository

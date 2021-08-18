@@ -140,8 +140,8 @@ class _SubmitButton extends StatelessWidget {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     child: const IconText(
-                      text: Text('Create game'),
-                      icon: Icon(Icons.add_rounded),
+                      text: Text('Create & join'),
+                      icon: Icon(Icons.login_rounded),
                     ),
                     onPressed: submitForm,
                   );

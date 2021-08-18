@@ -1,13 +1,15 @@
-import 'package:banking_repository/banking_repository.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:monopoly_banking/game/create_game_screen/create_game_screen.dart';
-import '../../app/cubit/app_cubit.dart';
 
+import 'package:banking_repository/banking_repository.dart';
+
+import '../../app/cubit/app_cubit.dart';
 import '../../app_info_screen.dart';
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
+import '../create_game_screen/create_game_screen.dart';
 
 class SelectGameScreen extends StatelessWidget {
   const SelectGameScreen({Key? key}) : super(key: key);
@@ -90,9 +92,9 @@ class _SelectGameView extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         EasyStreamBuilder<List<Game>>(
-          stream: context.bankingRepository().allGames,
+          stream: context.bankingRepository().allActiveGames,
           loadingIndicator: const Center(child: CircularProgressIndicator()),
-          isEmptyText: 'There are no games yet.',
+          isEmptyText: 'There are no active games at the moment.',
           dataBuilder: (context, games) {
             //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
             //debugPrint(games.toString());
@@ -101,8 +103,10 @@ class _SelectGameView extends StatelessWidget {
                 children: games.map((game) {
               return Card(
                 child: ListTile(
-                  leading: Text(game.id),
-                  trailing: Text('${game.players.size} Players'),
+                  title: Text('#${game.id}'),
+                  trailing: Text(
+                    '${game.players.size} ${Intl.plural(game.players.size, zero: 'Players', one: 'Player', other: 'Players')}',
+                  ),
                   onTap: () => context.read<BankingRepository>().joinGame(game),
                 ),
               );

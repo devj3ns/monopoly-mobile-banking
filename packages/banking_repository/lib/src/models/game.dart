@@ -15,6 +15,7 @@ class Game extends Equatable {
     required this.enableFreeParkingMoney,
     required this.freeParkingMoney,
     required this.salary,
+    required this.winnerId,
   });
 
   /// The unique id of the game.
@@ -43,28 +44,55 @@ class Game extends Equatable {
   /// The amount of money a player gets when going over the GO field.
   final int salary;
 
+  /// The id of the player who won the game.
+  final String? winnerId;
+
+  /// Whether the game is still running (nobody won yet).
+  bool get active => winnerId != null;
+
+  /// Returns a list of all players which are not bankrupt yet.
+  KtList<Player> get nonBankruptPlayers =>
+      players.asList().where((player) => player.balance > 0).toImmutableList();
+
+  /// Returns a list of all players which are bankrupt.
+  KtList<Player> get bankruptPlayers =>
+      players.asList().where((player) => player.balance <= 0).toImmutableList();
+
+  /// Returns a list of all players which are bankrupt.
+  Player? get winner {
+    if (winnerId == null) return null;
+
+    return nonBankruptPlayers
+        .asList()
+        .firstWhere((player) => player.userId == winnerId);
+  }
+
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         id,
         players,
         transactionHistory,
         enableFreeParkingMoney,
-        freeParkingMoney
+        freeParkingMoney,
+        salary,
+        winnerId,
       ];
 
   static Game newOne({
+    required String id,
     required int startingCapital,
     required int salary,
     required bool enableFreeParkingMoney,
   }) {
     return Game(
-      id: '', // the id gets set once the game is created in firestore
+      id: id,
       players: const KtList<Player>.empty(),
       transactionHistory: const KtList<Transaction>.empty(),
       startingCapital: startingCapital,
       enableFreeParkingMoney: enableFreeParkingMoney,
       freeParkingMoney: 0,
       salary: salary,
+      winnerId: null,
     );
   }
 
@@ -93,10 +121,11 @@ class Game extends Equatable {
       enableFreeParkingMoney: data['enableFreeParkingMoney'] as bool,
       freeParkingMoney: data['freeParkingMoney'] as int,
       salary: data['salary'] as int,
+      winnerId: data['winnerId'] as String?,
     );
   }
 
-  Map<String, Object> toDocument() {
+  Map<String, Object?> toDocument() {
     return {
       'players': players.isEmpty()
           ? <Player>[]
@@ -110,6 +139,7 @@ class Game extends Equatable {
       'enableFreeParkingMoney': enableFreeParkingMoney,
       'freeParkingMoney': freeParkingMoney,
       'salary': salary,
+      'winnerId': winnerId,
     };
   }
 
@@ -118,6 +148,7 @@ class Game extends Equatable {
     KtList<Transaction>? transactionHistory,
     int? startingCapital,
     int? freeParkingMoney,
+    String? winnerId,
   }) {
     return Game(
       id: id,
@@ -127,6 +158,7 @@ class Game extends Equatable {
       freeParkingMoney: freeParkingMoney ?? this.freeParkingMoney,
       enableFreeParkingMoney: enableFreeParkingMoney,
       salary: salary,
+      winnerId: winnerId ?? this.winnerId,
     );
   }
 
@@ -142,9 +174,25 @@ class Game extends Equatable {
     return players[players.indexOfFirst((player) => player.userId == userId)];
   }
 
+  /// Whether the player with the given id is bankrupt.
+  bool isBankrupt(String userId) {
+    return bankruptPlayers.any((player) => player.userId == userId);
+  }
+
   /// Returns all players except of the one with the given id, sorted by balance.
-  List<Player> otherPlayers(String userId) {
-    return players.asList().where((player) => player.userId != userId).toList();
+  List<Player> otherNonBankruptPlayers(String userId) {
+    return nonBankruptPlayers
+        .asList()
+        .where((player) => player.userId != userId)
+        .toList();
+  }
+
+  /// Returns all players except of the one with the given id, sorted by balance.
+  List<Player> otherBankruptPlayers(String userId) {
+    return bankruptPlayers
+        .asList()
+        .where((player) => player.userId != userId)
+        .toList();
   }
 
   /// Returns a new instance which represents the game after the transaction.

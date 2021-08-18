@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:user_repository/user_repository.dart';
 
@@ -19,9 +21,10 @@ class BankingRepository {
 
   // #### Public methods:
 
-  /// Streams all games.
-  Stream<List<Game>> get allGames {
+  /// Streams a list of all active games (all games where nobody won yet).
+  Stream<List<Game>> get allActiveGames {
     return _gamesCollection
+        .where('winnerId', isNull: true)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((game) => game.data()).toList());
   }
@@ -53,15 +56,45 @@ class BankingRepository {
     required int salary,
     required bool enableFreeParkingMoney,
   }) async {
-    final docRef = await _gamesCollection.add(Game.newOne(
-      startingCapital: startingCapital,
-      salary: salary,
-      enableFreeParkingMoney: enableFreeParkingMoney,
-    ));
+    final gameId = await _uniqueGameId();
 
-    final game = (await docRef.get()).data()!;
+    assert(!(await _gamesCollection.doc(gameId).get()).exists);
+
+    await _gamesCollection.doc(gameId).set(
+          Game.newOne(
+            id: _randomGameId(),
+            startingCapital: startingCapital,
+            salary: salary,
+            enableFreeParkingMoney: enableFreeParkingMoney,
+          ),
+        );
+
+    final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
     return game;
+  }
+
+  /// Gets a random game id until it is unique.
+  // todo: avoid waiting forever when all ids are taken.
+  Future<String> _uniqueGameId() async {
+    final id = _randomGameId();
+
+    while ((await _gamesCollection.doc(id).get()).exists) {
+      return _uniqueGameId();
+    }
+
+    return id;
+  }
+
+  /// Generates a random game id.
+  String _randomGameId() {
+    const length = 4;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+    return List.generate(
+      length,
+      (index) => chars[Random.secure().nextInt(chars.length)],
+    ).join('');
   }
 
   /// Transfers money from one player to another.
@@ -74,8 +107,19 @@ class BankingRepository {
   }) async {
     final updatedGame = game.makeTransaction(transaction);
 
+    //todo: update timestamp to server timestamp!
     await _gamesCollection.doc(game.id).set(updatedGame);
 
-    //todo: update timestamp to server timestamp!
+    await checkIfGameIsOver(updatedGame);
+  }
+
+  Future<void> checkIfGameIsOver(Game game) async {
+    if (game.nonBankruptPlayers.size == 1 && game.players.size > 1) {
+      final winner = game.nonBankruptPlayers[0];
+
+      await _gamesCollection
+          .doc(game.id)
+          .set(game.copyWith(winnerId: winner.userId));
+    }
   }
 }

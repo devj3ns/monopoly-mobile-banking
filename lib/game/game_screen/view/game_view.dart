@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:confetti/confetti.dart';
 
 import 'package:banking_repository/banking_repository.dart';
 import 'package:user_repository/user_repository.dart';
@@ -20,21 +23,98 @@ class GameView extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.read<AppCubit>().state.user;
 
-    return ListView(
-      padding: const EdgeInsets.all(8.0),
+    return Stack(
       children: [
-        const SizedBox(height: 15),
-        AnimatedBalanceText(
-          balance: game.getPlayer(user.id).balance,
-          textStyle: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+        ListView(
+          padding: const EdgeInsets.all(8.0),
+          children: [
+            const SizedBox(height: 15),
+            AnimatedBalanceText(
+              balance: game.getPlayer(user.id).balance,
+              textStyle:
+                  const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+            ),
+            const Divider(height: 30),
+            _PayArea(game: game),
+            const Divider(height: 30),
+            _ReceiveArea(game: game),
+            const Divider(height: 30),
+            _TransactionHistory(game: game),
+          ],
         ),
-        const Divider(height: 30),
-        _PayArea(game: game),
-        const Divider(height: 30),
-        _ReceiveArea(game: game),
-        const Divider(height: 30),
-        _TransactionHistory(game: game),
+        game.winner != null
+            ? _SomeOneWonOverlay(winner: game.winner!)
+            : game.isBankrupt(user.id)
+                ? const _YouAreBankruptOverlay()
+                : const SizedBox(),
       ],
+    );
+  }
+}
+
+class _YouAreBankruptOverlay extends StatelessWidget {
+  const _YouAreBankruptOverlay({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+      child: Center(
+        child: Text(
+          'You are bankrupt!',
+          style: Theme.of(context).textTheme.headline5,
+        ),
+      ),
+    );
+  }
+}
+
+class _SomeOneWonOverlay extends StatefulWidget {
+  const _SomeOneWonOverlay({Key? key, required this.winner}) : super(key: key);
+  final Player winner;
+
+  @override
+  _SomeOneWonOverlayState createState() => _SomeOneWonOverlayState();
+}
+
+class _SomeOneWonOverlayState extends State<_SomeOneWonOverlay> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3))..play();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
+    return ConfettiWidget(
+      confettiController: _confettiController,
+      blastDirection: pi / 2,
+      blastDirectionality: BlastDirectionality.explosive,
+      particleDrag: 0.05,
+      emissionFrequency: 0.05,
+      numberOfParticles: 50,
+      gravity: 0.05,
+      child: Container(
+        color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+        child: Center(
+          child: Text(
+            '${widget.winner.userId == user.id ? 'You' : widget.winner.name} won the game!',
+            style: Theme.of(context).textTheme.headline5,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -50,7 +130,7 @@ class _PayArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<AppCubit>().state.user;
-    final otherPlayers = game.otherPlayers(user.id);
+    final otherPlayers = game.otherNonBankruptPlayers(user.id);
 
     return Column(
       children: [
