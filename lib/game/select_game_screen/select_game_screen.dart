@@ -84,6 +84,14 @@ class _SelectGameView extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headline5,
         ),
+        if (user.wins > 0) ...[
+          const SizedBox(height: 5),
+          Text(
+            'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ],
         const SizedBox(height: 50),
         Text(
           'Join game:',

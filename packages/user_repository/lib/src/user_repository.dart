@@ -39,7 +39,7 @@ class UserRepository {
       final userCredential = await _firebaseAuth.signInAnonymously();
       final firebaseUser = userCredential.user!;
 
-      final user = User(id: firebaseUser.uid, name: name);
+      final user = User(id: firebaseUser.uid, name: name, wins: 0);
       await _updateUserData(user);
     } on FirebaseAuthException {
       throw AppFailure.fromSignIn();

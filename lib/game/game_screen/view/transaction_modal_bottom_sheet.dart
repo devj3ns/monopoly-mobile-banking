@@ -7,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:banking_repository/banking_repository.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:monopoly_banking/app/cubit/app_cubit.dart';
-import 'package:user_repository/user_repository.dart';
 
 extension ShowTransactionModalBottomSheet on BuildContext {
   /// Shows the given [TransactionForm].
@@ -28,12 +27,12 @@ class TransactionForm extends HookWidget {
     Key? key,
     required this.game,
     required this.transactionType,
-    this.toUser,
+    this.toUserId,
   }) : super(key: key);
 
   final Game game;
   final TransactionType transactionType;
-  final User? toUser;
+  final String? toUserId;
 
   static final _formKey = GlobalKey<FormState>();
 
@@ -55,8 +54,8 @@ class TransactionForm extends HookWidget {
         case TransactionType.toBank:
           return 'Pay bank';
         case TransactionType.toPlayer:
-          assert(toUser != null);
-          return 'Pay ${toUser!.name}';
+          assert(toUserId != null);
+          return 'Pay ${game.getPlayer(toUserId!).name}';
         case TransactionType.toFreeParking:
           return 'Pay to free parking';
         case TransactionType.fromFreeParking:
@@ -86,28 +85,28 @@ class TransactionForm extends HookWidget {
         switch (transactionType) {
           case TransactionType.fromBank:
             transaction =
-                Transaction.fromBank(toUser: user, amount: amount.value);
+                Transaction.fromBank(toUserId: user.id, amount: amount.value);
             break;
           case TransactionType.toBank:
             transaction =
-                Transaction.toBank(fromUser: user, amount: amount.value);
+                Transaction.toBank(fromUserId: user.id, amount: amount.value);
             break;
           case TransactionType.toPlayer:
-            assert(toUser != null);
+            assert(toUserId != null);
             transaction = Transaction.toPlayer(
-                fromUser: user, toUser: toUser!, amount: amount.value);
+                fromUserId: user.id, toUserId: toUserId!, amount: amount.value);
             break;
           case TransactionType.toFreeParking:
-            transaction =
-                Transaction.toFreeParking(fromUser: user, amount: amount.value);
+            transaction = Transaction.toFreeParking(
+                fromUserId: user.id, amount: amount.value);
             break;
           case TransactionType.fromFreeParking:
             transaction = Transaction.fromFreeParking(
-                toUser: user, freeParkingMoney: game.freeParkingMoney);
+                toUserId: user.id, freeParkingMoney: game.freeParkingMoney);
             break;
           case TransactionType.fromSalary:
             transaction =
-                Transaction.fromSalary(toUser: user, salary: game.salary);
+                Transaction.fromSalary(toUserId: user.id, salary: game.salary);
             break;
         }
 

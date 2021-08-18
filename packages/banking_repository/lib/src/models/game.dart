@@ -206,60 +206,60 @@ class Game extends Equatable {
 
     switch (transaction.type) {
       case TransactionType.fromBank:
-        assert(transaction.toUser != null);
+        assert(transaction.toUserId != null);
         // Add money to the players balance:
         final playerIndex = _players
-            .indexWhere((player) => player.userId == transaction.toUser!.id);
+            .indexWhere((player) => player.userId == transaction.toUserId!);
         _players[playerIndex] =
             _players[playerIndex].addMoney(transaction.amount);
         break;
       case TransactionType.toBank:
-        assert(transaction.fromUser != null);
+        assert(transaction.fromUserId != null);
         // Subtract money from the players balance:
         final playerIndex = _players
-            .indexWhere((player) => player.userId == transaction.fromUser!.id);
+            .indexWhere((player) => player.userId == transaction.fromUserId!);
         _players[playerIndex] =
             _players[playerIndex].subtractMoney(transaction.amount);
         break;
       case TransactionType.toPlayer:
-        assert(transaction.fromUser != null);
-        assert(transaction.toUser != null);
+        assert(transaction.fromUserId != null);
+        assert(transaction.toUserId != null);
         // Subtract money from the 'from player's balance:
         final fromPlayerIndex = _players
-            .indexWhere((player) => player.userId == transaction.fromUser!.id);
+            .indexWhere((player) => player.userId == transaction.fromUserId!);
         _players[fromPlayerIndex] =
             _players[fromPlayerIndex].subtractMoney(transaction.amount);
         // Add money to the 'to player's balance:
         final toPlayerIndex = _players
-            .indexWhere((player) => player.userId == transaction.toUser!.id);
+            .indexWhere((player) => player.userId == transaction.toUserId!);
         _players[toPlayerIndex] =
             _players[toPlayerIndex].addMoney(transaction.amount);
         break;
       case TransactionType.toFreeParking:
-        assert(transaction.fromUser != null);
+        assert(transaction.fromUserId != null);
         // Subtract money from the players balance:
         final playerIndex = _players
-            .indexWhere((player) => player.userId == transaction.fromUser!.id);
+            .indexWhere((player) => player.userId == transaction.fromUserId!);
         _players[playerIndex] =
             _players[playerIndex].subtractMoney(transaction.amount);
         // Add money to free parking:
         _freeParkingMoney += transaction.amount;
         break;
       case TransactionType.fromFreeParking:
-        assert(transaction.toUser != null);
+        assert(transaction.toUserId != null);
         // Add money to the players balance:
         final playerIndex = _players
-            .indexWhere((player) => player.userId == transaction.toUser!.id);
+            .indexWhere((player) => player.userId == transaction.toUserId!);
         _players[playerIndex] =
             _players[playerIndex].addMoney(freeParkingMoney);
         // Set free parking money to 0:
         _freeParkingMoney = 0;
         break;
       case TransactionType.fromSalary:
-        assert(transaction.toUser != null);
+        assert(transaction.toUserId != null);
         // Add money to the players balance:
         final playerIndex = _players
-            .indexWhere((player) => player.userId == transaction.toUser!.id);
+            .indexWhere((player) => player.userId == transaction.toUserId!);
         _players[playerIndex] = _players[playerIndex].addMoney(salary);
         break;
     }

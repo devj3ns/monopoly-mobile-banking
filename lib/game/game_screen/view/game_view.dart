@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:confetti/confetti.dart';
 
 import 'package:banking_repository/banking_repository.dart';
-import 'package:user_repository/user_repository.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../extensions.dart';
@@ -104,7 +103,7 @@ class _SomeOneWonOverlayState extends State<_SomeOneWonOverlay> {
       blastDirectionality: BlastDirectionality.explosive,
       particleDrag: 0.05,
       emissionFrequency: 0.05,
-      numberOfParticles: 50,
+      numberOfParticles: 25,
       gravity: 0.05,
       child: Container(
         color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
@@ -268,7 +267,7 @@ class _PlayerCard extends StatelessWidget {
           TransactionForm(
             game: game,
             transactionType: TransactionType.toPlayer,
-            toUser: User(id: player.userId, name: player.name),
+            toUserId: player.userId,
           ),
         ),
       ),
@@ -424,8 +423,8 @@ class _TransactionHistory extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: transactions.length,
                 shrinkWrap: true,
-                itemBuilder: (context, index) =>
-                    _TransactionCard(transaction: transactions[index]),
+                itemBuilder: (context, index) => _TransactionCard(
+                    transaction: transactions[index], game: game),
               ),
       ],
     );
@@ -436,20 +435,28 @@ class _TransactionCard extends StatelessWidget {
   const _TransactionCard({
     Key? key,
     required this.transaction,
+    required this.game,
   }) : super(key: key);
 
   final Transaction transaction;
+  final Game game;
 
   @override
   Widget build(BuildContext context) {
     final user = context.read<AppCubit>().state.user;
 
     String getText() {
-      final myTransaction = transaction.fromUser?.id == user.id ||
-          transaction.toUser?.id == user.id;
-      final isFromMe = transaction.fromUser?.id == user.id;
-      final fromUserName = transaction.fromUser?.name;
-      final toUserName = transaction.toUser?.name;
+      //todo: improve this code (make more readable and easier to understand):
+      final myTransaction =
+          transaction.fromUserId == user.id || transaction.toUserId == user.id;
+      final isFromMe = transaction.fromUserId == user.id;
+
+      final fromUserName = transaction.fromUserId != null
+          ? game.getPlayer(transaction.fromUserId!).name
+          : null;
+      final toUserName = transaction.toUserId != null
+          ? game.getPlayer(transaction.toUserId!).name
+          : null;
       final amount = context.formatBalance(transaction.amount);
 
       switch (transaction.type) {
@@ -468,7 +475,7 @@ class _TransactionCard extends StatelessWidget {
                   : '$fromUserName payed $toUserName $amount.'
               : myTransaction
                   ? '$toUserName payed you $amount.'
-                  : '$toUserName payed $toUserName $amount.';
+                  : '$fromUserName payed $toUserName $amount.';
         case TransactionType.toFreeParking:
           return myTransaction
               ? 'You payed $amount to free parking.'
