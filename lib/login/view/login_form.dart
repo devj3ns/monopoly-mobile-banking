@@ -36,7 +36,13 @@ class LoginForm extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(8.0),
           children: [
-            SizedBox(height: context.screenHeight * 0.3),
+            SizedBox(height: context.screenHeight * 0.2),
+            Image.asset(
+              'assets/logo.png',
+              width: 100,
+              height: 100,
+            ),
+            const SizedBox(height: 25),
             Text(
               'Monopoly Banking',
               style: Theme.of(context).textTheme.headline4,
