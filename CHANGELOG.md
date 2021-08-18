@@ -1,3 +1,11 @@
+# 0.4.0
+- Create logo
+- Add a dark mode (uses system preference)
+- Improve lobby/game system: Game ids are now only 5 characters long (e.g. #DJ3S)
+- Show win overlay with confetti when a player won the game
+- Show bankrupt overlay when you are bankrupt
+- Add win statistic
+
 # 0.3.0
 - Add scale animation when money balance changes
 - Add free parking money & salary

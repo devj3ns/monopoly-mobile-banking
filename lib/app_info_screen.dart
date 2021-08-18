@@ -11,7 +11,7 @@ class AppInfoScreen extends StatelessWidget {
         title: const Text('Monopoly Banking'),
       ),
       body: Text(
-        'Version 0.3.0\n'
+        'Version 0.4.0\n'
         'Monopoly Banking\n\n'
         'Made by Jens Becker\n'
         'jensbecker.dev\n',
