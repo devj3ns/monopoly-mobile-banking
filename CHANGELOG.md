@@ -1,3 +1,9 @@
+# 0.5.0
+- Add 'Wait for players to connect' overlay, which is shown when you are the only player in a game
+- Add icon to bankrupt and win overlay
+- Add warning when paying all your money to a player or the bank (which would make you go bankrupt)
+- Make player name and icon colorful (based on the players id)
+
 # 0.4.0
 - Create logo
 - Add a dark mode (uses system preference)
