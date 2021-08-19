@@ -174,26 +174,48 @@ class _PlayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    Color colorFromPlayerId() {
+      final chars = player.userId;
+      var hash = 0;
+      for (var i = 0; i < chars.length; i++) {
+        hash = chars.codeUnitAt(i) + ((hash << 5) - hash);
+      }
+      final finalHash = hash.abs() % (256 * 256 * 256);
+
+      final red = ((finalHash & 0xFF0000) >> 16);
+      final blue = ((finalHash & 0xFF00) >> 8);
+      final green = ((finalHash & 0xFF));
+      final color = Color.fromRGBO(red, green, blue, 1);
+
+      return color;
+    }
+
     return Card(
       child: ListTile(
         leading: IconText(
-          icon: const FaIcon(
+          icon: FaIcon(
             FontAwesomeIcons.solidUser,
             size: 17,
+            color: colorFromPlayerId(),
           ),
           gap: 10,
           text: Text(
             player.name,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: colorFromPlayerId(),
+            ),
           ),
           iconAfterText: false,
           mainAxisAlignment: MainAxisAlignment.start,
         ),
         trailing: AnimatedBalanceText(
           balance: player.balance,
-          textStyle: const TextStyle(
+          textStyle: TextStyle(
             fontSize: 17,
-            color: Colors.grey,
+            color: isDarkMode ? Colors.grey : Colors.black54,
           ),
         ),
         onTap: () => context.showTransactionModalBottomSheet(
