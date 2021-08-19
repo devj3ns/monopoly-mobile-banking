@@ -44,6 +44,11 @@ class TransactionForm extends HookWidget {
     final amountController = useTextEditingController();
     final amount = useState(0);
 
+    final showBankruptWarning = amount.value == myBalance &&
+        (transactionType == TransactionType.toBank ||
+            transactionType == TransactionType.toPlayer ||
+            transactionType == TransactionType.toFreeParking);
+
     final askForAmount = transactionType != TransactionType.fromFreeParking &&
         transactionType != TransactionType.fromSalary;
 
@@ -137,20 +142,34 @@ class TransactionForm extends HookWidget {
                 style: const TextStyle(fontSize: 20),
               ),
               askForAmount
-                  ? Form(
-                      key: _formKey,
-                      child: _BalanceFormField(
-                        controller: amountController,
-                        myBalance: myBalance,
-                        onChanged: (balance) => amount.value = balance,
-                        onSubmit: submitForm,
-                        // Only check if the player has enough money
-                        // if he wants to send and not receive it:
-                        checkIfEnoughMoney: transactionType ==
-                                TransactionType.toBank ||
-                            transactionType == TransactionType.toFreeParking ||
-                            transactionType == TransactionType.toPlayer,
-                      ),
+                  ? Column(
+                      children: [
+                        Form(
+                          key: _formKey,
+                          child: _BalanceFormField(
+                            controller: amountController,
+                            myBalance: myBalance,
+                            onChanged: (balance) => amount.value = balance,
+                            onSubmit: submitForm,
+                            // Only check if the player has enough money
+                            // if he wants to send and not receive it:
+                            checkIfEnoughMoney:
+                                transactionType == TransactionType.toBank ||
+                                    transactionType ==
+                                        TransactionType.toFreeParking ||
+                                    transactionType == TransactionType.toPlayer,
+                          ),
+                        ),
+                        //
+                        if (showBankruptWarning)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 7.0),
+                            child: Text(
+                              'You will be bankrupt after this transaction!',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          )
+                      ],
                     )
                   : Column(
                       children: [
@@ -190,6 +209,9 @@ class _BalanceFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      autovalidateMode: controller.text.isEmpty
+          ? AutovalidateMode.disabled
+          : AutovalidateMode.onUserInteraction,
       decoration: const InputDecoration(hintText: 'Amount'),
       keyboardType: TextInputType.number,
       controller: controller,
