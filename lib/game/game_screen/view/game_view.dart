@@ -429,7 +429,7 @@ class _TransactionCard extends StatelessWidget {
                   ? 'You payed $toUserName $amount.'
                   : '$fromUserName payed $toUserName $amount.'
               : myTransaction
-                  ? '$toUserName payed you $amount.'
+                  ? '$fromUserName payed you $amount.'
                   : '$fromUserName payed $toUserName $amount.';
         case TransactionType.toFreeParking:
           return myTransaction
