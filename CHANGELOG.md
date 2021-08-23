@@ -1,3 +1,7 @@
+# 0.5.1
+- Fix bug with wrong name in transaction history item
+
+
 # 0.5.0
 - Add 'Wait for players to connect' overlay, which is shown when you are the only player in a game
 - Add icon to bankrupt and win overlay
