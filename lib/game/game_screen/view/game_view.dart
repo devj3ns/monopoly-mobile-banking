@@ -135,6 +135,7 @@ class _PayArea extends StatelessWidget {
                       gap: 10,
                       text: Text(
                         'Free Parking',
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 16),
                       ),
                       iconAfterText: false,
