@@ -7,7 +7,7 @@ import '../../banking_repository.dart';
 import 'player.dart';
 
 class Game extends Equatable {
-  const Game({
+  Game({
     required this.id,
     required this.players,
     required this.transactionHistory,
@@ -16,7 +16,7 @@ class Game extends Equatable {
     required this.freeParkingMoney,
     required this.salary,
     required this.winnerId,
-  });
+  }) : assert(players.size <= 6);
 
   /// The unique id of the game.
   final String id;
