@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fleasy/fleasy.dart';
 
 import 'package:banking_repository/banking_repository.dart';
 
@@ -26,7 +27,27 @@ class CreateGameScreen extends StatelessWidget {
             create: (_) => CreateGameCubit(
               bankingRepository: context.read<BankingRepository>(),
             ),
-            child: const CreateGameForm(),
+            child: BlocListener<CreateGameCubit, CreateGameState>(
+              listenWhen: (previous, current) =>
+                  previous.createNewGameResult != current.createNewGameResult &&
+                  current.createNewGameResult != CreateNewGameResult.none,
+              listener: (context, state) {
+                switch (state.createNewGameResult) {
+                  case CreateNewGameResult.success:
+                    context.popPage();
+                    break;
+                  case CreateNewGameResult.noConnection:
+                    context.showNoConnectionFlashbar();
+                    break;
+                  default:
+                    context.showErrorFlashbar();
+                    break;
+                }
+
+                context.read<CreateGameCubit>().resetCreateGameResult();
+              },
+              child: const CreateGameForm(),
+            ),
           ),
         ),
       ),

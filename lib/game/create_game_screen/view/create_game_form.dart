@@ -17,7 +17,6 @@ class CreateGameForm extends StatelessWidget {
     void submitForm() async {
       if (formKey.currentState!.validate()) {
         await context.read<CreateGameCubit>().onFormSubmitted();
-        context.popPage();
       }
     }
 

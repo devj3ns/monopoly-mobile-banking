@@ -40,13 +40,15 @@ class GameView extends StatelessWidget {
             _TransactionHistory(game: game),
           ],
         ),
-        game.players.size == 1
-            ? const WaitForPlayersOverlay()
-            : game.winner != null
-                ? SomeOneWonOverlay(winner: game.winner!)
-                : game.isBankrupt(user.id)
-                    ? const YouAreBankruptOverlay()
-                    : const SizedBox(),
+        game.isFromCache
+            ? const NoConnectionOverlay()
+            : game.players.size == 1
+                ? const WaitForPlayersOverlay()
+                : game.winner != null
+                    ? SomeOneWonOverlay(winner: game.winner!)
+                    : game.isBankrupt(user.id)
+                        ? const YouAreBankruptOverlay()
+                        : const SizedBox(),
       ],
     );
   }

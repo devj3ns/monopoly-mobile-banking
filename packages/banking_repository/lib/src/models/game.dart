@@ -17,6 +17,7 @@ class Game extends Equatable {
     required this.freeParkingMoney,
     required this.salary,
     required this.winnerId,
+    required this.isFromCache,
   }) : assert(players.size <= 6);
 
   /// The unique id of the game.
@@ -48,6 +49,9 @@ class Game extends Equatable {
   /// The id of the player who won the game.
   final String? winnerId;
 
+  /// Whether the snapshot was created from cached data rather than guaranteed up-to-date server data.
+  final bool isFromCache;
+
   /// Whether the game is still running (nobody won yet).
   bool get active => winnerId != null;
 
@@ -77,6 +81,7 @@ class Game extends Equatable {
         freeParkingMoney,
         salary,
         winnerId,
+        isFromCache
       ];
 
   static Game newOne({
@@ -94,6 +99,7 @@ class Game extends Equatable {
       freeParkingMoney: 0,
       salary: salary,
       winnerId: null,
+      isFromCache: true,
     );
   }
 
@@ -123,6 +129,7 @@ class Game extends Equatable {
       freeParkingMoney: data['freeParkingMoney'] as int,
       salary: data['salary'] as int,
       winnerId: data['winnerId'] as String?,
+      isFromCache: snap.metadata.isFromCache,
     );
   }
 
@@ -160,6 +167,7 @@ class Game extends Equatable {
       enableFreeParkingMoney: enableFreeParkingMoney,
       salary: salary,
       winnerId: winnerId ?? this.winnerId,
+      isFromCache: isFromCache,
     );
   }
 

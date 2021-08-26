@@ -1,9 +1,12 @@
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:user_repository/user_repository.dart';
 
 import 'models/models.dart';
+
+enum CreateNewGameResult { none, success, noConnection, failure }
 
 class BankingRepository {
   const BankingRepository({required this.userRepository});
@@ -33,7 +36,7 @@ class BankingRepository {
   Stream<Game?> streamGame(String currentGameId) {
     return _gamesCollection
         .doc(currentGameId)
-        .snapshots()
+        .snapshots(includeMetadataChanges: true)
         .map((doc) => doc.data());
   }
 
@@ -51,27 +54,40 @@ class BankingRepository {
   }
 
   /// Creates a new game lobby and returns itself.
-  Future<Game> newGame({
+  Future<CreateNewGameResult> createNewGameAndJoin({
     required int startingCapital,
     required int salary,
     required bool enableFreeParkingMoney,
   }) async {
-    final gameId = await _uniqueGameId();
+    try {
+      final gameId = await _uniqueGameId();
 
-    assert(!(await _gamesCollection.doc(gameId).get()).exists);
+      assert(!(await _gamesCollection.doc(gameId).get()).exists);
 
-    await _gamesCollection.doc(gameId).set(
-          Game.newOne(
-            id: _randomGameId(),
-            startingCapital: startingCapital,
-            salary: salary,
-            enableFreeParkingMoney: enableFreeParkingMoney,
-          ),
-        );
+      await _gamesCollection.doc(gameId).set(
+            Game.newOne(
+              id: _randomGameId(),
+              startingCapital: startingCapital,
+              salary: salary,
+              enableFreeParkingMoney: enableFreeParkingMoney,
+            ),
+          );
 
-    final game = (await _gamesCollection.doc(gameId).get()).data()!;
+      final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
-    return game;
+      await joinGame(game);
+
+      return CreateNewGameResult.success;
+    } on FirebaseException catch (e) {
+      log('FirebaseException in newGame(): $e');
+
+      switch (e.code) {
+        case 'unavailable':
+          return CreateNewGameResult.noConnection;
+        default:
+          return CreateNewGameResult.failure;
+      }
+    }
   }
 
   /// Gets a random game id until it is unique.
