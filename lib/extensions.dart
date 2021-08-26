@@ -21,4 +21,10 @@ extension ContextExtensions on BuildContext {
 
     return numberFormat.format(balance);
   }
+
+  /// Whether the overall theme brightness is dark.
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+
+  /// Whether the overall theme brightness is light.
+  bool get isLightMode => Theme.of(this).brightness == Brightness.light;
 }

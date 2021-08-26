@@ -9,6 +9,7 @@ import '../../../app/cubit/app_cubit.dart';
 import '../../../extensions.dart';
 import '../../../shared_widgets.dart';
 import 'animated_balance_text.dart';
+import 'list_tile_card.dart';
 import 'overlays.dart';
 import 'transaction_modal_bottom_sheet.dart';
 
@@ -62,7 +63,7 @@ class _PayArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<AppCubit>().state.user;
-    final otherPlayers = game.otherNonBankruptPlayers(user.id);
+    final otherNonBankruptPlayers = game.otherNonBankruptPlayers(user.id);
 
     return Column(
       children: [
@@ -78,14 +79,15 @@ class _PayArea extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        otherPlayers.isEmpty
+        //todo: dont show the text at the end when you won:
+        otherNonBankruptPlayers.isEmpty
             ? const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text('There are no other players yet.'),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: otherPlayers
+                children: otherNonBankruptPlayers
                     .map(
                       (player) => _PlayerCard(
                         game: game,
@@ -99,25 +101,13 @@ class _PayArea extends StatelessWidget {
           children: [
             Expanded(
               flex: 1,
-              child: Card(
-                child: ListTile(
-                  leading: const IconText(
-                    icon: FaIcon(
-                      FontAwesomeIcons.solidBuilding,
-                      size: 16,
-                    ),
-                    gap: 10,
-                    text: Text(
-                      'Bank',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    iconAfterText: false,
-                  ),
-                  onTap: () => context.showTransactionModalBottomSheet(
-                    TransactionForm(
-                      game: game,
-                      transactionType: TransactionType.toBank,
-                    ),
+              child: ListTileCard(
+                icon: FontAwesomeIcons.solidBuilding,
+                text: 'Bank',
+                onTap: () => context.showTransactionModalBottomSheet(
+                  TransactionForm(
+                    game: game,
+                    transactionType: TransactionType.toBank,
                   ),
                 ),
               ),
@@ -125,33 +115,14 @@ class _PayArea extends StatelessWidget {
             if (game.enableFreeParkingMoney)
               Expanded(
                 flex: 2,
-                child: Card(
-                  child: ListTile(
-                    leading: const IconText(
-                      icon: FaIcon(
-                        FontAwesomeIcons.carAlt,
-                        size: 16,
-                      ),
-                      gap: 10,
-                      text: Text(
-                        'Free Parking',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      iconAfterText: false,
-                    ),
-                    trailing: AnimatedBalanceText(
-                      balance: game.freeParkingMoney,
-                      textStyle: const TextStyle(
-                        fontSize: 17,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    onTap: () => context.showTransactionModalBottomSheet(
-                      TransactionForm(
-                        game: game,
-                        transactionType: TransactionType.toFreeParking,
-                      ),
+                child: ListTileCard(
+                  icon: FontAwesomeIcons.carAlt,
+                  text: 'Free Parking',
+                  moneyBalance: game.freeParkingMoney,
+                  onTap: () => context.showTransactionModalBottomSheet(
+                    TransactionForm(
+                      game: game,
+                      transactionType: TransactionType.toFreeParking,
                     ),
                   ),
                 ),
@@ -175,56 +146,16 @@ class _PlayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    Color colorFromPlayerId() {
-      final chars = player.userId;
-      var hash = 0;
-      for (var i = 0; i < chars.length; i++) {
-        hash = chars.codeUnitAt(i) + ((hash << 5) - hash);
-      }
-      final finalHash = hash.abs() % (256 * 256 * 256);
-
-      final red = ((finalHash & 0xFF0000) >> 16);
-      final blue = ((finalHash & 0xFF00) >> 8);
-      final green = ((finalHash & 0xFF));
-      final color = Color.fromRGBO(red, green, blue, 1);
-
-      return color;
-    }
-
-    return Card(
-      child: ListTile(
-        leading: IconText(
-          icon: FaIcon(
-            FontAwesomeIcons.solidUser,
-            size: 17,
-            color: colorFromPlayerId(),
-          ),
-          gap: 10,
-          text: Text(
-            player.name,
-            style: TextStyle(
-              fontSize: 16,
-              color: colorFromPlayerId(),
-            ),
-          ),
-          iconAfterText: false,
-          mainAxisAlignment: MainAxisAlignment.start,
-        ),
-        trailing: AnimatedBalanceText(
-          balance: player.balance,
-          textStyle: TextStyle(
-            fontSize: 17,
-            color: isDarkMode ? Colors.grey : Colors.black54,
-          ),
-        ),
-        onTap: () => context.showTransactionModalBottomSheet(
-          TransactionForm(
-            game: game,
-            transactionType: TransactionType.toPlayer,
-            toUserId: player.userId,
-          ),
+    return ListTileCard(
+      icon: FontAwesomeIcons.solidUser,
+      text: player.name,
+      moneyBalance: player.balance,
+      generateUniqueColorKey: player.userId,
+      onTap: () => context.showTransactionModalBottomSheet(
+        TransactionForm(
+          game: game,
+          transactionType: TransactionType.toPlayer,
+          toUserId: player.userId,
         ),
       ),
     );
@@ -259,83 +190,46 @@ class _ReceiveArea extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: Card(
-                child: ListTile(
-                  leading: const IconText(
-                    icon: FaIcon(
-                      FontAwesomeIcons.solidBuilding,
-                      size: 16,
-                    ),
-                    gap: 10,
-                    text: Text(
-                      'Bank',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    iconAfterText: false,
-                  ),
-                  onTap: () => context.showTransactionModalBottomSheet(
-                    TransactionForm(
-                      game: game,
-                      transactionType: TransactionType.fromBank,
-                    ),
+              child: ListTileCard(
+                icon: FontAwesomeIcons.solidBuilding,
+                text: 'Bank',
+                onTap: () => context.showTransactionModalBottomSheet(
+                  TransactionForm(
+                    game: game,
+                    transactionType: TransactionType.fromBank,
                   ),
                 ),
               ),
             ),
             Expanded(
-              child: Card(
-                child: ListTile(
-                  leading: const IconText(
-                    icon: FaIcon(
-                      Icons.work_rounded,
-                      size: 18,
-                    ),
-                    gap: 10,
-                    text: Text(
-                      'Salary',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    iconAfterText: false,
-                  ),
-                  onTap: () => context.showTransactionModalBottomSheet(
-                    TransactionForm(
-                      game: game,
-                      transactionType: TransactionType.fromSalary,
-                    ),
+              child: ListTileCard(
+                icon: Icons.work_rounded, //todo: icon size?! bigger! (2px)
+                text: 'Salary',
+                onTap: () => context.showTransactionModalBottomSheet(
+                  TransactionForm(
+                    game: game,
+                    transactionType: TransactionType.fromSalary,
                   ),
                 ),
               ),
             ),
             if (game.enableFreeParkingMoney)
               Expanded(
-                child: Card(
-                  child: ListTile(
-                    leading: const IconText(
-                      icon: FaIcon(
-                        FontAwesomeIcons.carAlt,
-                        size: 18,
-                      ),
-                      gap: 10,
-                      text: Text(
-                        'Free Parking',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      iconAfterText: false,
-                    ),
-                    onTap: game.freeParkingMoney <= 0
-                        ? () => context.showInfoFlashbar(
-                              message:
-                                  'Sorry, at the moment there is no free parking money.',
-                              duration: 2,
-                            )
-                        : () => context.showTransactionModalBottomSheet(
-                              TransactionForm(
-                                game: game,
-                                transactionType:
-                                    TransactionType.fromFreeParking,
-                              ),
+                child: ListTileCard(
+                  icon: FontAwesomeIcons.carAlt,
+                  text: 'Free Parking',
+                  onTap: game.freeParkingMoney <= 0
+                      ? () => context.showInfoFlashbar(
+                            message:
+                                'Sorry, at the moment there is no free parking money.',
+                            duration: 2,
+                          )
+                      : () => context.showTransactionModalBottomSheet(
+                            TransactionForm(
+                              game: game,
+                              transactionType: TransactionType.fromFreeParking,
                             ),
-                  ),
+                          ),
                 ),
               ),
           ],
