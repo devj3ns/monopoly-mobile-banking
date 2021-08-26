@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:kt_dart/kt.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
@@ -275,13 +276,30 @@ class Game extends Equatable {
     );
   }
 
-  /// Returns a new instance which represents the the game after the player was added and his start balance was set.
+  /// Returns a new instance which represents the the game after the player was added.
+  ///
+  /// When a player gets added, his start money balance and his color is set.
   Game addPlayer(User user) {
     final _players = players.toMutableList();
 
     if (!containsUser(user.id)) {
-      _players.add(
-          Player(userId: user.id, name: user.name, balance: startingCapital));
+      final colors = [
+        Colors.green,
+        Colors.redAccent,
+        Colors.amber,
+        Colors.purpleAccent,
+        Colors.teal,
+        Colors.indigo,
+      ];
+
+      final player = Player(
+        userId: user.id,
+        name: user.name,
+        balance: startingCapital,
+        color: colors[_players.size],
+      );
+
+      _players.add(player);
     }
 
     return copyWith(players: _players.toList());

@@ -150,7 +150,7 @@ class _PlayerCard extends StatelessWidget {
       icon: FontAwesomeIcons.solidUser,
       text: player.name,
       moneyBalance: player.balance,
-      generateUniqueColorKey: player.userId,
+      customColor: player.color,
       onTap: () => context.showTransactionModalBottomSheet(
         TransactionForm(
           game: game,
