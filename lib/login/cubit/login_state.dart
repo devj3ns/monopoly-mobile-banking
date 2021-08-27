@@ -2,27 +2,27 @@ part of 'login_cubit.dart';
 
 class LoginState extends Equatable {
   const LoginState({
-    this.name = '',
+    this.username = '',
     this.isSubmitting = false,
-    this.loginFailure = AppFailure.none,
+    this.signInResult = SignInResult.none,
   });
 
-  final String name;
+  final String username;
   final bool isSubmitting;
-  final AppFailure loginFailure;
+  final SignInResult signInResult;
 
   @override
-  List<Object> get props => [name, isSubmitting, loginFailure];
+  List<Object> get props => [username, isSubmitting, signInResult];
 
   LoginState copyWith({
-    String? name,
+    String? username,
     bool? isSubmitting,
-    AppFailure? loginFailure,
+    SignInResult? signInResult,
   }) {
     return LoginState(
-      name: name ?? this.name,
+      username: username ?? this.username,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      loginFailure: loginFailure ?? this.loginFailure,
+      signInResult: signInResult ?? this.signInResult,
     );
   }
 }

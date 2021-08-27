@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'package:shared/shared.dart';
-
 import 'models/user.dart';
+
+enum SignInResult { none, success, usernameIsTaken, noConnection, failure }
 
 class UserRepository {
   UserRepository() {
@@ -16,6 +17,12 @@ class UserRepository {
   // ### Firebase instances: ###
   static final _firebaseAuth = FirebaseAuth.instance;
   static final _firebaseFirestore = FirebaseFirestore.instance;
+
+  // ### Firestore collections: ###
+  final usernamesCollection = _firebaseFirestore.collection('usernames');
+  final usersCollection = _firebaseFirestore.collection('users');
+  DocumentReference<Map<String, dynamic>> userDocument(String userId) =>
+      usersCollection.doc(userId);
 
   // ### User variables and getters: ###
   /// A stream of the currently authenticated user that provides synchronous access to the last emitted user object.
@@ -33,26 +40,50 @@ class UserRepository {
     return watchUser.first.catchError((Object _) => User.none);
   }
 
-  /// Creates a new account for the user and signs him in which updates [_authUserChanges].
-  Future<void> signIn(String name) async {
+  /// Creates a new account with the given username and signs in which updates [_authUserChanges].
+  ///
+  /// If the username is already taken [SignInResult.usernameIsTaken] is returned.
+  Future<SignInResult> signIn(String username) async {
     try {
+      // Create ref to usernames doc (usernames are case insensitive!)
+      final usernamesDoc = usernamesCollection.doc(username.toLowerCase());
+
+      // Check if username is already taken or not:
+      final usernameIsTaken = (await usernamesDoc.get()).exists;
+
+      // Return if it is already taken:
+      if (usernameIsTaken) return SignInResult.usernameIsTaken;
+
+      // Create user in firebase auth:
       final userCredential = await _firebaseAuth.signInAnonymously();
       final firebaseUser = userCredential.user!;
 
-      final user = User(id: firebaseUser.uid, name: name, wins: 0);
+      // Create user in the database:
+      final user = User(id: firebaseUser.uid, name: username, wins: 0);
       await _updateUserData(user);
-    } on FirebaseAuthException {
-      throw AppFailure.fromSignIn();
+
+      // Create a document in the usernames collection:
+      await usernamesDoc.set(<String, dynamic>{'userId': firebaseUser.uid});
+
+      return SignInResult.success;
+    } on FirebaseException catch (e) {
+      switch (e.code) {
+        case 'unavailable':
+          return SignInResult.noConnection;
+        default:
+          log('Unknown FirebaseException exception in signIn(): $e');
+          return SignInResult.failure;
+      }
+    } catch (e) {
+      log('Unknown exception in signIn(): $e');
+
+      return SignInResult.failure;
     }
   }
 
   /// Signs out the user which updates [_authUserChanges].
   Future<void> signOut() async {
-    try {
-      await _firebaseAuth.signOut();
-    } on Exception {
-      throw AppFailure.fromSignOut();
-    }
+    await _firebaseAuth.signOut();
   }
 
   /// Stream which returns the authenticated user and his data or [User.none] if unauthenticated.
@@ -64,33 +95,41 @@ class UserRepository {
         .authStateChanges()
         .onErrorResumeWith((_, __) => null)
         .switchMap<User>(
-          (firebaseUser) async* {
-            if (firebaseUser == null) {
-              yield User.none;
+      (firebaseUser) async* {
+        if (firebaseUser == null) {
+          yield User.none;
 
-              return;
-            }
+          return;
+        }
 
-            yield* _firebaseFirestore.userDoc(firebaseUser.uid).snapshots().map(
-                  (snapshot) => snapshot.exists
-                      ? User.fromJson(snapshot.data()!, snapshotId: snapshot.id)
-                      : User.none,
-                );
-          },
-        )
-        .handleError((Object _) => throw AppFailure.fromAuth())
-        .shareValue();
+        yield* userDocument(firebaseUser.uid).snapshots().map(
+              (snapshot) => snapshot.exists
+                  ? User.fromJson(snapshot.data()!, snapshotId: snapshot.id)
+                  : User.none,
+            );
+      },
+    ).shareValue();
   }
 
   Future<void> setCurrentGameId(String? currentGameId) {
-    return _firebaseFirestore
-        .userDoc(user.id)
-        .update({'currentGameId': currentGameId});
+    return userDocument(user.id).update({'currentGameId': currentGameId});
   }
 
   Future<void> _updateUserData(User user) async {
-    return _firebaseFirestore
-        .userDoc(user.id)
-        .set(user.toJson(), SetOptions(merge: true));
+    return userDocument(user.id).set(user.toJson(), SetOptions(merge: true));
+  }
+}
+
+extension StreamExtensions<T> on Stream<T> {
+  Stream<T> onErrorResumeWith(
+    T Function(Object error, StackTrace stackTrace) valueOnError,
+  ) {
+    return transform(
+      StreamTransformer<T, T>.fromHandlers(
+        handleError: (Object error, StackTrace stackTrace, EventSink<T> sink) {
+          sink.add(valueOnError(error, stackTrace));
+        },
+      ),
+    );
   }
 }

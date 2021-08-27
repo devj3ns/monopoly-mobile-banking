@@ -1,9 +1,8 @@
-import 'dart:developer';
-
-import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'package:banking_repository/banking_repository.dart';
 import 'package:user_repository/user_repository.dart';
 
 import '../../game/game_screen/game_screen.dart';
@@ -33,22 +32,15 @@ class AppView extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: BlocBuilder<AppCubit, AppState>(
         builder: (context, state) {
-          if (state.isUnauthenticated) {
-            return const LoginPage();
-          } else if (state.isAuthenticated || state.isNewlyAuthenticated) {
-            return RepositoryProvider(
-              create: (_) => BankingRepository(
-                  userRepository: context.read<UserRepository>()),
-              child: state.user.currentGameId != null
-                  ? const GameScreen()
-                  : const SelectGameScreen(),
-            );
-          } else {
-            //todo:
-            log(state.failure.toString());
-
-            return const LoginPage();
-          }
+          return state.isAuthenticated || state.isNewlyAuthenticated
+              ? RepositoryProvider(
+                  create: (_) => BankingRepository(
+                      userRepository: context.read<UserRepository>()),
+                  child: state.user.currentGameId != null
+                      ? const GameScreen()
+                      : const SelectGameScreen(),
+                )
+              : const LoginPage();
         },
       ),
     );

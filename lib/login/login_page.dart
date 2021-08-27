@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
+import 'package:fleasy/fleasy.dart';
 
 import '../shared_widgets.dart';
 import 'cubit/login_cubit.dart';
@@ -16,7 +17,30 @@ class LoginPage extends StatelessWidget {
         create: (_) => LoginCubit(
           userRepository: context.read<UserRepository>(),
         ),
-        child: const LoginForm(),
+        child: BlocListener<LoginCubit, LoginState>(
+          listenWhen: (previous, current) =>
+              previous.signInResult != current.signInResult &&
+              current.signInResult != SignInResult.none &&
+              current.signInResult != SignInResult.success,
+          listener: (context, state) {
+            switch (state.signInResult) {
+              case SignInResult.usernameIsTaken:
+                context.showInfoFlashbar(
+                    message: 'Sorry, this username is already taken!');
+                break;
+              case SignInResult.noConnection:
+                context.showNoConnectionFlashbar();
+                break;
+              case SignInResult.failure:
+              default:
+                context.showErrorFlashbar();
+                break;
+            }
+
+            context.read<LoginCubit>().resetSignInResult();
+          },
+          child: const LoginForm(),
+        ),
       ),
       applyPadding: false,
     );

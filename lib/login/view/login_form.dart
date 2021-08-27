@@ -3,8 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:shared/shared.dart';
-
 import '../../shared_widgets.dart';
 import '../cubit/login_cubit.dart';
 
@@ -23,52 +21,43 @@ class LoginForm extends StatelessWidget {
       }
     }
 
-    return BlocListener<LoginCubit, LoginState>(
-      listenWhen: (p, c) =>
-          p.loginFailure != c.loginFailure && c.loginFailure != AppFailure.none,
-      listener: (context, state) {
-        //todo: show more meaningful error flashbars!
-        context.showErrorFlashbar();
-        context.read<LoginCubit>().resetLoginFailure();
-      },
-      child: Form(
-        key: formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(8.0),
-          children: [
-            SizedBox(height: context.screenHeight * 0.2),
-            Image.asset(
-              'assets/logo.png',
-              width: 100,
-              height: 100,
-            ),
-            const SizedBox(height: 25),
-            Text(
-              'Monopoly Banking',
-              style: Theme.of(context).textTheme.headline4,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 25),
-            _NameInput(),
-            _LoginButton(submitForm),
-          ],
-        ),
+    return Form(
+      key: formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(8.0),
+        children: [
+          SizedBox(height: context.screenHeight * 0.2),
+          Image.asset(
+            'assets/logo.png',
+            width: 100,
+            height: 100,
+          ),
+          const SizedBox(height: 25),
+          Text(
+            'Monopoly Banking',
+            style: Theme.of(context).textTheme.headline4,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 25),
+          _UsernameInput(),
+          _LoginButton(submitForm),
+        ],
       ),
     );
   }
 }
 
-class _NameInput extends StatelessWidget {
+class _UsernameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Insets.m),
       child: TextFormField(
         onChanged: (name) =>
-            context.read<LoginCubit>().onNameChanged(name.trim()),
+            context.read<LoginCubit>().onUsernameChanged(name.trim()),
         keyboardType: TextInputType.text,
         decoration: const InputDecoration(
-          labelText: 'Name',
+          labelText: 'Username',
         ),
         validator: (value) => value.isBlank
             ? 'Please enter your name'

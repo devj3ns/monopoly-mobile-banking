@@ -4,28 +4,24 @@ enum AppStatus {
   unauthenticated,
   newlyAuthenticated,
   authenticated,
-  failure,
 }
 
 extension AppStatusExtensions on AppStatus {
   bool get isUnauthenticated => this == AppStatus.unauthenticated;
   bool get isNewlyAuthenticated => this == AppStatus.newlyAuthenticated;
   bool get isAuthenticated => this == AppStatus.authenticated;
-  bool get isFailure => this == AppStatus.failure;
 }
 
 extension AppStateExtensions on AppState {
   bool get isUnauthenticated => status.isUnauthenticated;
   bool get isNewlyAuthenticated => status.isNewlyAuthenticated;
   bool get isAuthenticated => status.isAuthenticated;
-  bool get isFailure => status.isFailure;
 }
 
 class AppState extends Equatable {
   const AppState._({
     required this.status,
     this.user = User.none,
-    this.failure = AppFailure.none,
   });
 
   const AppState.unauthenticated() : this._(status: AppStatus.unauthenticated);
@@ -42,19 +38,9 @@ class AppState extends Equatable {
           user: user,
         );
 
-  const AppState.failure({
-    required AppFailure failure,
-    required User user,
-  }) : this._(
-          status: AppStatus.failure,
-          user: user,
-          failure: failure,
-        );
-
   final AppStatus status;
   final User user;
-  final AppFailure failure;
 
   @override
-  List<Object?> get props => [status, user, failure];
+  List<Object?> get props => [status, user];
 }

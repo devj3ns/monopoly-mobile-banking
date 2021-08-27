@@ -27,8 +27,6 @@ dependencies:
     path: packages/user_repository
   banking_repository:
     path: packages/banking_repository
-  shared:
-    path: packages/shared
 
 dev_dependencies:
   flutter_launcher_icons: ^0.9.1

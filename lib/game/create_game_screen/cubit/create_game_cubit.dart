@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:shared/shared.dart';
 
 import 'package:banking_repository/banking_repository.dart';
 
