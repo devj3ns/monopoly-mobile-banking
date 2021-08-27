@@ -15,7 +15,7 @@ class SelectGameView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.watch<AppCubit>().state.user;
 
     return ListView(
       padding: const EdgeInsets.all(8.0),

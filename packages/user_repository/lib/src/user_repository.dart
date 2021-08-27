@@ -1,13 +1,29 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:fleasy/fleasy.dart';
 
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'models/user.dart';
 
-enum SignInResult { none, success, usernameIsTaken, noConnection, failure }
+enum SignInResult {
+  none,
+  success,
+  noConnection,
+  failure,
+}
+
+enum ChooseUsernameResult {
+  none,
+  success,
+  usernameAlreadyTaken,
+  noConnection,
+  failure
+}
 
 class UserRepository {
   UserRepository() {
@@ -17,6 +33,7 @@ class UserRepository {
   // ### Firebase instances: ###
   static final _firebaseAuth = FirebaseAuth.instance;
   static final _firebaseFirestore = FirebaseFirestore.instance;
+  static final _googleSignIn = GoogleSignIn.standard();
 
   // ### Firestore collections: ###
   final usernamesCollection = _firebaseFirestore.collection('usernames');
@@ -40,10 +57,10 @@ class UserRepository {
     return watchUser.first.catchError((Object _) => User.none);
   }
 
-  /// Creates a new account with the given username and signs in which updates [_authUserChanges].
+  /// Sets the username in the database.
   ///
-  /// If the username is already taken [SignInResult.usernameIsTaken] is returned.
-  Future<SignInResult> signIn(String username) async {
+  /// If the username is already taken [ChooseUsernameResult.usernameAlreadyTaken] is returned.
+  Future<ChooseUsernameResult> chooseUsername(String username) async {
     try {
       // Create ref to usernames doc (usernames are case insensitive!)
       final usernamesDoc = usernamesCollection.doc(username.toLowerCase());
@@ -52,30 +69,122 @@ class UserRepository {
       final usernameIsTaken = (await usernamesDoc.get()).exists;
 
       // Return if it is already taken:
-      if (usernameIsTaken) return SignInResult.usernameIsTaken;
+      if (usernameIsTaken) return ChooseUsernameResult.usernameAlreadyTaken;
 
-      // Create user in firebase auth:
-      final userCredential = await _firebaseAuth.signInAnonymously();
-      final firebaseUser = userCredential.user!;
-
-      // Create user in the database:
-      final user = User(id: firebaseUser.uid, name: username, wins: 0);
-      await _updateUserData(user);
+      // Update username in the database:
+      final updatedUser = _user.value.copyWith(name: username);
+      await _updateUserData(updatedUser);
 
       // Create a document in the usernames collection:
-      await usernamesDoc.set(<String, dynamic>{'userId': firebaseUser.uid});
+      await usernamesDoc.set(<String, dynamic>{'userId': updatedUser.id});
+
+      return ChooseUsernameResult.success;
+    } on FirebaseException catch (e) {
+      switch (e.code) {
+        case 'unavailable':
+          return ChooseUsernameResult.noConnection;
+        default:
+          log('Unknown FirebaseException exception in chooseUsername(): $e');
+          return ChooseUsernameResult.failure;
+      }
+    } catch (e) {
+      log('Unknown exception in chooseUsername(): $e');
+
+      return ChooseUsernameResult.failure;
+    }
+  }
+
+  /// Signs in with Google.
+  Future<SignInResult> signInWithGoogle() async {
+    try {
+      late UserCredential userCredential;
+      if (DeviceType.isWeb) {
+        await _firebaseAuth.signInWithRedirect(GoogleAuthProvider());
+
+        userCredential = await _firebaseAuth.getRedirectResult();
+      } else {
+        // Trigger the authentication flow
+        final googleSignInAccount = await _googleSignIn.signIn();
+
+        if (googleSignInAccount == null) return SignInResult.none;
+
+        // Obtain the auth details from the request
+        final googleSignInAuth = await googleSignInAccount.authentication;
+
+        // Create a new credential
+        final oauthCredential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuth.accessToken,
+          idToken: googleSignInAuth.idToken,
+        );
+
+        // Sign in with credential
+        userCredential =
+            await _firebaseAuth.signInWithCredential(oauthCredential);
+      }
+
+      // Get firebase auth user
+      final firebaseUser = userCredential.user!;
+
+      // Check if its the first time the user signs in with google
+      final firstLogin = !(await userDocument(firebaseUser.uid).get()).exists;
+
+      if (firstLogin) {
+        // Create user with empty username in database when its the first login_screen
+        // The username gets set later!
+        final user = User(id: firebaseUser.uid, name: '', wins: 0);
+
+        await _updateUserData(user);
+      }
 
       return SignInResult.success;
     } on FirebaseException catch (e) {
       switch (e.code) {
+        case 'network-request-failed':
         case 'unavailable':
           return SignInResult.noConnection;
         default:
-          log('Unknown FirebaseException exception in signIn(): $e');
+          log('Unknown FirebaseException exception in signInWithGoogle(): $e');
+          return SignInResult.failure;
+      }
+    } on PlatformException catch (e) {
+      switch (e.code) {
+        case 'network_error':
+          return SignInResult.noConnection;
+        default:
+          log('Unknown PlatformException exception in signInWithGoogle(): $e');
           return SignInResult.failure;
       }
     } catch (e) {
-      log('Unknown exception in signIn(): $e');
+      log('Unknown exception in signInWithGoogle(): $e');
+
+      return SignInResult.failure;
+    }
+  }
+
+  /// Signs in anonymously.
+  Future<SignInResult> signInAnonymously() async {
+    try {
+      // Create user in firebase auth:
+      final userCredential = await _firebaseAuth.signInAnonymously();
+      final firebaseUser = userCredential.user!;
+
+      // Create user with empty username in database when its the first login_screen
+      // The username gets set later!
+      final user = User(id: firebaseUser.uid, name: '', wins: 0);
+      await _updateUserData(user);
+
+      return SignInResult.success;
+    } on FirebaseException catch (e) {
+      switch (e.code) {
+        case 'network-request-failed':
+        case 'unavailable':
+          return SignInResult.noConnection;
+        default:
+          log('Unknown FirebaseException exception in signInAnonymously(): $e');
+          return SignInResult.failure;
+      }
+    } catch (e) {
+      log('Unknown exception in signInAnonymously(): $e');
 
       return SignInResult.failure;
     }
@@ -83,7 +192,10 @@ class UserRepository {
 
   /// Signs out the user which updates [_authUserChanges].
   Future<void> signOut() async {
-    await _firebaseAuth.signOut();
+    await Future.wait([
+      _googleSignIn.signOut(),
+      _firebaseAuth.signOut(),
+    ]);
   }
 
   /// Stream which returns the authenticated user and his data or [User.none] if unauthenticated.
@@ -112,7 +224,7 @@ class UserRepository {
   }
 
   Future<void> setCurrentGameId(String? currentGameId) {
-    return userDocument(user.id).update({'currentGameId': currentGameId});
+    return _updateUserData(user.copyWith(currentGameId: () => currentGameId));
   }
 
   Future<void> _updateUserData(User user) async {

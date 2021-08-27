@@ -22,6 +22,7 @@ dependencies:
   currency_text_input_formatter: ^2.1.2
   modal_bottom_sheet: ^2.0.0
   confetti: ^0.6.0-nullsafety
+  flutter_signin_button: ^2.0.0
 
   user_repository:
     path: packages/user_repository

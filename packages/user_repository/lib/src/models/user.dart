@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:fleasy/fleasy.dart';
 
 class User extends Equatable {
   const User({
@@ -34,8 +35,24 @@ class User extends Equatable {
         'currentGameId': currentGameId,
         'wins': wins,
       };
+
+  User copyWith({
+    String? name,
+    String? Function()? currentGameId,
+    int? wins,
+  }) {
+    return User(
+      id: id,
+      name: name ?? this.name,
+      currentGameId:
+          currentGameId != null ? currentGameId() : this.currentGameId,
+      wins: wins ?? this.wins,
+    );
+  }
 }
 
 extension UserExtensions on User {
   bool get isNone => this == User.none;
+
+  bool get hasUsername => name.isNotBlank;
 }

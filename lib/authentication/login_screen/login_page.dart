@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:fleasy/fleasy.dart';
 
-import '../shared_widgets.dart';
+import '../../shared_widgets.dart';
 import 'cubit/login_cubit.dart';
 import 'view/login_form.dart';
 
@@ -24,10 +24,6 @@ class LoginPage extends StatelessWidget {
               current.signInResult != SignInResult.success,
           listener: (context, state) {
             switch (state.signInResult) {
-              case SignInResult.usernameIsTaken:
-                context.showInfoFlashbar(
-                    message: 'Sorry, this username is already taken!');
-                break;
               case SignInResult.noConnection:
                 context.showNoConnectionFlashbar();
                 break;
@@ -42,7 +38,6 @@ class LoginPage extends StatelessWidget {
           child: const LoginForm(),
         ),
       ),
-      applyPadding: false,
     );
   }
 }

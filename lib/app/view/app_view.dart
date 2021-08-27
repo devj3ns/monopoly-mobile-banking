@@ -5,9 +5,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:banking_repository/banking_repository.dart';
 import 'package:user_repository/user_repository.dart';
 
+import '../../authentication/choose_username_screen/choose_username_page.dart';
+import '../../authentication/login_screen/login_page.dart';
 import '../../game/game_screen/game_screen.dart';
 import '../../game/select_game_screen/select_game_screen.dart';
-import '../../login/login_page.dart';
 
 import '../cubit/app_cubit.dart';
 
@@ -32,15 +33,22 @@ class AppView extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: BlocBuilder<AppCubit, AppState>(
         builder: (context, state) {
-          return state.isAuthenticated || state.isNewlyAuthenticated
-              ? RepositoryProvider(
-                  create: (_) => BankingRepository(
-                      userRepository: context.read<UserRepository>()),
-                  child: state.user.currentGameId != null
-                      ? const GameScreen()
-                      : const SelectGameScreen(),
-                )
-              : const LoginPage();
+          if (state.isAuthenticated || state.isNewlyAuthenticated) {
+            final user = state.user;
+
+            assert(!user.isNone);
+
+            return !user.hasUsername
+                ? const ChooseUsernamePage()
+                : RepositoryProvider(
+                    create: (_) => BankingRepository(
+                        userRepository: context.read<UserRepository>()),
+                    child: user.currentGameId != null
+                        ? const GameScreen()
+                        : const SelectGameScreen());
+          } else {
+            return const LoginPage();
+          }
         },
       ),
     );
