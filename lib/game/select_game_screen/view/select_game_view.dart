@@ -1,9 +1,11 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
+import 'package:monopoly_banking/game/select_game_screen/cubit/join_game_cubit.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../extensions.dart';
@@ -13,14 +15,55 @@ import '../../create_game_screen/create_game_screen.dart';
 class SelectGameView extends StatelessWidget {
   const SelectGameView({Key? key}) : super(key: key);
 
+  static final formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    void submitJoinGameForm() {
+      if (formKey.currentState!.validate()) {
+        context.read<JoinGameCubit>().onFormSubmitted();
+      }
+    }
+
+    return Form(
+      key: formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(8.0),
+        children: [
+          const SizedBox(height: 20),
+          const _NameAndWinsSection(),
+          const SizedBox(height: 50),
+          Text(
+            'Join game:',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          const SizedBox(height: 10),
+          _GameIdInput(submitJoinGameForm),
+          _JoinGameButton(submitJoinGameForm),
+          const Divider(height: 25),
+          Text(
+            'Create game:',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          const SizedBox(height: 10),
+          const _CreateGameButton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _NameAndWinsSection extends StatelessWidget {
+  const _NameAndWinsSection({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AppCubit>().state.user;
 
-    return ListView(
-      padding: const EdgeInsets.all(8.0),
+    return Column(
       children: [
-        const SizedBox(height: 20),
         Text(
           'Hey ${user.name} 👋',
           textAlign: TextAlign.center,
@@ -34,71 +77,78 @@ class SelectGameView extends StatelessWidget {
             style: const TextStyle(color: Colors.grey),
           ),
         ],
-        const SizedBox(height: 50),
-        Text(
-          'Join game:',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headline6,
-        ),
-        const SizedBox(height: 10),
-        EasyStreamBuilder<List<Game>>(
-          stream: context.bankingRepository().allActiveGames,
-          loadingIndicator: const Center(child: CircularProgressIndicator()),
-          isEmptyText: 'There are no active games at the moment.',
-          dataBuilder: (context, games) {
-            //debugPrint('GAME LIST STREAM BUILDER REBUILDS');
-            //debugPrint(games.toString());
-
-            return Column(
-                children:
-                    games.map((game) => _GameListTileCard(game)).toList());
-          },
-        ),
-        const SizedBox(height: 5),
-        Center(
-          child: ElevatedButton(
-            child: const IconText(
-              text: Text('Create game'),
-              icon: Icon(Icons.add_rounded),
-            ),
-            onPressed: () => context.pushPage(
-              CreateGameScreen(
-                  bankingRepository: context.read<BankingRepository>()),
-            ),
-          ),
-        )
       ],
     );
   }
 }
 
-class _GameListTileCard extends StatelessWidget {
-  const _GameListTileCard(this.game, {Key? key}) : super(key: key);
-  final Game game;
+class _GameIdInput extends StatelessWidget {
+  const _GameIdInput(this.submitForm, {Key? key}) : super(key: key);
+  final VoidCallback submitForm;
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    return TextFormField(
+      decoration: const InputDecoration(
+        hintText: 'Game ID',
+        prefix: Text('#'),
+      ),
+      textCapitalization: TextCapitalization.characters,
+      onChanged: (v) => context.read<JoinGameCubit>().gameIdChanged(v),
+      onEditingComplete: submitForm,
+      validator: (v) => v.isBlank ? 'Please enter a game ID.' : null,
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]+')),
+        LengthLimitingTextInputFormatter(4),
+      ],
+    );
+  }
+}
 
-    return Card(
-      child: ListTile(
-        title: Text('#${game.id}'),
-        trailing: Text(
-          '${game.players.size} ${Intl.plural(game.players.size, zero: 'Players', one: 'Player', other: 'Players')}',
+class _JoinGameButton extends StatelessWidget {
+  const _JoinGameButton(this.submitForm, {Key? key}) : super(key: key);
+  final VoidCallback submitForm;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: Insets.m),
+        child: BlocBuilder<JoinGameCubit, JoinGameState>(
+          buildWhen: (previous, current) =>
+              previous.isSubmitting != current.isSubmitting,
+          builder: (context, state) {
+            return state.isSubmitting
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    child: const IconText(
+                      text: Text('Join'),
+                      icon: Icon(Icons.login_rounded),
+                    ),
+                    onPressed: submitForm,
+                  );
+          },
         ),
-        onTap: () {
-          final wasAlreadyConnectedToGame = game.players
-              .asList()
-              .where((player) => player.userId == user.id)
-              .isNotEmpty;
+      ),
+    );
+  }
+}
 
-          if (game.players.size >= 6 && !wasAlreadyConnectedToGame) {
-            context.showInfoFlashbar(
-                message: 'A game is limited to a maximum of 6 players.');
-          } else {
-            context.read<BankingRepository>().joinGame(game);
-          }
-        },
+class _CreateGameButton extends StatelessWidget {
+  const _CreateGameButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton(
+        child: const IconText(
+          text: Text('Create game'),
+          icon: Icon(Icons.add_rounded),
+        ),
+        onPressed: () => context.pushPage(
+          CreateGameScreen(
+              bankingRepository: context.read<BankingRepository>()),
+        ),
       ),
     );
   }

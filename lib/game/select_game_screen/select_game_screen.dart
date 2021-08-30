@@ -1,6 +1,8 @@
+import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:monopoly_banking/game/select_game_screen/cubit/join_game_cubit.dart';
 
 import '../../app/cubit/app_cubit.dart';
 import '../../app_info_screen.dart';
@@ -59,7 +61,37 @@ class SelectGameScreen extends StatelessWidget {
         ],
       ),
       applyPadding: false,
-      body: const SelectGameView(),
+      body: BlocProvider<JoinGameCubit>(
+        create: (_) => JoinGameCubit(
+          bankingRepository: context.read<BankingRepository>(),
+        ),
+        child: BlocListener<JoinGameCubit, JoinGameState>(
+            listenWhen: (previous, current) =>
+                previous.joinGameResult != current.joinGameResult &&
+                current.joinGameResult != JoinGameResult.none &&
+                current.joinGameResult != JoinGameResult.success,
+            listener: (context, state) {
+              switch (state.joinGameResult) {
+                case JoinGameResult.noConnection:
+                  context.showNoConnectionFlashbar();
+                  break;
+                case JoinGameResult.gameNotFound:
+                  context.showErrorFlashbar(
+                      message: 'There is no game with this ID.');
+                  break;
+                case JoinGameResult.tooManyPlayers:
+                  context.showInfoFlashbar(
+                      message: 'A game is limited to a maximum of 6 players.');
+                  break;
+                default:
+                  context.showErrorFlashbar();
+                  break;
+              }
+
+              context.read<JoinGameCubit>().resetJoinGameResult();
+            },
+            child: const SelectGameView()),
+      ),
     );
   }
 }

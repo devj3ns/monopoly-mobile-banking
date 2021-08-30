@@ -8,6 +8,15 @@ import 'models/models.dart';
 
 enum CreateNewGameResult { none, success, noConnection, failure }
 
+enum JoinGameResult {
+  none,
+  success,
+  noConnection,
+  gameNotFound,
+  tooManyPlayers,
+  failure
+}
+
 class BankingRepository {
   const BankingRepository({required this.userRepository});
   final UserRepository userRepository;
@@ -24,14 +33,6 @@ class BankingRepository {
 
   // #### Public methods:
 
-  /// Streams a list of all active games (all games where nobody won yet).
-  Stream<List<Game>> get allActiveGames {
-    return _gamesCollection
-        .where('winnerId', isNull: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((game) => game.data()).toList());
-  }
-
   /// Streams the game with the given id.
   Stream<Game?> streamGame(String currentGameId) {
     return _gamesCollection
@@ -45,12 +46,45 @@ class BankingRepository {
     await userRepository.setCurrentGameId(null);
   }
 
-  /// Joins to the given game.
-  Future<void> joinGame(Game game) async {
-    final updatedGame = game.addPlayer(userRepository.user);
-    await _gamesCollection.doc(game.id).set(updatedGame);
+  Future<JoinGameResult> joinGame(String gameId) async {
+    gameId = gameId.toUpperCase();
 
-    await userRepository.setCurrentGameId(game.id);
+    try {
+      final gameSnapshot = await _gamesCollection.doc(gameId).get();
+
+      if (!gameSnapshot.exists) return JoinGameResult.gameNotFound;
+
+      final game = gameSnapshot.data()!;
+
+      final wasAlreadyConnectedToGame = game.players
+          .asList()
+          .where((player) => player.userId == userRepository.user.id)
+          .isNotEmpty;
+
+      if (game.players.size >= 6 && !wasAlreadyConnectedToGame) {
+        return JoinGameResult.tooManyPlayers;
+      }
+
+      // Join the game:
+      final updatedGame = game.addPlayer(userRepository.user);
+      await _gamesCollection.doc(game.id).set(updatedGame);
+      await userRepository.setCurrentGameId(game.id);
+
+      return JoinGameResult.success;
+    } on FirebaseException catch (e) {
+      log('FirebaseException in joinGame(): $e');
+
+      switch (e.code) {
+        case 'unavailable':
+          return JoinGameResult.noConnection;
+        default:
+          return JoinGameResult.failure;
+      }
+    } catch (e) {
+      log('Unknown exception in joinGame(): $e');
+
+      return JoinGameResult.failure;
+    }
   }
 
   /// Creates a new game lobby and returns itself.
@@ -75,11 +109,14 @@ class BankingRepository {
 
       final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
-      await joinGame(game);
+      // Join the game:
+      final updatedGame = game.addPlayer(userRepository.user);
+      await _gamesCollection.doc(game.id).set(updatedGame);
+      await userRepository.setCurrentGameId(game.id);
 
       return CreateNewGameResult.success;
     } on FirebaseException catch (e) {
-      log('FirebaseException in newGame(): $e');
+      log('FirebaseException in createNewGameAndJoin(): $e');
 
       switch (e.code) {
         case 'unavailable':
@@ -87,6 +124,10 @@ class BankingRepository {
         default:
           return CreateNewGameResult.failure;
       }
+    } catch (e) {
+      log('Unknown exception in createNewGameAndJoin(): $e');
+
+      return CreateNewGameResult.failure;
     }
   }
 
