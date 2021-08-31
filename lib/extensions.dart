@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,4 +28,11 @@ extension ContextExtensions on BuildContext {
 
   /// Whether the overall theme brightness is light.
   bool get isLightMode => Theme.of(this).brightness == Brightness.light;
+}
+
+extension StringExtensions on String {
+  /// Capitalizes the first letter of the string.
+  String capitalize() {
+    return isBlank ? this : this[0].toUpperCase() + substring(1);
+  }
 }

@@ -205,7 +205,7 @@ class _ReceiveArea extends StatelessWidget {
             ),
             Expanded(
               child: ListTileCard(
-                icon: Icons.work_rounded, //todo: icon size?! bigger! (2px)
+                icon: Icons.work_rounded,
                 text: 'Salary',
                 onTap: () => context.showTransactionModalBottomSheet(
                   TransactionForm(
@@ -295,51 +295,39 @@ class _TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
-
     String getText() {
-      //todo: improve this code (make more readable and easier to understand):
-      final myTransaction =
-          transaction.fromUserId == user.id || transaction.toUserId == user.id;
-      final isFromMe = transaction.fromUserId == user.id;
+      final user = context.read<AppCubit>().state.user;
 
-      final fromUserName = transaction.fromUserId != null
-          ? game.getPlayer(transaction.fromUserId!).name
-          : null;
-      final toUserName = transaction.toUserId != null
-          ? game.getPlayer(transaction.toUserId!).name
-          : null;
+      String toUserNameOrYou() => transaction.toUserId == user.id
+          ? 'you'
+          : game.getPlayer(transaction.toUserId!).name;
+      String fromUserNameOrYou() => transaction.fromUserId == user.id
+          ? 'you'
+          : game.getPlayer(transaction.fromUserId!).name;
       final amount = context.formatBalance(transaction.amount);
 
       switch (transaction.type) {
         case TransactionType.fromBank:
-          return myTransaction
-              ? 'You received $amount from the bank.'
-              : '$toUserName received $amount from the bank.';
+          return '${toUserNameOrYou()} received $amount from the bank.'
+              .capitalize();
         case TransactionType.toBank:
-          return myTransaction
-              ? 'You payed $amount to the bank.'
-              : '$fromUserName payed $amount to the bank.';
+          return '${fromUserNameOrYou()} payed $amount to the bank.'
+              .capitalize();
         case TransactionType.toPlayer:
-          return isFromMe
-              ? myTransaction
-                  ? 'You payed $toUserName $amount.'
-                  : '$fromUserName payed $toUserName $amount.'
-              : myTransaction
-                  ? '$fromUserName payed you $amount.'
-                  : '$fromUserName payed $toUserName $amount.';
+          return '${fromUserNameOrYou()} payed ${toUserNameOrYou()} $amount.'
+              .capitalize();
         case TransactionType.toFreeParking:
-          return myTransaction
-              ? 'You payed $amount to free parking.'
-              : '$fromUserName payed $amount to free parking.';
+          return '${fromUserNameOrYou()} payed $amount to free parking.'
+              .capitalize();
         case TransactionType.fromFreeParking:
-          return myTransaction
-              ? 'You received the free parking money ($amount).'
-              : '$toUserName received the free parking money ($amount).';
+          return '${toUserNameOrYou()} received the free parking money ($amount).'
+              .capitalize();
         case TransactionType.fromSalary:
-          return myTransaction
-              ? 'You received your salary ($amount).'
-              : '$toUserName received his salary ($amount).';
+          final involvedInTransaction = transaction.fromUserId == user.id ||
+              transaction.toUserId == user.id;
+          final yourOrHis = involvedInTransaction ? 'your' : 'his';
+          return '${toUserNameOrYou()} received $yourOrHis salary ($amount).'
+              .capitalize();
       }
     }
 
