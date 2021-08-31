@@ -5,12 +5,11 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
-import 'package:monopoly_banking/game/select_game_screen/cubit/join_game_cubit.dart';
 
 import '../../../app/cubit/app_cubit.dart';
-import '../../../extensions.dart';
 import '../../../shared_widgets.dart';
 import '../../create_game_screen/create_game_screen.dart';
+import '../cubit/join_game_cubit.dart';
 
 class SelectGameView extends StatelessWidget {
   const SelectGameView({Key? key}) : super(key: key);

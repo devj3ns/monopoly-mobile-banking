@@ -1,12 +1,13 @@
-import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:monopoly_banking/game/select_game_screen/cubit/join_game_cubit.dart';
+
+import 'package:banking_repository/banking_repository.dart';
 
 import '../../app/cubit/app_cubit.dart';
 import '../../app_info_screen.dart';
 import '../../shared_widgets.dart';
+import 'cubit/join_game_cubit.dart';
 import 'view/select_game_view.dart';
 
 class SelectGameScreen extends StatelessWidget {

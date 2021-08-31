@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:banking_repository/banking_repository.dart';
-import 'package:monopoly_banking/app/cubit/app_cubit.dart';
 
+import '../../app/cubit/app_cubit.dart';
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
 import 'view/game_view.dart';
