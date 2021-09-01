@@ -40,23 +40,7 @@ class GameScreen extends StatelessWidget {
               ],
             ),
             applyPadding: false,
-            body: EasyStreamBuilder<Game?>(
-              stream:
-                  context.bankingRepository().streamGame(user.currentGameId!),
-              loadingIndicator:
-                  const Center(child: CircularProgressIndicator()),
-              dataBuilder: (context, game) {
-                //debugPrint('GAME STREAM BUILDER REBUILDS');
-                //debugPrint(game.toString());
-
-                if (game == null) {
-                  context.bankingRepository().leaveGame();
-                  throw ('User was disconnected from any game, because the current one does not exist anymore.');
-                } else {
-                  return GameView(game: game);
-                }
-              },
-            ),
+            body: GameView(game: game),
           );
         }
       },
