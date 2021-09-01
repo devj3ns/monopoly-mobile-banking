@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:banking_repository/banking_repository.dart';
 
 import '../../../app/cubit/app_cubit.dart';
+import '../../../shared_widgets.dart';
 
 class NoConnectionOverlay extends StatelessWidget {
   const NoConnectionOverlay({Key? key}) : super(key: key);
@@ -68,11 +69,16 @@ class WaitForPlayersOverlay extends StatelessWidget {
   }
 }
 
-class YouAreBankruptOverlay extends StatelessWidget {
-  const YouAreBankruptOverlay({Key? key}) : super(key: key);
+class BankruptOverlay extends StatelessWidget {
+  const BankruptOverlay({Key? key, required this.game}) : super(key: key);
+  final Game game;
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+    final player = game.getPlayer(user.id);
+    assert(player.isBankrupt);
+
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
       child: Center(
@@ -87,7 +93,10 @@ class YouAreBankruptOverlay extends StatelessWidget {
             Text(
               'You are bankrupt!',
               style: Theme.of(context).textTheme.headline5,
-            )
+            ),
+            const SizedBox(height: 5),
+            Text(
+                'Your Place: ${player.place(game)} (You went bankrupt after ${player.bankruptTime(game).inMinutes} min)'),
           ],
         ),
       ),
@@ -95,15 +104,15 @@ class YouAreBankruptOverlay extends StatelessWidget {
   }
 }
 
-class SomeOneWonOverlay extends StatefulWidget {
-  const SomeOneWonOverlay({Key? key, required this.winner}) : super(key: key);
-  final Player winner;
+class ResultsOverlay extends StatefulWidget {
+  const ResultsOverlay({Key? key, required this.game}) : super(key: key);
+  final Game game;
 
   @override
-  _SomeOneWonOverlayState createState() => _SomeOneWonOverlayState();
+  _ResultsOverlayState createState() => _ResultsOverlayState();
 }
 
-class _SomeOneWonOverlayState extends State<SomeOneWonOverlay> {
+class _ResultsOverlayState extends State<ResultsOverlay> {
   late ConfettiController _confettiController;
 
   @override
@@ -122,8 +131,15 @@ class _SomeOneWonOverlayState extends State<SomeOneWonOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    assert(widget.game.winner != null);
     final user = context.read<AppCubit>().state.user;
+    final winnerNameOrYou = widget.game.winner!.userId == user.id
+        ? 'You'
+        : widget.game.winner!.name;
+    final gameDurationInMinutes = widget.game.duration.inMinutes;
 
+    //todo: confetti only for the one who won?!
+    //todo: confetti should come from the top middle of the screen, no matter how wide it is!
     return ConfettiWidget(
       confettiController: _confettiController,
       blastDirection: pi / 2,
@@ -144,9 +160,67 @@ class _SomeOneWonOverlayState extends State<SomeOneWonOverlay> {
               ),
               const SizedBox(height: 15),
               Text(
-                '${widget.winner.userId == user.id ? 'You' : widget.winner.name} won the game!',
+                '$winnerNameOrYou won the game!',
                 style: Theme.of(context).textTheme.headline5,
-              )
+              ),
+              const SizedBox(height: 5),
+              Column(
+                children: widget.game.bankruptPlayersSortedByPlace
+                    .asList()
+                    .map((player) {
+                  final nameOrYou =
+                      player.userId == user.id ? 'You' : player.name;
+                  final bankruptTimeInMinutes =
+                      player.bankruptTime(widget.game).inMinutes;
+
+                  late final IconData icon;
+                  switch (player.place(widget.game)) {
+                    case 2:
+                      icon = Icons.looks_two_rounded;
+                      break;
+                    case 3:
+                      icon = Icons.looks_3_rounded;
+                      break;
+                    case 4:
+                      icon = Icons.looks_4_rounded;
+                      break;
+                    case 5:
+                      icon = Icons.looks_5_rounded;
+                      break;
+                    case 6:
+                      icon = Icons.looks_6_rounded;
+                      break;
+                    default:
+                      icon = Icons.error;
+                      break;
+                  }
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(icon),
+                      const SizedBox(width: 5),
+                      Text(
+                        '$nameOrYou (Bankrupt after $bankruptTimeInMinutes min)',
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 25),
+              IconText(
+                text: Text(
+                  'Duration of the game: $gameDurationInMinutes min',
+                  style: const TextStyle(fontSize: 17),
+                ),
+                gap: 7,
+                icon: const FaIcon(
+                  FontAwesomeIcons.solidClock,
+                  size: 20,
+                ),
+                iconAfterText: false,
+              ),
             ],
           ),
         ),

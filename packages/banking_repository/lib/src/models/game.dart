@@ -16,9 +16,11 @@ class Game extends Equatable {
     required this.enableFreeParkingMoney,
     required this.freeParkingMoney,
     required this.salary,
-    required this.winnerId,
     required this.isFromCache,
-  }) : assert(players.size <= 6);
+    required this.startingTimestamp,
+  }) : assert(
+          players.size <= 6,
+        );
 
   /// The unique id of the game.
   final String id;
@@ -46,42 +48,64 @@ class Game extends Equatable {
   /// The amount of money a player gets when going over the GO field.
   final int salary;
 
-  /// The id of the player who won the game.
-  final String? winnerId;
-
   /// Whether the snapshot was created from cached data rather than guaranteed up-to-date server data.
   final bool isFromCache;
 
   /// Whether the game is still running (nobody won yet).
-  bool get active => winnerId != null;
+  bool get active => winner != null;
 
-  /// Returns a list of all players which are not bankrupt yet.
+  /// The date and time when the game started.
+  final DateTime startingTimestamp;
+
+  /// Returns a list of all non-bankrupt players.
   KtList<Player> get nonBankruptPlayers =>
       players.asList().where((player) => player.balance > 0).toImmutableList();
 
-  /// Returns a list of all players which are bankrupt.
+  /// Returns a list of all bankrupt players.
   KtList<Player> get bankruptPlayers =>
       players.asList().where((player) => player.balance <= 0).toImmutableList();
 
-  /// Returns a list of all players which are bankrupt.
-  Player? get winner {
-    if (winnerId == null) return null;
+  /// Returns a list of all bankrupt players sorted by their place.
+  ///
+  /// Should only be used when someone won and the game is over.
+  KtList<Player> get bankruptPlayersSortedByPlace =>
+      (bankruptPlayers.asList().toList()
+            ..sort((a, b) => a.place(this).compareTo(b.place(this))))
+          .toImmutableList();
 
-    return nonBankruptPlayers
-        .asList()
-        .firstWhere((player) => player.userId == winnerId);
+  /// The winner of the game (if there is one).
+  Player? get winner {
+    if (nonBankruptPlayers.size == 1 && players.size > 1) {
+      return nonBankruptPlayers[0];
+    }
+  }
+
+  /// How long it took until one player won the game.
+  ///
+  /// This should only be called when someone won the game.
+  Duration get duration {
+    assert(winner != null);
+
+    final lastPlayerWhoWentBankrupt = bankruptPlayersSortedByPlace.first();
+
+    return lastPlayerWhoWentBankrupt.bankruptTimestamp!
+        .difference(startingTimestamp);
   }
 
   @override
   List<Object?> get props => [
         id,
         players,
+        nonBankruptPlayers,
+        bankruptPlayers,
         transactionHistory,
         enableFreeParkingMoney,
         freeParkingMoney,
         salary,
-        winnerId,
-        isFromCache
+        winner,
+        duration,
+        isFromCache,
+        startingTimestamp,
       ];
 
   static Game newOne({
@@ -98,8 +122,9 @@ class Game extends Equatable {
       enableFreeParkingMoney: enableFreeParkingMoney,
       freeParkingMoney: 0,
       salary: salary,
-      winnerId: null,
       isFromCache: true,
+      // todo: change this to the server time:
+      startingTimestamp: DateTime.now(),
     );
   }
 
@@ -128,8 +153,8 @@ class Game extends Equatable {
       enableFreeParkingMoney: data['enableFreeParkingMoney'] as bool,
       freeParkingMoney: data['freeParkingMoney'] as int,
       salary: data['salary'] as int,
-      winnerId: data['winnerId'] as String?,
       isFromCache: snap.metadata.isFromCache,
+      startingTimestamp: (data['startingTimestamp'] as Timestamp).toDate(),
     );
   }
 
@@ -147,7 +172,8 @@ class Game extends Equatable {
       'enableFreeParkingMoney': enableFreeParkingMoney,
       'freeParkingMoney': freeParkingMoney,
       'salary': salary,
-      'winnerId': winnerId,
+      'winnerId': winner?.userId,
+      'startingTimestamp': startingTimestamp,
     };
   }
 
@@ -156,7 +182,6 @@ class Game extends Equatable {
     KtList<Transaction>? transactionHistory,
     int? startingCapital,
     int? freeParkingMoney,
-    String? winnerId,
   }) {
     return Game(
       id: id,
@@ -166,8 +191,8 @@ class Game extends Equatable {
       freeParkingMoney: freeParkingMoney ?? this.freeParkingMoney,
       enableFreeParkingMoney: enableFreeParkingMoney,
       salary: salary,
-      winnerId: winnerId ?? this.winnerId,
       isFromCache: isFromCache,
+      startingTimestamp: startingTimestamp,
     );
   }
 
@@ -210,7 +235,7 @@ class Game extends Equatable {
   /// For example Transaction.fromBank(...) or Transaction.toPlayer(...).
   Game makeTransaction(Transaction transaction) {
     // Create new/updated players list:
-    final _players = players.toMutableList().asList();
+    var _players = players.toMutableList().asList();
     var _freeParkingMoney = freeParkingMoney;
 
     switch (transaction.type) {
@@ -277,6 +302,16 @@ class Game extends Equatable {
     final _transactionHistory = transactionHistory.toMutableList().asList()
       ..add(transaction);
 
+    // Update the players bankrupt timestamp if necessary
+    _players = _players.map((player) {
+      if (player.isBankrupt && player.bankruptTimestamp == null) {
+        // todo: Set to server time instead of local time.
+        return player.copyWith(bankruptTimestamp: DateTime.now());
+      }
+
+      return player;
+    }).toList();
+
     return copyWith(
       players: _players.toImmutableList(),
       transactionHistory: _transactionHistory.toImmutableList(),
@@ -305,6 +340,7 @@ class Game extends Equatable {
         name: user.name,
         balance: startingCapital,
         color: colors[_players.size],
+        bankruptTimestamp: null,
       );
 
       _players.add(player);

@@ -45,9 +45,9 @@ class GameView extends StatelessWidget {
         ] else if (game.players.size == 1) ...[
           const WaitForPlayersOverlay()
         ] else if (game.winner != null) ...[
-          SomeOneWonOverlay(game: game)
+          ResultsOverlay(game: game)
         ] else if (game.isBankrupt(user.id)) ...[
-          const YouAreBankruptOverlay()
+          BankruptOverlay(game: game)
         ],
       ],
     );
@@ -81,11 +81,12 @@ class _PayArea extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        //todo: dont show the text at the end when you won:
         otherNonBankruptPlayers.isEmpty
-            ? const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('There are no other players yet.'),
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(game.winner != null
+                    ? 'All other players are bankrupt.'
+                    : 'There are no other players yet.'),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

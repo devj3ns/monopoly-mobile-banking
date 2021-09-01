@@ -21,12 +21,9 @@ class BankingRepository {
   const BankingRepository({required this.userRepository});
   final UserRepository userRepository;
 
-  // #### Firebase instances:
-  static final _firebaseFirestore = FirebaseFirestore.instance;
-
-  // #### Collection references:
+  // #### Firebase Collection references:
   static CollectionReference<Game> get _gamesCollection =>
-      _firebaseFirestore.collection('games').withConverter<Game>(
+      FirebaseFirestore.instance.collection('games').withConverter<Game>(
             fromFirestore: (snap, _) => Game.fromSnapshot(snap),
             toFirestore: (model, _) => model.toDocument(),
           );
@@ -167,28 +164,16 @@ class BankingRepository {
     //todo: update timestamp to server timestamp!
     await _gamesCollection.doc(game.id).set(updatedGame);
 
-    await checkIfGameIsOver(updatedGame);
+    // Check if game has a winner after the transaction:
+    if (updatedGame.winner != null) {
+      await _incrementWinsOfUser(updatedGame.winner!.userId);
+    }
   }
 
   /// Increments the win field of a user in firestore.
   Future<void> _incrementWinsOfUser(String userId) async {
-    await _firebaseFirestore
-        .collection('users')
+    await userRepository.usersCollection
         .doc(userId)
         .update({'wins': FieldValue.increment(1)});
-  }
-
-  /// Checks whether there is only one player left who is not bankrupt.
-  /// If that's the case the winnerId of the game is set.
-  Future<void> checkIfGameIsOver(Game game) async {
-    if (game.nonBankruptPlayers.size == 1 && game.players.size > 1) {
-      final winner = game.nonBankruptPlayers[0];
-
-      await _gamesCollection
-          .doc(game.id)
-          .set(game.copyWith(winnerId: winner.userId));
-
-      await _incrementWinsOfUser(winner.userId);
-    }
   }
 }
