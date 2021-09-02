@@ -86,39 +86,12 @@ class TransactionForm extends HookWidget {
 
     void submitForm() {
       if (askForAmount ? _formKey.currentState!.validate() : true) {
-        late final Transaction transaction;
-
-        switch (transactionType) {
-          case TransactionType.fromBank:
-            transaction =
-                Transaction.fromBank(toUserId: user.id, amount: amount.value);
-            break;
-          case TransactionType.toBank:
-            transaction =
-                Transaction.toBank(fromUserId: user.id, amount: amount.value);
-            break;
-          case TransactionType.toPlayer:
-            assert(toUserId != null);
-            transaction = Transaction.toPlayer(
-                fromUserId: user.id, toUserId: toUserId!, amount: amount.value);
-            break;
-          case TransactionType.toFreeParking:
-            transaction = Transaction.toFreeParking(
-                fromUserId: user.id, amount: amount.value);
-            break;
-          case TransactionType.fromFreeParking:
-            transaction = Transaction.fromFreeParking(
-                toUserId: user.id, freeParkingMoney: game.freeParkingMoney);
-            break;
-          case TransactionType.fromSalary:
-            transaction =
-                Transaction.fromSalary(toUserId: user.id, salary: game.salary);
-            break;
-        }
-
-        context
-            .read<BankingRepository>()
-            .makeTransaction(game: game, transaction: transaction);
+        context.read<BankingRepository>().makeTransaction(
+              game: game,
+              transactionType: transactionType,
+              amount: amount.value,
+              toUserId: toUserId,
+            );
 
         amountController.clear();
         amount.value = 0;

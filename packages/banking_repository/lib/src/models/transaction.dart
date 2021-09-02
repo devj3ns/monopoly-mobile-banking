@@ -26,65 +26,71 @@ class Transaction extends Equatable {
     required this.type,
   }) : assert(fromUserId != null || toUserId != null);
 
-  Transaction.fromBank({
+  const Transaction.fromBank({
     required String toUserId,
     required int amount,
+    required DateTime timestamp,
   }) : this(
           toUserId: toUserId,
           amount: amount,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.fromBank,
         );
 
-  Transaction.toBank({
+  const Transaction.toBank({
     required String fromUserId,
     required int amount,
+    required DateTime timestamp,
   }) : this(
           fromUserId: fromUserId,
           amount: amount,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.toBank,
         );
 
-  Transaction.toPlayer({
+  const Transaction.toPlayer({
     required String fromUserId,
     required String toUserId,
     required int amount,
+    required DateTime timestamp,
   }) : this(
           fromUserId: fromUserId,
           toUserId: toUserId,
           amount: amount,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.toPlayer,
         );
 
-  Transaction.toFreeParking({
+  const Transaction.toFreeParking({
     required String fromUserId,
     required int amount,
+    required DateTime timestamp,
   }) : this(
           fromUserId: fromUserId,
           amount: amount,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.toFreeParking,
         );
 
-  Transaction.fromFreeParking({
+  const Transaction.fromFreeParking({
     required String toUserId,
     required int freeParkingMoney,
+    required DateTime timestamp,
   }) : this(
           toUserId: toUserId,
           amount: freeParkingMoney,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.fromFreeParking,
         );
 
-  Transaction.fromSalary({
+  const Transaction.fromSalary({
     required String toUserId,
     required int salary,
+    required DateTime timestamp,
   }) : this(
           toUserId: toUserId,
           amount: salary,
-          timestamp: DateTime.now(),
+          timestamp: timestamp,
           type: TransactionType.fromSalary,
         );
 

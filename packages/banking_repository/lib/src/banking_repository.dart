@@ -153,16 +153,59 @@ class BankingRepository {
   }
 
   /// Transfers money from one player to another.
-  ///
-  /// Use custom constructors for the transaction object:
-  /// For example Transaction.fromBank(...) or Transaction.toPlayer(...).
   Future<void> makeTransaction({
     required Game game,
-    required Transaction transaction,
+    required TransactionType transactionType,
+    required int amount,
+    String? toUserId,
   }) async {
+    //todo: update timestamp to server timestamp!
+    final timestamp = DateTime.now();
+
+    late final Transaction transaction;
+    switch (transactionType) {
+      case TransactionType.fromBank:
+        transaction = Transaction.fromBank(
+            toUserId: userRepository.user.id,
+            amount: amount,
+            timestamp: timestamp);
+        break;
+      case TransactionType.toBank:
+        transaction = Transaction.toBank(
+            fromUserId: userRepository.user.id,
+            amount: amount,
+            timestamp: timestamp);
+        break;
+      case TransactionType.toPlayer:
+        assert(toUserId != null);
+        transaction = Transaction.toPlayer(
+            fromUserId: userRepository.user.id,
+            toUserId: toUserId!,
+            amount: amount,
+            timestamp: timestamp);
+        break;
+      case TransactionType.toFreeParking:
+        transaction = Transaction.toFreeParking(
+            fromUserId: userRepository.user.id,
+            amount: amount,
+            timestamp: timestamp);
+        break;
+      case TransactionType.fromFreeParking:
+        transaction = Transaction.fromFreeParking(
+            toUserId: userRepository.user.id,
+            freeParkingMoney: game.freeParkingMoney,
+            timestamp: timestamp);
+        break;
+      case TransactionType.fromSalary:
+        transaction = Transaction.fromSalary(
+            toUserId: userRepository.user.id,
+            salary: game.salary,
+            timestamp: timestamp);
+        break;
+    }
+
     final updatedGame = game.makeTransaction(transaction);
 
-    //todo: update timestamp to server timestamp!
     await _gamesCollection.doc(game.id).set(updatedGame);
 
     // Check if game has a winner after the transaction:
