@@ -3,6 +3,7 @@ import 'package:kt_dart/kt.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:user_repository/user_repository.dart';
+import 'package:deep_pick/deep_pick.dart';
 
 import '../../banking_repository.dart';
 import 'player.dart';
@@ -18,9 +19,7 @@ class Game extends Equatable {
     required this.salary,
     required this.isFromCache,
     required this.startingTimestamp,
-  }) : assert(
-          players.size <= 6,
-        );
+  }) : assert(players.size <= 6);
 
   /// The unique id of the game.
   final String id;
@@ -129,32 +128,32 @@ class Game extends Equatable {
   }
 
   static Game fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {
-    final data = snap.data()!;
+    final json = snap.data()!;
 
-    final _players =
-        ((List<Map<String, dynamic>>.from(data['players'] as List<dynamic>))
-                .map(Player.fromJson)
-                .toList()
-                  ..sort((a, b) => b.balance.compareTo(a.balance)))
-            .toImmutableList();
+    final _playersSorted = (pick(json, 'players').asListOrEmpty<Player>(
+            (pick) => Player.fromJson(pick.asMapOrThrow<String, dynamic>()))
+          ..sort((a, b) => b.balance.compareTo(a.balance)))
+        .toImmutableList();
 
-    final _transactionHistory = ((List<Map<String, dynamic>>.from(
-                data['transactionHistory'] as List<dynamic>))
-            .map(Transaction.fromJson)
-            .toList()
+    final _transactionHistorySorted = (pick(json, 'transactionHistory')
+            .asListOrEmpty<Transaction>((pick) =>
+                Transaction.fromJson(pick.asMapOrThrow<String, dynamic>()))
               ..sort((a, b) => b.timestamp.compareTo(a.timestamp)))
         .toImmutableList();
 
     return Game(
       id: snap.id,
-      players: _players,
-      transactionHistory: _transactionHistory,
-      startingCapital: data['startingCapital'] as int,
-      enableFreeParkingMoney: data['enableFreeParkingMoney'] as bool,
-      freeParkingMoney: data['freeParkingMoney'] as int,
-      salary: data['salary'] as int,
+      players: _playersSorted,
+      transactionHistory: _transactionHistorySorted,
+      startingCapital: pick(json, 'startingCapital').asIntOrThrow(),
+      enableFreeParkingMoney:
+          pick(json, 'enableFreeParkingMoney').asBoolOrThrow(),
+      freeParkingMoney: pick(json, 'freeParkingMoney').asIntOrThrow(),
+      salary: pick(json, 'salary').asIntOrThrow(),
       isFromCache: snap.metadata.isFromCache,
-      startingTimestamp: (data['startingTimestamp'] as Timestamp).toDate(),
+      startingTimestamp: pick(json, 'startingTimestamp')
+          .asFirestoreTimeStampOrThrow()
+          .toDate(),
     );
   }
 

@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:deep_pick/deep_pick.dart';
+import '../banking_repository.dart';
 
 enum TransactionType {
   fromBank,
@@ -107,17 +108,11 @@ class Transaction extends Equatable {
 
   static Transaction fromJson(Map<String, dynamic> json) {
     return Transaction(
-      fromUserId: json['fromUserId'] as String?,
-      toUserId: json['toUserId'] as String?,
-      amount: json['amount'] as int,
-      // When using FieldValue.serverTimestamp(), the timestamp is null for a split second before the server sets it to the actual server timestamp.
-      // See https://medium.com/firebase-developers/the-secrets-of-firestore-fieldvalue-servertimestamp-revealed-29dd7a38a82b
-      //
-      // To avoid an exception set the timestamp to the local time in this case:
-      timestamp: json['timestamp'] == null
-          ? DateTime.now()
-          : (json['timestamp'] as Timestamp).toDate(),
-      type: (json['type'] as String).toTransactionType(),
+      fromUserId: pick(json, 'fromUserId').asStringOrNull(),
+      toUserId: pick(json, 'toUserId').asStringOrNull(),
+      amount: pick(json, 'amount').asIntOrThrow(),
+      timestamp: pick(json, 'timestamp').asFirestoreTimeStampOrThrow().toDate(),
+      type: (pick(json, 'type').asStringOrThrow()).toTransactionType(),
     );
   }
 

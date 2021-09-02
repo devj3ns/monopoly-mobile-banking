@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fleasy/fleasy.dart';
+import 'package:deep_pick/deep_pick.dart';
 
 class User extends Equatable {
   const User({
@@ -7,7 +8,7 @@ class User extends Equatable {
     required this.name,
     this.currentGameId,
     required this.wins,
-  });
+  }) : assert(currentGameId != '');
 
   final String id;
   final String name;
@@ -25,9 +26,9 @@ class User extends Equatable {
   }) =>
       User(
         id: snapshotId,
-        name: json['name'] as String,
-        currentGameId: json['currentGameId'] as String?,
-        wins: json['wins'] as int,
+        name: pick(json, 'name').asStringOrThrow(),
+        currentGameId: pick(json, 'currentGameId').asStringOrNull(),
+        wins: pick(json, 'wins').asIntOrThrow(),
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{

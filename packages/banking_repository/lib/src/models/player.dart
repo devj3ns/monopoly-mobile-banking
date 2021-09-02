@@ -1,8 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:deep_pick/deep_pick.dart';
 
-import 'game.dart';
+import '../../banking_repository.dart';
 
 class Player extends Equatable {
   const Player({
@@ -50,14 +50,13 @@ class Player extends Equatable {
   /// This should only be called when the player is bankrupt.
   Duration bankruptTime(Game game) {
     assert(isBankrupt);
+    assert(bankruptTimestamp != null);
 
     return bankruptTimestamp!.difference(game.startingTimestamp);
   }
 
   /// Whether the players balance is 0 or below.
   bool get isBankrupt {
-    assert(bankruptTimestamp != null);
-
     return balance <= 0;
   }
 
@@ -83,13 +82,13 @@ class Player extends Equatable {
 
   static Player fromJson(Map<String, dynamic> json) {
     return Player(
-      userId: json['userId'] as String,
-      name: json['name'] as String,
-      balance: json['balance'] as int,
-      color: Color(json['color'] as int),
-      bankruptTimestamp: json['wentBankruptTimestamp'] == null
-          ? null
-          : (json['wentBankruptTimestamp'] as Timestamp).toDate(),
+      userId: pick(json, 'userId').asStringOrThrow(),
+      name: pick(json, 'name').asStringOrThrow(),
+      balance: pick(json, 'balance').asIntOrThrow(),
+      color: Color(pick(json, 'color').asIntOrThrow()),
+      bankruptTimestamp: pick(json, 'wentBankruptTimestamp')
+          .asFirestoreTimeStampOrNull()
+          ?.toDate(),
     );
   }
 
