@@ -1,6 +1,16 @@
+# 0.6.0
+- Add limitation of 6 players per game
+- Set the players color when he joins from 6 predefined ones
+- Show overlay when there is no internet connection
+- Make sure usernames are unique
+- Add sign in with google
+- Remove active games list & add form to join game by ID
+- Add results screen which shows the players place, when the went bankrupt and the game duration
+- Only show confetti to the player who won
+- Use network time instead of client time
+
 # 0.5.1
 - Fix bug with wrong name in transaction history item
-
 
 # 0.5.0
 - Add 'Wait for players to connect' overlay, which is shown when you are the only player in a game
