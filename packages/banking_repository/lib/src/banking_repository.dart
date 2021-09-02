@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:math' hide log;
 
+import 'package:ntp/ntp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:deep_pick/deep_pick.dart';
 import 'package:user_repository/user_repository.dart';
@@ -97,7 +98,7 @@ class BankingRepository {
       assert(!(await _gamesCollection.doc(gameId).get()).exists);
 
       await _gamesCollection.doc(gameId).set(
-            Game.newOne(
+            await Game.newOne(
               id: _randomGameId(),
               startingCapital: startingCapital,
               salary: salary,
@@ -159,8 +160,7 @@ class BankingRepository {
     required int amount,
     String? toUserId,
   }) async {
-    //todo: update timestamp to server timestamp!
-    final timestamp = DateTime.now();
+    final timestamp = await NTP.now();
 
     late final Transaction transaction;
     switch (transactionType) {
@@ -204,7 +204,7 @@ class BankingRepository {
         break;
     }
 
-    final updatedGame = game.makeTransaction(transaction);
+    final updatedGame = await game.makeTransaction(transaction);
 
     await _gamesCollection.doc(game.id).set(updatedGame);
 

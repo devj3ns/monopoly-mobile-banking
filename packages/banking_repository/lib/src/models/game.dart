@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kt_dart/kt.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
+import 'package:ntp/ntp.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:deep_pick/deep_pick.dart';
 
@@ -107,12 +108,14 @@ class Game extends Equatable {
         startingTimestamp,
       ];
 
-  static Game newOne({
+  static Future<Game> newOne({
     required String id,
     required int startingCapital,
     required int salary,
     required bool enableFreeParkingMoney,
-  }) {
+  }) async {
+    final timestamp = await NTP.now();
+
     return Game(
       id: id,
       players: const KtList<Player>.empty(),
@@ -123,7 +126,7 @@ class Game extends Equatable {
       salary: salary,
       isFromCache: true,
       // todo: change this to the server time:
-      startingTimestamp: DateTime.now(),
+      startingTimestamp: timestamp,
     );
   }
 
@@ -232,7 +235,7 @@ class Game extends Equatable {
   ///
   /// Use custom constructors for the transaction object:
   /// For example Transaction.fromBank(...) or Transaction.toPlayer(...).
-  Game makeTransaction(Transaction transaction) {
+  Future<Game> makeTransaction(Transaction transaction) async {
     // Create new/updated players list:
     var _players = players.toMutableList().asList();
     var _freeParkingMoney = freeParkingMoney;
@@ -302,13 +305,11 @@ class Game extends Equatable {
       ..add(transaction);
 
     // Update the players bankrupt timestamp if necessary
+    final timestamp = await NTP.now();
     _players = _players.map((player) {
-      if (player.isBankrupt && player.bankruptTimestamp == null) {
-        // todo: Set to server time instead of local time.
-        return player.copyWith(bankruptTimestamp: DateTime.now());
-      }
-
-      return player;
+      return player.isBankrupt && player.bankruptTimestamp == null
+          ? player.copyWith(bankruptTimestamp: timestamp)
+          : player;
     }).toList();
 
     return copyWith(
