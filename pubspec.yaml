@@ -23,6 +23,8 @@ dependencies:
   modal_bottom_sheet: ^2.0.0
   confetti: ^0.6.0-nullsafety
   flutter_signin_button: ^2.0.0
+  package_info_plus: ^1.0.6
+  url_launcher: ^6.0.10
 
   user_repository:
     path: packages/user_repository
