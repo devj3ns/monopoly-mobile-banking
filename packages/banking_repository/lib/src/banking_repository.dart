@@ -98,13 +98,18 @@ class BankingRepository {
       assert(!(await _gamesCollection.doc(gameId).get()).exists);
 
       await _gamesCollection.doc(gameId).set(
-            await Game.newOne(
+            Game.newOne(
               id: _randomGameId(),
               startingCapital: startingCapital,
               salary: salary,
               enableFreeParkingMoney: enableFreeParkingMoney,
             ),
           );
+
+      // Update timestamp to server time:
+      await _gamesCollection
+          .doc(gameId)
+          .update({'startingTimestamp': FieldValue.serverTimestamp()});
 
       final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
@@ -160,7 +165,13 @@ class BankingRepository {
     required int amount,
     String? toUserId,
   }) async {
-    final timestamp = await NTP.now();
+    // todo: Find a better solution for this
+    // When using the web app and cellular network running NTP.now() fails.
+    // This ist just a temporary fix:
+    var timestamp = DateTime.now();
+    try {
+      timestamp = await NTP.now();
+    } catch (_) {}
 
     late final Transaction transaction;
     switch (transactionType) {

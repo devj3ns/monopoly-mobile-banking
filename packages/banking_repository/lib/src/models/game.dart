@@ -108,14 +108,12 @@ class Game extends Equatable {
         startingTimestamp,
       ];
 
-  static Future<Game> newOne({
+  static Game newOne({
     required String id,
     required int startingCapital,
     required int salary,
     required bool enableFreeParkingMoney,
-  }) async {
-    final timestamp = await NTP.now();
-
+  }) {
     return Game(
       id: id,
       players: const KtList<Player>.empty(),
@@ -125,8 +123,8 @@ class Game extends Equatable {
       freeParkingMoney: 0,
       salary: salary,
       isFromCache: true,
-      // todo: change this to the server time:
-      startingTimestamp: timestamp,
+      // This gets replaces with the server time later:
+      startingTimestamp: DateTime.now(),
     );
   }
 
@@ -305,7 +303,13 @@ class Game extends Equatable {
       ..add(transaction);
 
     // Update the players bankrupt timestamp if necessary
-    final timestamp = await NTP.now();
+    // todo: Find a better solution for this
+    // When using the web app and cellular network running NTP.now() fails.
+    // This ist just a temporary fix:
+    var timestamp = DateTime.now();
+    try {
+      timestamp = await NTP.now();
+    } catch (_) {}
     _players = _players.map((player) {
       return player.isBankrupt && player.bankruptTimestamp == null
           ? player.copyWith(bankruptTimestamp: timestamp)
