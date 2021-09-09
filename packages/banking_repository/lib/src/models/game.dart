@@ -51,11 +51,11 @@ class Game extends Equatable {
   /// Whether the snapshot was created from cached data rather than guaranteed up-to-date server data.
   final bool isFromCache;
 
-  /// Whether the game is still running (nobody won yet).
-  bool get active => winner != null;
-
   /// The date and time when the game started.
-  final DateTime startingTimestamp;
+  final DateTime? startingTimestamp;
+
+  /// Whether the game has already started.
+  bool get hasStarted => startingTimestamp != null;
 
   /// Returns a list of all non-bankrupt players.
   KtList<Player> get nonBankruptPlayers =>
@@ -80,16 +80,20 @@ class Game extends Equatable {
     }
   }
 
+  /// Whether the game is still running (nobody won yet).
+  bool get hasWinner => winner != null;
+
   /// How long it took until one player won the game.
   ///
   /// This should only be called when someone won the game.
   Duration get duration {
+    assert(startingTimestamp != null);
     assert(winner != null);
 
     final lastPlayerWhoWentBankrupt = bankruptPlayersSortedByPlace.first();
 
     return lastPlayerWhoWentBankrupt.bankruptTimestamp!
-        .difference(startingTimestamp);
+        .difference(startingTimestamp!);
   }
 
   @override
@@ -123,8 +127,7 @@ class Game extends Equatable {
       freeParkingMoney: 0,
       salary: salary,
       isFromCache: true,
-      // This gets replaces with the server time later:
-      startingTimestamp: DateTime.now(),
+      startingTimestamp: null,
     );
   }
 
@@ -139,7 +142,7 @@ class Game extends Equatable {
     final _transactionHistorySorted = (pick(json, 'transactionHistory')
             .asListOrEmpty<Transaction>((pick) =>
                 Transaction.fromJson(pick.asMapOrThrow<String, dynamic>()))
-              ..sort((a, b) => b.timestamp.compareTo(a.timestamp)))
+          ..sort((a, b) => b.timestamp.compareTo(a.timestamp)))
         .toImmutableList();
 
     return Game(
@@ -153,8 +156,8 @@ class Game extends Equatable {
       salary: pick(json, 'salary').asIntOrThrow(),
       isFromCache: snap.metadata.isFromCache,
       startingTimestamp: pick(json, 'startingTimestamp')
-          .asFirestoreTimeStampOrThrow()
-          .toDate(),
+          .asFirestoreTimeStampOrNull()
+          ?.toDate(),
     );
   }
 
@@ -182,6 +185,7 @@ class Game extends Equatable {
     KtList<Transaction>? transactionHistory,
     int? startingCapital,
     int? freeParkingMoney,
+    DateTime? startingTimestamp,
   }) {
     return Game(
       id: id,
@@ -192,7 +196,7 @@ class Game extends Equatable {
       enableFreeParkingMoney: enableFreeParkingMoney,
       salary: salary,
       isFromCache: isFromCache,
-      startingTimestamp: startingTimestamp,
+      startingTimestamp: startingTimestamp ?? this.startingTimestamp,
     );
   }
 
@@ -208,9 +212,9 @@ class Game extends Equatable {
     return players[players.indexOfFirst((player) => player.userId == userId)];
   }
 
-  /// Whether the player with the given id is bankrupt.
-  bool isBankrupt(String userId) {
-    return bankruptPlayers.any((player) => player.userId == userId);
+  /// Returns the player who created the game.
+  Player gameCreator() {
+    return players.asList().firstWhere((player) => player.isGameCreator);
   }
 
   /// Returns all players except of the one with the given id, sorted by balance.
@@ -326,7 +330,7 @@ class Game extends Equatable {
   /// Returns a new instance which represents the the game after the player was added.
   ///
   /// When a player gets added, his start money balance and his color is set.
-  Game addPlayer(User user) {
+  Game addPlayer(User user, {bool isGameCreator = false}) {
     final _players = players.toMutableList();
 
     if (!containsUser(user.id)) {
@@ -345,6 +349,7 @@ class Game extends Equatable {
         balance: startingCapital,
         color: colors[_players.size],
         bankruptTimestamp: null,
+        isGameCreator: isGameCreator,
       );
 
       _players.add(player);

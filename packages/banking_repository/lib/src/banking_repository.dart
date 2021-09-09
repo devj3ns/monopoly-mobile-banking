@@ -16,6 +16,7 @@ enum JoinGameResult {
   noConnection,
   gameNotFound,
   tooManyPlayers,
+  hasAlreadyStarted,
   failure
 }
 
@@ -59,6 +60,11 @@ class BankingRepository {
           .asList()
           .where((player) => player.userId == userRepository.user.id)
           .isNotEmpty;
+
+      // Only allow a connection when the game is not started or the player was already connected to the game.
+      if (game.hasStarted && !wasAlreadyConnectedToGame) {
+        return JoinGameResult.hasAlreadyStarted;
+      }
 
       if (game.players.size >= 6 && !wasAlreadyConnectedToGame) {
         return JoinGameResult.tooManyPlayers;
@@ -106,15 +112,11 @@ class BankingRepository {
             ),
           );
 
-      // Update timestamp to server time:
-      await _gamesCollection
-          .doc(gameId)
-          .update({'startingTimestamp': FieldValue.serverTimestamp()});
-
       final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
       // Join the game:
-      final updatedGame = game.addPlayer(userRepository.user);
+      final updatedGame =
+          game.addPlayer(userRepository.user, isGameCreator: true);
       await _gamesCollection.doc(game.id).set(updatedGame);
       await userRepository.setCurrentGameId(game.id);
 
@@ -156,6 +158,14 @@ class BankingRepository {
       length,
       (index) => chars[Random.secure().nextInt(chars.length)],
     ).join('');
+  }
+
+  /// Sets the starting timestamp to the current server time which starts the game.
+  Future<void> startGame(Game game) async {
+    await FirebaseFirestore.instance
+        .collection('games')
+        .doc(game.id)
+        .update({'startingTimestamp': FieldValue.serverTimestamp()});
   }
 
   /// Transfers money from one player to another.

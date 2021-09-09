@@ -11,10 +11,18 @@ class Player extends Equatable {
     required this.balance,
     required this.color,
     required this.bankruptTimestamp,
+    required this.isGameCreator,
   });
 
   @override
-  List<Object?> get props => [userId, name, balance, color, bankruptTimestamp];
+  List<Object?> get props => [
+        userId,
+        name,
+        balance,
+        color,
+        bankruptTimestamp,
+        isGameCreator,
+      ];
 
   /// The user id from firebase auth.
   final String userId;
@@ -30,6 +38,9 @@ class Player extends Equatable {
 
   /// The time at which the player went bankrupt. If null he is not yet bankrupt.
   final DateTime? bankruptTimestamp;
+
+  /// Whether this player created the game.
+  final bool isGameCreator;
 
   /// The place the player made in this game.
   ///
@@ -49,10 +60,11 @@ class Player extends Equatable {
   ///
   /// This should only be called when the player is bankrupt.
   Duration bankruptTime(Game game) {
+    assert(game.startingTimestamp != null);
     assert(isBankrupt);
     assert(bankruptTimestamp != null);
 
-    return bankruptTimestamp!.difference(game.startingTimestamp);
+    return bankruptTimestamp!.difference(game.startingTimestamp!);
   }
 
   /// Whether the players balance is 0 or below.
@@ -67,6 +79,7 @@ class Player extends Equatable {
       balance: balance ?? this.balance,
       bankruptTimestamp: bankruptTimestamp ?? this.bankruptTimestamp,
       color: color,
+      isGameCreator: isGameCreator,
     );
   }
 
@@ -89,6 +102,7 @@ class Player extends Equatable {
       bankruptTimestamp: pick(json, 'wentBankruptTimestamp')
           .asFirestoreTimeStampOrNull()
           ?.toDate(),
+      isGameCreator: pick(json, 'isGameCreator').asBoolOrFalse(),
     );
   }
 
@@ -99,6 +113,7 @@ class Player extends Equatable {
       'balance': balance,
       'color': color.value,
       'wentBankruptTimestamp': bankruptTimestamp,
+      'isGameCreator': isGameCreator,
     };
   }
 }

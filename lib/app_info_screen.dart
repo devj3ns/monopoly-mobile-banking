@@ -37,7 +37,8 @@ class AppInfoScreen extends HookWidget {
                 ),
                 TextSpan(
                   text: 'jensbecker.dev',
-                  style: TextStyle(color: Theme.of(context).accentColor),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.secondary),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => launch('https://jensbecker.dev'),
                 ),

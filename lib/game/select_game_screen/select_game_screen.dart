@@ -80,8 +80,12 @@ class SelectGameScreen extends StatelessWidget {
                   context.showErrorFlashbar(
                       message: 'There is no game with this ID.');
                   break;
+                case JoinGameResult.hasAlreadyStarted:
+                  context.showErrorFlashbar(
+                      message: 'This game has already started.');
+                  break;
                 case JoinGameResult.tooManyPlayers:
-                  context.showInfoFlashbar(
+                  context.showErrorFlashbar(
                       message: 'A game is limited to a maximum of 6 players.');
                   break;
                 default:

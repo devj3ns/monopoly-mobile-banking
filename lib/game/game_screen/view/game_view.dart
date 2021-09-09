@@ -1,9 +1,8 @@
+import 'package:banking_repository/banking_repository.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'package:banking_repository/banking_repository.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../extensions.dart';
@@ -12,6 +11,7 @@ import 'animated_balance_text.dart';
 import 'list_tile_card.dart';
 import 'overlays.dart';
 import 'transaction_modal_bottom_sheet.dart';
+import 'wait_for_players_view.dart';
 
 class GameView extends StatelessWidget {
   const GameView({Key? key, required this.game}) : super(key: key);
@@ -40,13 +40,13 @@ class GameView extends StatelessWidget {
             _TransactionHistory(game: game),
           ],
         ),
-        if (game.isFromCache) ...[
+        if (!game.hasStarted || game.players.size < 2) ...[
+          WaitForPlayersView(game: game),
+        ] else if (game.isFromCache) ...[
           const NoConnectionOverlay(),
-        ] else if (game.players.size == 1) ...[
-          const WaitForPlayersOverlay()
         ] else if (game.winner != null) ...[
           ResultsOverlay(game: game)
-        ] else if (game.isBankrupt(user.id)) ...[
+        ] else if (game.getPlayer(user.id).isBankrupt) ...[
           BankruptOverlay(game: game)
         ],
       ],

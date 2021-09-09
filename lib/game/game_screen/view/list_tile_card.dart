@@ -10,14 +10,14 @@ class ListTileCard extends StatelessWidget {
     Key? key,
     required this.icon,
     required this.text,
-    required this.onTap,
+    this.onTap,
     this.customColor,
     this.moneyBalance,
   }) : super(key: key);
 
   final IconData icon;
   final String text;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color? customColor;
   final int? moneyBalance;
 

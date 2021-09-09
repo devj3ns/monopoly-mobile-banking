@@ -42,33 +42,6 @@ class NoConnectionOverlay extends StatelessWidget {
   }
 }
 
-class WaitForPlayersOverlay extends StatelessWidget {
-  const WaitForPlayersOverlay({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const FaIcon(
-              FontAwesomeIcons.userFriends,
-              size: 60,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              'Wait for players to connect.',
-              style: Theme.of(context).textTheme.headline5,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class BankruptOverlay extends StatelessWidget {
   const BankruptOverlay({Key? key, required this.game}) : super(key: key);
   final Game game;
