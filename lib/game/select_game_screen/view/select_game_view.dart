@@ -1,10 +1,9 @@
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:fleasy/fleasy.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:banking_repository/banking_repository.dart';
+import 'package:fleasy/fleasy.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../shared_widgets.dart';

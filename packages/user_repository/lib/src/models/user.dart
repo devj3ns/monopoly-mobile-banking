@@ -1,6 +1,6 @@
+import 'package:deep_pick/deep_pick.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fleasy/fleasy.dart';
-import 'package:deep_pick/deep_pick.dart';
 
 class User extends Equatable {
   const User({

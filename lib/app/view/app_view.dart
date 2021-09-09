@@ -1,15 +1,13 @@
+import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
-import 'package:banking_repository/banking_repository.dart';
 import 'package:user_repository/user_repository.dart';
 
 import '../../authentication/choose_username_screen/choose_username_page.dart';
 import '../../authentication/login_screen/login_page.dart';
 import '../../game/game_screen/game_screen.dart';
 import '../../game/select_game_screen/select_game_screen.dart';
-
 import '../cubit/app_cubit.dart';
 
 class AppView extends StatelessWidget {

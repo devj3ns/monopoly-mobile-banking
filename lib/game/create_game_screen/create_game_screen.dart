@@ -1,8 +1,7 @@
+import 'package:banking_repository/banking_repository.dart';
+import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fleasy/fleasy.dart';
-
-import 'package:banking_repository/banking_repository.dart';
 
 import '../../shared_widgets.dart';
 import 'cubit/create_game_cubit.dart';
