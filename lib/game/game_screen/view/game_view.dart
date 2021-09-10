@@ -42,12 +42,12 @@ class GameView extends StatelessWidget {
         ),
         if (!game.hasStarted || game.players.size < 2) ...[
           WaitForPlayersView(game: game),
-        ] else if (game.isFromCache) ...[
-          const NoConnectionOverlay(),
         ] else if (game.winner != null) ...[
           ResultsOverlay(game: game)
         ] else if (game.getPlayer(user.id).isBankrupt) ...[
           BankruptOverlay(game: game)
+        ] else if (game.isFromCache) ...[
+          const NoConnectionOverlay(),
         ],
       ],
     );

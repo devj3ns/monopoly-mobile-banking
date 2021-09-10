@@ -5,6 +5,7 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../shared_widgets.dart';
@@ -110,6 +111,17 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
         thisPlayerIsWinner ? 'You' : widget.game.winner!.name;
     final gameDurationInMinutes = widget.game.duration.inMinutes;
 
+    String getShareText() {
+      final firstSentence = thisPlayerIsWinner
+          ? 'I just won a Monopoly round I played with the Monopoly Banking App.'
+          : 'I just played Monopoly with the Monopoly Banking App.';
+      const appDescription =
+          "\n\nEvery player can see his money balance on his phone and make transactions through the app easily. Therefore, you don't need the play money anymore."
+          '\n\nYou can try it out here: https://monopoly-banking.web.app';
+
+      return firstSentence + appDescription;
+    }
+
     return Stack(
       children: [
         Container(
@@ -185,6 +197,14 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                   ),
                   iconAfterText: false,
                 ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  child: const IconText(
+                    icon: Icon(Icons.share_rounded),
+                    text: Text('Share'),
+                  ),
+                  onPressed: () => Share.share(getShareText()),
+                )
               ],
             ),
           ),
