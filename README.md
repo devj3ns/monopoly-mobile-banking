@@ -1,8 +1,9 @@
+
 ## A cloud-based monopoly banking app.
 
 This app replaces the play money of every Monopoly board game. Every player can see his money balance on his phone and make transactions from and to players or the bank through the app easily.
 
-![Showcase GIF](https://user-images.githubusercontent.com/20878653/129981488-d839a4dd-9563-44d9-8c44-9bec3b15a3b6.gif)
+![Showcase GIF](https://user-images.githubusercontent.com/20878653/132872571-40720d23-28cc-4cae-a87b-c7e7e1bc531d.gif)
 
 A demo is available on [monopoly-banking.web.app](https://monopoly-banking.web.app/).
 
