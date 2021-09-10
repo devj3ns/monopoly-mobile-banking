@@ -335,12 +335,12 @@ class Game extends Equatable {
 
     if (!containsUser(user.id)) {
       final colors = [
-        Colors.green,
-        Colors.redAccent,
-        Colors.amber,
-        Colors.purpleAccent,
-        Colors.teal,
         Colors.indigo,
+        Colors.teal,
+        Colors.green,
+        Colors.yellow,
+        Colors.orange,
+        Colors.red,
       ];
 
       final player = Player(

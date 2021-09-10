@@ -16,54 +16,59 @@ class WaitForPlayersView extends StatelessWidget {
     final user = context.read<AppCubit>().state.user;
     final player = game.getPlayer(user.id);
 
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              children: game.players
-                  .asList()
-                  .map(
-                    (player) => ListTileCard(
-                      icon: player.isGameCreator
-                          ? FontAwesomeIcons.userCog
-                          : FontAwesomeIcons.userAlt,
-                      text: player.userId == user.id
-                          ? '${player.name} (You)'
-                          : player.name,
-                      customColor: player.color,
-                    ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 10),
-            if (player.isGameCreator) ...[
-              ElevatedButton(
-                child: const IconText(
-                  text: Text('Start game'),
-                  gap: 12,
-                  icon: FaIcon(
-                    FontAwesomeIcons.play,
-                    size: 16,
-                  ),
-                ),
-                onPressed: () =>
-                    context.read<BankingRepository>().startGame(game),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ColoredBox(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: game.players
+                    .asList()
+                    .map(
+                      (player) => ListTileCard(
+                        icon: player.isGameCreator
+                            ? FontAwesomeIcons.userCog
+                            : FontAwesomeIcons.userAlt,
+                        text: player.userId == user.id
+                            ? '${player.name} (You)'
+                            : player.name,
+                        customColor: player.color,
+                      ),
+                    )
+                    .toList(),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Note: When you start the game nobody can join anymore.',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ] else ...[
-              Text(
-                'Wait for ${game.gameCreator().name} to start the game.',
-                style: const TextStyle(color: Colors.grey),
-              )
-            ]
-          ],
+              if (player.isGameCreator) ...[
+                ElevatedButton(
+                  child: const IconText(
+                    text: Text('Start game'),
+                    gap: 12,
+                    icon: FaIcon(
+                      FontAwesomeIcons.play,
+                      size: 16,
+                    ),
+                  ),
+                  onPressed: () =>
+                      context.read<BankingRepository>().startGame(game),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Note: When you start the game nobody can join anymore.',
+                  style: TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ] else ...[
+                Text(
+                  'Wait for ${game.gameCreator().name} to start the game.',
+                  style: const TextStyle(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                )
+              ]
+            ],
+          ),
         ),
       ),
     );
