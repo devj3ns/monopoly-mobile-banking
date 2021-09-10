@@ -1,3 +1,10 @@
+# 0.7.0
+- Improve app info screen (Help & feedback button, explanation of the app, and link to my website)
+- Add workaround for network time error
+- Add wait for players view where the game can be started when all players joined
+- Change player colors
+- Add share button to results screen
+
 # 0.6.0
 - Add limitation of 6 players per game
 - Set the players color when he joins from 6 predefined ones
