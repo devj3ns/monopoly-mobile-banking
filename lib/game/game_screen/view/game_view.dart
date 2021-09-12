@@ -296,9 +296,11 @@ class _TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String getText() {
-      final user = context.read<AppCubit>().state.user;
+    final user = context.read<AppCubit>().state.user;
+    final transactionConcernsMe =
+        transaction.fromUserId == user.id || transaction.toUserId == user.id;
 
+    String getText() {
       String toUserNameOrYou() => transaction.toUserId == user.id
           ? 'you'
           : game.getPlayer(transaction.toUserId!).name;
@@ -333,11 +335,27 @@ class _TransactionCard extends StatelessWidget {
     }
 
     return Card(
+      shape: transactionConcernsMe
+          ? RoundedRectangleBorder(
+              side: const BorderSide(color: Colors.grey, width: 1),
+              borderRadius: BorderRadius.circular(5),
+            )
+          : null,
       child: ListTile(
-        title: Text(getText()),
+        title: Text(
+          getText(),
+          style: TextStyle(
+            fontWeight:
+                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
         trailing: Text(
           transaction.timestamp.format('Hms'),
-          style: const TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: Colors.grey,
+            fontWeight:
+                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
+          ),
         ),
       ),
     );
