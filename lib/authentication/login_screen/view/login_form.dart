@@ -13,37 +13,6 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void signInAnonymously() {
-      showDialog<void>(
-        context: context,
-        builder: (BuildContext _) {
-          return AlertDialog(
-            title: const Text('Warning'),
-            content: const Text(
-                'When you create an anonymous account you can only sign in once.\n\n'
-                'This means you cannot re-login after you signed out or generally login from another device.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text('Go ahead anyway'),
-                onPressed: () {
-                  context.read<LoginCubit>().signInAnonymously();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    void signInWithGoogle() => context.read<LoginCubit>().signInWithGoogle();
-
     return Column(
       children: [
         SizedBox(height: context.screenHeight * 0.2),
@@ -67,8 +36,8 @@ class LoginForm extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : Column(
                     children: [
-                      _SignInAnonymouslyButton(signInAnonymously),
-                      _SignInWithGoogleButton(signInWithGoogle),
+                      _SignInWithGoogleButton(),
+                      _SignInAnonymouslyButton(),
                     ],
                   );
           },
@@ -79,9 +48,6 @@ class LoginForm extends StatelessWidget {
 }
 
 class _SignInAnonymouslyButton extends StatelessWidget {
-  const _SignInAnonymouslyButton(this.signIn);
-  final VoidCallback signIn;
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -92,7 +58,7 @@ class _SignInAnonymouslyButton extends StatelessWidget {
             text: Text('Sign in anonymously'),
             icon: Icon(Icons.login_rounded),
           ),
-          onPressed: signIn,
+          onPressed: () => context.read<LoginCubit>().signInAnonymously(),
         ),
       ),
     );
@@ -100,9 +66,6 @@ class _SignInAnonymouslyButton extends StatelessWidget {
 }
 
 class _SignInWithGoogleButton extends StatelessWidget {
-  const _SignInWithGoogleButton(this.signIn);
-  final VoidCallback signIn;
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -112,7 +75,7 @@ class _SignInWithGoogleButton extends StatelessWidget {
         child: SignInButton(
           Buttons.Google,
           text: 'Sign in with Google',
-          onPressed: signIn,
+          onPressed: () => context.read<LoginCubit>().signInWithGoogle(),
         ),
       ),
     );
