@@ -51,8 +51,9 @@ class WaitForPlayersView extends StatelessWidget {
                       size: 16,
                     ),
                   ),
-                  onPressed: () =>
-                      context.read<BankingRepository>().startGame(game),
+                  onPressed: game.players.size > 1
+                      ? () => context.read<BankingRepository>().startGame(game)
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 const Text(
