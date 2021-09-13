@@ -7,11 +7,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../app/cubit/app_cubit.dart';
 import '../../../extensions.dart';
 import '../../../shared_widgets.dart';
-import 'animated_balance_text.dart';
-import 'list_tile_card.dart';
-import 'overlays.dart';
-import 'transaction_modal_bottom_sheet.dart';
+import 'bankrupt_view.dart';
+import 'no_connection_view.dart';
+import 'results_view.dart';
 import 'wait_for_players_view.dart';
+import 'widgets/animated_balance_text.dart';
+import 'widgets/list_tile_card.dart';
+import 'widgets/transaction_modal_bottom_sheet.dart';
 
 class GameView extends StatelessWidget {
   const GameView({Key? key, required this.game}) : super(key: key);

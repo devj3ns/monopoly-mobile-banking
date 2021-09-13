@@ -8,75 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../app/cubit/app_cubit.dart';
-import '../../../shared_widgets.dart';
 import '../../../extensions.dart';
-
-class NoConnectionOverlay extends StatelessWidget {
-  const NoConnectionOverlay({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.wifi_off_rounded,
-              size: 70,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'No connection',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-            const SizedBox(height: 5),
-            Text(
-              'Please check your internet connection.',
-              style: Theme.of(context).textTheme.bodyText2,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class BankruptOverlay extends StatelessWidget {
-  const BankruptOverlay({Key? key, required this.game}) : super(key: key);
-  final Game game;
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
-    final player = game.getPlayer(user.id);
-    assert(player.isBankrupt);
-
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const FaIcon(
-              Icons.money_off,
-              size: 70,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              'You are bankrupt!',
-              style: Theme.of(context).textTheme.headline5,
-            ),
-            const SizedBox(height: 5),
-            Text(
-                'Your Place: ${player.place(game)} (You went bankrupt after ${player.bankruptTime(game).format()})'),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import '../../../shared_widgets.dart';
 
 class ResultsOverlay extends StatefulWidget {
   const ResultsOverlay({Key? key, required this.game}) : super(key: key);

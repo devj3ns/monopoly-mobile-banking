@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../app/cubit/app_cubit.dart';
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
-import 'view/game_view.dart';
+import 'views/game_view.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({Key? key}) : super(key: key);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../extensions.dart';
+import '../../../../extensions.dart';
 
 class AnimatedBalanceText extends StatelessWidget {
   const AnimatedBalanceText({

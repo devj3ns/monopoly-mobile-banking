@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:fleasy/fleasy.dart';
 
-import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:fleasy/fleasy.dart';
 import 'package:flutter/services.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'models/user.dart';
 

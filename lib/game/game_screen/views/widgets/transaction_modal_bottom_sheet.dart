@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-import '../../../app/cubit/app_cubit.dart';
+import '../../../../app/cubit/app_cubit.dart';
 
 extension ShowTransactionModalBottomSheet on BuildContext {
   /// Shows the given [TransactionForm].

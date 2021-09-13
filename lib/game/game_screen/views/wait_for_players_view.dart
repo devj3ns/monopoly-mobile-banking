@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../shared_widgets.dart';
-import 'list_tile_card.dart';
+import 'widgets/list_tile_card.dart';
 
 class WaitForPlayersView extends StatelessWidget {
   const WaitForPlayersView({Key? key, required this.game}) : super(key: key);
