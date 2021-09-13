@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:banking_repository/banking_repository.dart';
+import 'package:confetti/confetti.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,9 +18,34 @@ import 'widgets/animated_balance_text.dart';
 import 'widgets/list_tile_card.dart';
 import 'widgets/transaction_modal_bottom_sheet.dart';
 
-class GameView extends StatelessWidget {
+class GameView extends StatefulWidget {
   const GameView({Key? key, required this.game}) : super(key: key);
   final Game game;
+
+  @override
+  State<GameView> createState() => _GameViewState();
+}
+
+class _GameViewState extends State<GameView> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 2));
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  void showConfetti() {
+    _confettiController.play();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,27 +58,40 @@ class GameView extends StatelessWidget {
           children: [
             const SizedBox(height: 15),
             AnimatedBalanceText(
-              balance: game.getPlayer(user.id).balance,
+              balance: widget.game.getPlayer(user.id).balance,
               textStyle:
                   const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
             ),
             const Divider(height: 30),
-            _PayArea(game: game),
+            _PayArea(game: widget.game),
             const Divider(height: 30),
-            _ReceiveArea(game: game),
+            _ReceiveArea(
+              game: widget.game,
+              showConfetti: showConfetti,
+            ),
             const Divider(height: 30),
-            _TransactionHistory(game: game),
+            _TransactionHistory(game: widget.game),
           ],
         ),
-        if (!game.hasStarted || game.players.size < 2) ...[
-          WaitForPlayersView(game: game),
-        ] else if (game.winner != null) ...[
-          ResultsOverlay(game: game)
-        ] else if (game.getPlayer(user.id).isBankrupt) ...[
-          BankruptOverlay(game: game)
-        ] else if (game.isFromCache) ...[
+        if (!widget.game.hasStarted || widget.game.players.size < 2) ...[
+          WaitForPlayersView(game: widget.game),
+        ] else if (widget.game.winner != null) ...[
+          ResultsOverlay(game: widget.game)
+        ] else if (widget.game.getPlayer(user.id).isBankrupt) ...[
+          BankruptOverlay(game: widget.game)
+        ] else if (widget.game.isFromCache) ...[
           const NoConnectionOverlay(),
         ],
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirection: pi / 2,
+            blastDirectionality: BlastDirectionality.explosive,
+            emissionFrequency: 0.05,
+            numberOfParticles: 20,
+          ),
+        ),
       ],
     );
   }
@@ -171,9 +212,11 @@ class _ReceiveArea extends StatelessWidget {
   const _ReceiveArea({
     Key? key,
     required this.game,
+    required this.showConfetti,
   }) : super(key: key);
 
   final Game game;
+  final VoidCallback showConfetti;
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +276,7 @@ class _ReceiveArea extends StatelessWidget {
                             TransactionForm(
                               game: game,
                               transactionType: TransactionType.fromFreeParking,
+                              showConfetti: showConfetti,
                             ),
                           ),
                 ),

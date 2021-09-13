@@ -28,11 +28,13 @@ class TransactionForm extends HookWidget {
     required this.game,
     required this.transactionType,
     this.toUserId,
+    this.showConfetti,
   }) : super(key: key);
 
   final Game game;
   final TransactionType transactionType;
   final String? toUserId;
+  final VoidCallback? showConfetti;
 
   static final _formKey = GlobalKey<FormState>();
 
@@ -96,6 +98,8 @@ class TransactionForm extends HookWidget {
         amount.value = 0;
 
         context.popPage();
+
+        showConfetti?.call();
       }
     }
 
