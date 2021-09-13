@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../app/cubit/app_cubit.dart';
 import '../../../shared_widgets.dart';
+import '../../../extensions.dart';
 
 class NoConnectionOverlay extends StatelessWidget {
   const NoConnectionOverlay({Key? key}) : super(key: key);
@@ -69,7 +70,7 @@ class BankruptOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-                'Your Place: ${player.place(game)} (You went bankrupt after ${player.bankruptTime(game).inMinutes} min)'),
+                'Your Place: ${player.place(game)} (You went bankrupt after ${player.bankruptTime(game).format()})'),
           ],
         ),
       ),
@@ -109,7 +110,7 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
     final thisPlayerIsWinner = widget.game.winner!.userId == user.id;
     final winnerNameOrYou =
         thisPlayerIsWinner ? 'You' : widget.game.winner!.name;
-    final gameDurationInMinutes = widget.game.duration.inMinutes;
+    final gameDuration = widget.game.duration;
 
     String getShareText() {
       final firstSentence = thisPlayerIsWinner
@@ -120,6 +121,28 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
           '\n\nYou can try it out here: https://monopoly-banking.web.app';
 
       return firstSentence + appDescription;
+    }
+
+    IconData getIconByPlace(int place) {
+      switch (place) {
+        case 2:
+          return Icons.looks_two_rounded;
+
+        case 3:
+          return Icons.looks_3_rounded;
+
+        case 4:
+          return Icons.looks_4_rounded;
+
+        case 5:
+          return Icons.looks_5_rounded;
+
+        case 6:
+          return Icons.looks_6_rounded;
+
+        default:
+          return Icons.error;
+      }
     }
 
     return Stack(
@@ -146,38 +169,15 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                       .map((player) {
                     final nameOrYou =
                         player.userId == user.id ? 'You' : player.name;
-                    final bankruptTimeInMinutes =
-                        player.bankruptTime(widget.game).inMinutes;
-
-                    late final IconData icon;
-                    switch (player.place(widget.game)) {
-                      case 2:
-                        icon = Icons.looks_two_rounded;
-                        break;
-                      case 3:
-                        icon = Icons.looks_3_rounded;
-                        break;
-                      case 4:
-                        icon = Icons.looks_4_rounded;
-                        break;
-                      case 5:
-                        icon = Icons.looks_5_rounded;
-                        break;
-                      case 6:
-                        icon = Icons.looks_6_rounded;
-                        break;
-                      default:
-                        icon = Icons.error;
-                        break;
-                    }
+                    final bankruptTime = player.bankruptTime(widget.game);
 
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(icon),
+                        Icon(getIconByPlace(player.place(widget.game))),
                         const SizedBox(width: 5),
                         Text(
-                          '$nameOrYou (Bankrupt after $bankruptTimeInMinutes min)',
+                          '$nameOrYou (Bankrupt after ${bankruptTime.format()})',
                           style: const TextStyle(fontSize: 17),
                         ),
                       ],
@@ -187,7 +187,7 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                 const SizedBox(height: 25),
                 IconText(
                   text: Text(
-                    'Duration of the game: $gameDurationInMinutes min',
+                    'Duration of the game: ${gameDuration.format()}',
                     style: const TextStyle(fontSize: 17),
                   ),
                   gap: 7,

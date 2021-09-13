@@ -35,3 +35,18 @@ extension StringExtensions on String {
     return isBlank ? this : this[0].toUpperCase() + substring(1);
   }
 }
+
+extension DurationExtensions on Duration {
+  /// Formats a duration, e.g.: 10s, 31min, 2h, 3:10h
+  String format() {
+    if (inSeconds < 60) {
+      return '${inSeconds}s';
+    } else if (inMinutes < 60) {
+      return '${inMinutes}min';
+    } else {
+      return inMinutes % 60 == 0
+          ? '${inHours}h'
+          : '$inHours:${(inMinutes % 60).toString().padLeft(2, '0')}h';
+    }
+  }
+}
