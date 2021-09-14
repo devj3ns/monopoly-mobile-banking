@@ -4,12 +4,12 @@ import 'package:fleasy/fleasy.dart';
 
 import 'package:user_repository/user_repository.dart';
 
-part 'choose_username_state.dart';
+part 'set_username_state.dart';
 
-class ChooseUsernameCubit extends Cubit<ChooseUsernameState> {
-  ChooseUsernameCubit({required UserRepository userRepository})
+class SetUsernameCubit extends Cubit<SetUsernameState> {
+  SetUsernameCubit({required UserRepository userRepository})
       : _userRepository = userRepository,
-        super(const ChooseUsernameState());
+        super(const SetUsernameState());
 
   final UserRepository _userRepository;
 
@@ -18,7 +18,7 @@ class ChooseUsernameCubit extends Cubit<ChooseUsernameState> {
   }
 
   void resetSignInResult() {
-    emit(state.copyWith(chooseUsernameResult: ChooseUsernameResult.none));
+    emit(state.copyWith(chooseUsernameResult: SetUsernameResult.none));
   }
 
   Future<void> submitForm() async {
@@ -26,7 +26,7 @@ class ChooseUsernameCubit extends Cubit<ChooseUsernameState> {
 
     emit(state.copyWith(isSubmitting: true));
 
-    final result = await _userRepository.chooseUsername(state.username);
+    final result = await _userRepository.setUsername(state.username);
 
     emit(state.copyWith(isSubmitting: false, chooseUsernameResult: result));
   }

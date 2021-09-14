@@ -17,7 +17,7 @@ enum SignInResult {
   failure,
 }
 
-enum ChooseUsernameResult {
+enum SetUsernameResult {
   none,
   success,
   usernameAlreadyTaken,
@@ -59,8 +59,8 @@ class UserRepository {
 
   /// Sets the username in the database.
   ///
-  /// If the username is already taken [ChooseUsernameResult.usernameAlreadyTaken] is returned.
-  Future<ChooseUsernameResult> chooseUsername(String username) async {
+  /// If the username is already taken [SetUsernameResult.usernameAlreadyTaken] is returned.
+  Future<SetUsernameResult> setUsername(String username) async {
     try {
       // Create ref to usernames doc (usernames are case insensitive!)
       final usernamesDoc = usernamesCollection.doc(username.toLowerCase());
@@ -69,32 +69,42 @@ class UserRepository {
       final usernameIsTaken = (await usernamesDoc.get()).exists;
 
       // Return if it is already taken:
-      if (usernameIsTaken) return ChooseUsernameResult.usernameAlreadyTaken;
+      if (usernameIsTaken) return SetUsernameResult.usernameAlreadyTaken;
 
-      // Update username in the database:
+      // Delete old username doc if the username should be changed
+      if (user.hasUsername) {
+        final oldUsernameDoc =
+            usernamesCollection.doc(_user.value.name.toLowerCase());
+        await oldUsernameDoc.delete();
+      }
+
+      // Create a doc with the (new) username in the usernames collection:
+      await usernamesDoc.set(<String, dynamic>{'userId': _user.value.id});
+
+      // Update username in the user data doc:
       final updatedUser = _user.value.copyWith(name: username);
       await _updateUserData(updatedUser);
 
-      // Create a document in the usernames collection:
-      await usernamesDoc.set(<String, dynamic>{'userId': updatedUser.id});
-
-      return ChooseUsernameResult.success;
+      return SetUsernameResult.success;
     } on FirebaseException catch (e) {
       switch (e.code) {
         case 'unavailable':
-          return ChooseUsernameResult.noConnection;
+          return SetUsernameResult.noConnection;
         default:
-          log('Unknown FirebaseException exception in chooseUsername(): $e');
-          return ChooseUsernameResult.failure;
+          log('Unknown FirebaseException exception in setUsername(): $e');
+          return SetUsernameResult.failure;
       }
     } catch (e) {
-      log('Unknown exception in chooseUsername(): $e');
+      log('Unknown exception in setUsername(): $e');
 
-      return ChooseUsernameResult.failure;
+      return SetUsernameResult.failure;
     }
   }
 
   /// Signs in with Google.
+  ///
+  /// If it's the first login, the user is also created in the database.
+  /// For its username the displayName of the google account is used. If that is already forgiven, he has to choose another name.
   Future<SignInResult> signInWithGoogle() async {
     try {
       late UserCredential userCredential;
@@ -129,11 +139,29 @@ class UserRepository {
       final firstLogin = !(await userDocument(firebaseUser.uid).get()).exists;
 
       if (firstLogin) {
-        // Create user with empty username in database when its the first login_screen
-        // The username gets set later!
-        final user = User(id: firebaseUser.uid, name: '', wins: 0);
+        // Check if google username is already taken or not:
+        final googleUsernameIsTaken = (await usernamesCollection
+                .doc(firebaseUser.displayName!.toLowerCase())
+                .get())
+            .exists;
 
-        await _updateUserData(user);
+        if (googleUsernameIsTaken) {
+          // Create user with empty username in database
+          // When the username is blank the 'choose username screen' is shown automatically
+          final user = User(id: firebaseUser.uid, name: '', wins: 0);
+
+          await _updateUserData(user);
+        } else {
+          // Create user with username in the users collection:
+          final user = User(
+              id: firebaseUser.uid, name: firebaseUser.displayName!, wins: 0);
+          await _updateUserData(user);
+
+          // Create a document in the usernames collection:
+          await usernamesCollection
+              .doc(firebaseUser.displayName!.toLowerCase())
+              .set(<String, dynamic>{'userId': firebaseUser.uid});
+        }
       }
 
       return SignInResult.success;

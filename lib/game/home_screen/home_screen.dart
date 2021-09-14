@@ -7,10 +7,10 @@ import '../../app/cubit/app_cubit.dart';
 import '../../app_info_screen.dart';
 import '../../shared_widgets.dart';
 import 'cubit/join_game_cubit.dart';
-import 'view/select_game_view.dart';
+import 'view/home_view.dart';
 
-class SelectGameScreen extends StatelessWidget {
-  const SelectGameScreen({Key? key}) : super(key: key);
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class SelectGameScreen extends StatelessWidget {
 
               context.read<JoinGameCubit>().resetJoinGameResult();
             },
-            child: const SelectGameView()),
+            child: const HomeView()),
       ),
     );
   }

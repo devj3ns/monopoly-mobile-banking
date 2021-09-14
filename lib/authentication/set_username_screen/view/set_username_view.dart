@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../app/cubit/app_cubit.dart';
 import '../../../shared_widgets.dart';
-import '../cubit/choose_username_cubit.dart';
+import '../cubit/set_username_cubit.dart';
 
-class ChooseUsernameForm extends StatelessWidget {
-  const ChooseUsernameForm({Key? key}) : super(key: key);
+class SetUsernameView extends StatelessWidget {
+  const SetUsernameView({Key? key, required this.editUsername})
+      : super(key: key);
+  final bool editUsername;
 
   static final formKey = GlobalKey<FormState>();
 
@@ -18,7 +21,7 @@ class ChooseUsernameForm extends StatelessWidget {
       if (formKey.currentState!.validate()) {
         context
           ..dismissKeyboard()
-          ..read<ChooseUsernameCubit>().submitForm();
+          ..read<SetUsernameCubit>().submitForm();
       }
     }
 
@@ -28,21 +31,26 @@ class ChooseUsernameForm extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         children: [
           SizedBox(height: context.screenHeight * 0.2),
-          const Center(
+          Center(
             child: FaIcon(
-              FontAwesomeIcons.user,
+              editUsername ? FontAwesomeIcons.userEdit : FontAwesomeIcons.user,
               size: 50,
             ),
           ),
           const SizedBox(height: 15),
           Text(
-            'Choose a username',
+            editUsername ? 'Edit username' : 'Choose a username',
             style: Theme.of(context).textTheme.headline5,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 25),
-          _UsernameInput(),
-          _SubmitFormButton(submitForm),
+          _UsernameInput(
+            submitForm,
+          ),
+          _SubmitFormButton(
+            submitForm,
+            editUsername: editUsername,
+          ),
         ],
       ),
     );
@@ -50,46 +58,58 @@ class ChooseUsernameForm extends StatelessWidget {
 }
 
 class _UsernameInput extends StatelessWidget {
+  const _UsernameInput(this.submitForm);
+  final VoidCallback submitForm;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Insets.m),
       child: TextFormField(
+        initialValue: context.read<AppCubit>().state.user.name,
         onChanged: (name) =>
-            context.read<ChooseUsernameCubit>().onUsernameChanged(name.trim()),
+            context.read<SetUsernameCubit>().onUsernameChanged(name.trim()),
+        onEditingComplete: submitForm,
+        textInputAction: TextInputAction.done,
         keyboardType: TextInputType.text,
         decoration: const InputDecoration(
           labelText: 'Username',
         ),
         validator: (value) => value.isBlank
             ? 'Please enter a username'
-            : value!.trim().length > 15
-                ? 'The length of your username has to be below 15 characters'
-                : null,
+            : value!.trim().length < 2
+                ? 'This username is too short'
+                : value.trim().length > 15
+                    ? 'This username is too long'
+                    : null,
       ),
     );
   }
 }
 
 class _SubmitFormButton extends StatelessWidget {
-  const _SubmitFormButton(this.submitForm);
+  const _SubmitFormButton(this.submitForm, {required this.editUsername});
   final VoidCallback submitForm;
+  final bool editUsername;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: Insets.m),
-        child: BlocBuilder<ChooseUsernameCubit, ChooseUsernameState>(
+        child: BlocBuilder<SetUsernameCubit, SetUsernameState>(
           buildWhen: (previous, current) =>
               previous.isSubmitting != current.isSubmitting,
           builder: (context, state) {
             return state.isSubmitting
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-                    child: const IconText(
-                      text: Text('Sign in'),
-                      icon: Icon(Icons.login_rounded),
+                    child: IconText(
+                      text: Text(editUsername ? 'Save' : 'Sign in'),
+                      icon: Icon(
+                        editUsername ? Icons.save_rounded : Icons.login_rounded,
+                        size: 21,
+                      ),
                     ),
                     onPressed: submitForm,
                   );

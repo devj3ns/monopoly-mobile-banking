@@ -1,25 +1,25 @@
-part of 'choose_username_cubit.dart';
+part of 'set_username_cubit.dart';
 
-class ChooseUsernameState extends Equatable {
-  const ChooseUsernameState({
+class SetUsernameState extends Equatable {
+  const SetUsernameState({
     this.username = '',
     this.isSubmitting = false,
-    this.chooseUsernameResult = ChooseUsernameResult.none,
+    this.chooseUsernameResult = SetUsernameResult.none,
   });
 
   final String username;
   final bool isSubmitting;
-  final ChooseUsernameResult chooseUsernameResult;
+  final SetUsernameResult chooseUsernameResult;
 
   @override
   List<Object> get props => [username, isSubmitting, chooseUsernameResult];
 
-  ChooseUsernameState copyWith({
+  SetUsernameState copyWith({
     String? username,
     bool? isSubmitting,
-    ChooseUsernameResult? chooseUsernameResult,
+    SetUsernameResult? chooseUsernameResult,
   }) {
-    return ChooseUsernameState(
+    return SetUsernameState(
       username: username ?? this.username,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       chooseUsernameResult: chooseUsernameResult ?? this.chooseUsernameResult,

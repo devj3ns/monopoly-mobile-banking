@@ -6,12 +6,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/cubit/app_cubit.dart';
+import '../../../authentication/set_username_screen/set_username_page.dart';
 import '../../../shared_widgets.dart';
 import '../../create_game_screen/create_game_screen.dart';
 import '../cubit/join_game_cubit.dart';
 
-class SelectGameView extends StatelessWidget {
-  const SelectGameView({Key? key}) : super(key: key);
+class HomeView extends StatelessWidget {
+  const HomeView({Key? key}) : super(key: key);
 
   static final formKey = GlobalKey<FormState>();
 
@@ -60,21 +61,31 @@ class _NameAndWinsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AppCubit>().state.user;
 
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Hey ${user.name} 👋',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headline5,
+        Column(
+          children: [
+            Text(
+              'Hey ${user.name} 👋',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline5,
+            ),
+            if (user.wins > 0) ...[
+              const SizedBox(height: 5),
+              Text(
+                'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
+          ],
         ),
-        if (user.wins > 0) ...[
-          const SizedBox(height: 5),
-          Text(
-            'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
+        IconButton(
+          icon: const Icon(Icons.edit),
+          onPressed: () =>
+              context.pushPage(const SetUsernamePage(editUsername: true)),
+        )
       ],
     );
   }
@@ -94,6 +105,7 @@ class _GameIdInput extends StatelessWidget {
       textCapitalization: TextCapitalization.characters,
       onChanged: (v) => context.read<JoinGameCubit>().gameIdChanged(v),
       onEditingComplete: submitForm,
+      textInputAction: TextInputAction.go,
       validator: (v) => v.isBlank ? 'Please enter a game ID.' : null,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]+')),
