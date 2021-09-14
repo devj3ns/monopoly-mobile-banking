@@ -61,31 +61,31 @@ class _NameAndWinsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AppCubit>().state.user;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               'Hey ${user.name} 👋',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headline5,
             ),
-            if (user.wins > 0) ...[
-              const SizedBox(height: 5),
-              Text(
-                'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ],
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () =>
+                  context.pushPage(const SetUsernamePage(editUsername: true)),
+            ),
           ],
         ),
-        IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () =>
-              context.pushPage(const SetUsernamePage(editUsername: true)),
-        )
+        if (user.wins > 0) ...[
+          const SizedBox(height: 5),
+          Text(
+            'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ],
       ],
     );
   }
@@ -106,7 +106,11 @@ class _GameIdInput extends StatelessWidget {
       onChanged: (v) => context.read<JoinGameCubit>().gameIdChanged(v),
       onEditingComplete: submitForm,
       textInputAction: TextInputAction.go,
-      validator: (v) => v.isBlank ? 'Please enter a game ID.' : null,
+      validator: (v) => v.isBlank
+          ? 'Please enter a game ID.'
+          : v!.length < 4
+              ? 'The game ID must be 4 characters long.'
+              : null,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]+')),
         LengthLimitingTextInputFormatter(4),
