@@ -1,10 +1,10 @@
 import 'package:banking_repository/banking_repository.dart';
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:monopoly_banking/shared_widgets.dart';
 
 import '../../../../app/cubit/app_cubit.dart';
 
@@ -41,12 +41,16 @@ class TransactionForm extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<AppCubit>().state.user;
-    final myBalance = game.getPlayer(user.id).balance;
+    final myMoneyBalance = game.getPlayer(user.id).balance;
 
     final amountController = useTextEditingController();
     final amount = useState(0);
 
-    final showBankruptWarning = amount.value == myBalance &&
+    final checkIfEnoughMoney = transactionType == TransactionType.toBank ||
+        transactionType == TransactionType.toFreeParking ||
+        transactionType == TransactionType.toPlayer;
+
+    final showBankruptWarning = amount.value == myMoneyBalance &&
         (transactionType == TransactionType.toBank ||
             transactionType == TransactionType.toPlayer ||
             transactionType == TransactionType.toFreeParking);
@@ -123,18 +127,21 @@ class TransactionForm extends HookWidget {
                       children: [
                         Form(
                           key: _formKey,
-                          child: _BalanceFormField(
+                          child: MoneyBalanceFormField(
                             controller: amountController,
-                            myBalance: myBalance,
-                            onChanged: (balance) => amount.value = balance,
-                            onSubmit: submitForm,
-                            // Only check if the player has enough money
-                            // if he wants to send and not receive it:
-                            checkIfEnoughMoney:
-                                transactionType == TransactionType.toBank ||
-                                    transactionType ==
-                                        TransactionType.toFreeParking ||
-                                    transactionType == TransactionType.toPlayer,
+                            autofocus: true,
+                            onChanged: (value) => amount.value = value,
+                            onEditingComplete: submitForm,
+                            hintText: 'Amount',
+                            validator: (value) {
+                              return value <= 0
+                                  ? 'Please enter a number!'
+                                  : checkIfEnoughMoney
+                                      ? value > myMoneyBalance
+                                          ? "You don't have enough money!"
+                                          : null
+                                      : null;
+                            },
                           ),
                         ),
                         //
@@ -163,62 +170,6 @@ class TransactionForm extends HookWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BalanceFormField extends StatelessWidget {
-  const _BalanceFormField({
-    Key? key,
-    required this.controller,
-    required this.myBalance,
-    required this.onChanged,
-    required this.onSubmit,
-    required this.checkIfEnoughMoney,
-  }) : super(key: key);
-
-  final TextEditingController controller;
-  final int myBalance;
-  final Function(int) onChanged;
-  final VoidCallback onSubmit;
-  final bool checkIfEnoughMoney;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      autovalidateMode: controller.text.isEmpty
-          ? AutovalidateMode.disabled
-          : AutovalidateMode.onUserInteraction,
-      decoration: const InputDecoration(hintText: 'Amount'),
-      keyboardType: TextInputType.number,
-      controller: controller,
-      inputFormatters: [
-        CurrencyTextInputFormatter(
-          locale: Localizations.localeOf(context).toLanguageTag(),
-          symbol: '\$',
-          decimalDigits: 0,
-        )
-      ],
-      validator: (value) {
-        final balance = value.isBlank
-            ? 0
-            : int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
-
-        if (balance <= 0) return 'Please enter a number!';
-
-        return checkIfEnoughMoney
-            ? balance > myBalance
-                ? "You don't have enough money!"
-                : null
-            : null;
-      },
-      onChanged: (value) => onChanged(
-        value.toString().isBlank
-            ? 0
-            : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
-      ),
-      onEditingComplete: onSubmit,
-      autofocus: true,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 
@@ -75,6 +76,70 @@ class IconText extends StatelessWidget {
           ]
         ],
       ),
+    );
+  }
+}
+
+/// A money balance form field.
+class MoneyBalanceFormField extends StatelessWidget {
+  const MoneyBalanceFormField({
+    Key? key,
+    required this.onChanged,
+    this.controller,
+    this.onEditingComplete,
+    this.validator,
+    this.textInputAction,
+    this.labelText,
+    this.hintText,
+    this.initialValue,
+    this.autofocus = false,
+  }) : super(key: key);
+
+  final Function(int) onChanged;
+  final TextEditingController? controller;
+  final VoidCallback? onEditingComplete;
+  final String? Function(int)? validator;
+  final TextInputAction? textInputAction;
+  final String? labelText;
+  final String? hintText;
+  final int? initialValue;
+  final bool autofocus;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      initialValue: initialValue?.toString(),
+      autovalidateMode: controller == null
+          ? null
+          : controller!.text.isEmpty
+              ? AutovalidateMode.disabled
+              : AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+        hintText: hintText,
+        label: labelText != null ? Text(labelText!) : null,
+      ),
+      keyboardType: TextInputType.number,
+      controller: controller,
+      inputFormatters: [
+        CurrencyTextInputFormatter(
+          locale: Localizations.localeOf(context).toLanguageTag(),
+          symbol: '\$',
+          decimalDigits: 0,
+        )
+      ],
+      validator: (value) => validator?.call(
+        value.toString().isBlank
+            ? 0
+            : int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), '')),
+      ),
+      onChanged: (value) => onChanged(
+        value.toString().isBlank
+            ? 0
+            : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
+      ),
+      onEditingComplete: onEditingComplete,
+      textInputAction: TextInputAction.done,
+      autofocus: autofocus,
     );
   }
 }

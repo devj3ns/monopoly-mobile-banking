@@ -1,4 +1,3 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,10 +40,12 @@ class _StartingCapitalInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _BalanceFormField(
-      labelText: 'Starting Balance',
+    return MoneyBalanceFormField(
+      labelText: 'Starting Capital',
       initialValue: context.read<CreateGameCubit>().state.startingCapital,
       onChanged: context.read<CreateGameCubit>().onStartingCapitalChanged,
+      textInputAction: TextInputAction.next,
+      validator: (value) => value <= 0 ? 'Please enter a number.' : null,
     );
   }
 }
@@ -54,10 +55,12 @@ class _SalaryInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _BalanceFormField(
+    return MoneyBalanceFormField(
       labelText: 'Salary',
       initialValue: context.read<CreateGameCubit>().state.salary,
       onChanged: context.read<CreateGameCubit>().onSalaryChanged,
+      textInputAction: TextInputAction.next,
+      validator: (value) => value <= 0 ? 'Please enter a number.' : null,
     );
   }
 }
@@ -77,47 +80,6 @@ class _FreeParkingSwitch extends HookWidget {
               context.read<CreateGameCubit>().onEnableFreeParkingMoneyChanged,
         ),
       ],
-    );
-  }
-}
-
-class _BalanceFormField extends StatelessWidget {
-  const _BalanceFormField({
-    Key? key,
-    required this.labelText,
-    required this.initialValue,
-    required this.onChanged,
-  }) : super(key: key);
-
-  final String labelText;
-  final Function(int) onChanged;
-  final int initialValue;
-
-  @override
-  Widget build(BuildContext context) {
-    final inputFormatter = CurrencyTextInputFormatter(
-      locale: Localizations.localeOf(context).toLanguageTag(),
-      symbol: '\$',
-      decimalDigits: 0,
-    );
-
-    return TextFormField(
-      initialValue: inputFormatter.format(initialValue.toString()),
-      decoration: InputDecoration(labelText: labelText),
-      keyboardType: TextInputType.number,
-      inputFormatters: [inputFormatter],
-      validator: (value) {
-        final balance = value.isBlank
-            ? 0
-            : int.parse(value!.replaceAll(RegExp(r'[^0-9]+'), ''));
-
-        if (balance <= 0) return 'Please enter a number!';
-      },
-      onChanged: (value) => onChanged(
-        value.toString().isBlank
-            ? 0
-            : int.parse(value.replaceAll(RegExp(r'[^0-9]+'), '')),
-      ),
     );
   }
 }

@@ -16,7 +16,7 @@ class CreateGameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BasicScaffold(
       appBar: AppBar(
-        title: const Text('Create new game'),
+        title: const Text('Create game'),
       ),
       applyPadding: false,
       body: RepositoryProvider.value(
