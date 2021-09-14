@@ -9,7 +9,7 @@ part 'set_username_state.dart';
 class SetUsernameCubit extends Cubit<SetUsernameState> {
   SetUsernameCubit({required UserRepository userRepository})
       : _userRepository = userRepository,
-        super(const SetUsernameState());
+        super(SetUsernameState(username: userRepository.user.name));
 
   final UserRepository _userRepository;
 

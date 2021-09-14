@@ -107,8 +107,16 @@ class MoneyBalanceFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inputFormatter = CurrencyTextInputFormatter(
+      locale: Localizations.localeOf(context).toLanguageTag(),
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+
     return TextFormField(
-      initialValue: initialValue?.toString(),
+      initialValue: initialValue != null
+          ? inputFormatter.format(initialValue.toString()).toString()
+          : null,
       autovalidateMode: controller == null
           ? null
           : controller!.text.isEmpty
@@ -120,13 +128,7 @@ class MoneyBalanceFormField extends StatelessWidget {
       ),
       keyboardType: TextInputType.number,
       controller: controller,
-      inputFormatters: [
-        CurrencyTextInputFormatter(
-          locale: Localizations.localeOf(context).toLanguageTag(),
-          symbol: '\$',
-          decimalDigits: 0,
-        )
-      ],
+      inputFormatters: [inputFormatter],
       validator: (value) => validator?.call(
         value.toString().isBlank
             ? 0

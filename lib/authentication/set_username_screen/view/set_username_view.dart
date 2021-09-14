@@ -94,12 +94,15 @@ class _SubmitFormButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AppCubit>().state.user;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(top: Insets.m),
         child: BlocBuilder<SetUsernameCubit, SetUsernameState>(
           buildWhen: (previous, current) =>
-              previous.isSubmitting != current.isSubmitting,
+              previous.isSubmitting != current.isSubmitting ||
+              previous.username != current.username,
           builder: (context, state) {
             return state.isSubmitting
                 ? const CircularProgressIndicator()
@@ -111,7 +114,7 @@ class _SubmitFormButton extends StatelessWidget {
                         size: 21,
                       ),
                     ),
-                    onPressed: submitForm,
+                    onPressed: user.name == state.username ? null : submitForm,
                   );
           },
         ),
