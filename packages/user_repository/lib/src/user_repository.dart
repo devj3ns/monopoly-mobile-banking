@@ -99,9 +99,9 @@ class UserRepository {
     try {
       late UserCredential userCredential;
       if (DeviceType.isWeb) {
-        await _firebaseAuth.signInWithRedirect(GoogleAuthProvider());
-
-        userCredential = await _firebaseAuth.getRedirectResult();
+        // Use signInWithPopup instead of signInWithRedirect, because it's easier to implement
+        userCredential =
+            await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
       } else {
         // Trigger the authentication flow
         final googleSignInAccount = await _googleSignIn.signIn();
