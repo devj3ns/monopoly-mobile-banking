@@ -32,6 +32,7 @@ class UserRepository {
 
   // ### Firebase instances: ###
   static final _firebaseAuth = FirebaseAuth.instance;
+  final firebaseAuth = _firebaseAuth;
   static final _firebaseFirestore = FirebaseFirestore.instance;
   static final _googleSignIn = GoogleSignIn.standard();
 
@@ -219,7 +220,16 @@ class UserRepository {
   }
 
   /// Signs out the user which updates [_authUserChanges].
+  ///
+  /// If the users singed in anonymous his account gets deleted.
   Future<void> signOut() async {
+    if (_firebaseAuth.currentUser!.isAnonymous) {
+      // Its important that it is done in this order:
+      await usernamesCollection.doc(user.name).delete();
+      await userDocument(user.id).delete();
+      await _firebaseAuth.currentUser!.delete();
+    }
+
     await Future.wait([
       _googleSignIn.signOut(),
       _firebaseAuth.signOut(),

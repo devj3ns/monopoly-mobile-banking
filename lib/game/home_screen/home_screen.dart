@@ -2,6 +2,7 @@ import 'package:banking_repository/banking_repository.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_repository/user_repository.dart';
 
 import '../../app_info_screen.dart';
 import '../../authentication/cubit/auth_cubit.dart';
@@ -11,6 +12,35 @@ import 'view/home_view.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  void showAnonymousLogoutWarning(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext _) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text(
+            'You are currently signed in to an anonymous account.'
+            'This means your account gets deleted when you sign out, and you cannot re-login.\n\n'
+            'If you only want to change your username, you can also do that on the home screen.\n\n'
+            'We generally recommend using a social login so that you can re-login and also login to your account from other devices.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Sign out anyway'),
+              onPressed: () => context
+                ..read<AuthCubit>().signOut()
+                ..popPage(),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +81,15 @@ class HomeScreen extends StatelessWidget {
                   context.pushPage(const AppInfoScreen());
                   break;
                 case 1:
-                  context.read<AuthCubit>().signOut();
+                  if (context
+                      .read<UserRepository>()
+                      .firebaseAuth
+                      .currentUser!
+                      .isAnonymous) {
+                    showAnonymousLogoutWarning(context);
+                  } else {
+                    context.read<AuthCubit>().signOut();
+                  }
                   break;
                 default:
                   break;
