@@ -168,11 +168,11 @@ class BankingRepository {
         .update({'startingTimestamp': FieldValue.serverTimestamp()});
   }
 
-  /// Transfers money from one player to another.
+  /// Transfers money.
   Future<void> makeTransaction({
     required Game game,
     required TransactionType transactionType,
-    required int amount,
+    int? amount,
     String? toUserId,
   }) async {
     // todo: Find a better solution for this
@@ -186,29 +186,33 @@ class BankingRepository {
     late final Transaction transaction;
     switch (transactionType) {
       case TransactionType.fromBank:
+        assert(amount != null);
         transaction = Transaction.fromBank(
             toUserId: userRepository.user.id,
-            amount: amount,
+            amount: amount!,
             timestamp: timestamp);
         break;
       case TransactionType.toBank:
+        assert(amount != null);
         transaction = Transaction.toBank(
             fromUserId: userRepository.user.id,
-            amount: amount,
+            amount: amount!,
             timestamp: timestamp);
         break;
       case TransactionType.toPlayer:
         assert(toUserId != null);
+        assert(amount != null);
         transaction = Transaction.toPlayer(
             fromUserId: userRepository.user.id,
             toUserId: toUserId!,
-            amount: amount,
+            amount: amount!,
             timestamp: timestamp);
         break;
       case TransactionType.toFreeParking:
+        assert(amount != null);
         transaction = Transaction.toFreeParking(
             fromUserId: userRepository.user.id,
-            amount: amount,
+            amount: amount!,
             timestamp: timestamp);
         break;
       case TransactionType.fromFreeParking:
