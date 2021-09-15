@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/cubit/app_cubit.dart';
-import '../../../authentication/set_username_screen/set_username_page.dart';
+import '../../../authentication/cubit/auth_cubit.dart';
+import '../../../authentication/set_username_screen/set_username_screen.dart';
 import '../../../shared_widgets.dart';
 import '../../create_game_screen/create_game_screen.dart';
 import '../cubit/join_game_cubit.dart';
@@ -59,7 +59,7 @@ class _NameAndWinsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AppCubit>().state.user;
+    final user = context.watch<AuthCubit>().state.user;
 
     return Column(
       children: [
@@ -74,7 +74,7 @@ class _NameAndWinsSection extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () =>
-                  context.pushPage(const SetUsernamePage(editUsername: true)),
+                  context.pushPage(const SetUsernameScreen(editUsername: true)),
             ),
           ],
         ),

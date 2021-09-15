@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../app/cubit/app_cubit.dart';
+import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../extensions.dart';
 
 class BankruptOverlay extends StatelessWidget {
@@ -12,7 +12,7 @@ class BankruptOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
     final player = game.getPlayer(user.id);
     assert(player.isBankrupt);
 

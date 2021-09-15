@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../app/cubit/app_cubit.dart';
+import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../shared_widgets.dart';
 import '../cubit/set_username_cubit.dart';
 
@@ -66,7 +66,7 @@ class _UsernameInput extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Insets.m),
       child: TextFormField(
-        initialValue: context.read<AppCubit>().state.user.name,
+        initialValue: context.read<AuthCubit>().state.user.name,
         onChanged: (name) =>
             context.read<SetUsernameCubit>().onUsernameChanged(name.trim()),
         onEditingComplete: submitForm,
@@ -94,7 +94,7 @@ class _SubmitFormButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
 
     return Center(
       child: Padding(

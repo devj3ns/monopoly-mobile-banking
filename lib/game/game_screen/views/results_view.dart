@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../app/cubit/app_cubit.dart';
+import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../extensions.dart';
 import '../../../shared_widgets.dart';
 
@@ -39,7 +39,7 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
   @override
   Widget build(BuildContext context) {
     assert(widget.game.winner != null);
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
     final thisPlayerIsWinner = widget.game.winner!.userId == user.id;
     final winnerNameOrYou =
         thisPlayerIsWinner ? 'You' : widget.game.winner!.name;

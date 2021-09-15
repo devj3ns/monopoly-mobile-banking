@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../app/cubit/app_cubit.dart';
-import '../../../extensions.dart';
+import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../shared_widgets.dart';
 import 'bankrupt_view.dart';
 import 'no_connection_view.dart';
@@ -16,6 +15,8 @@ import 'results_view.dart';
 import 'wait_for_players_view.dart';
 import 'widgets/animated_balance_text.dart';
 import 'widgets/list_tile_card.dart';
+import 'widgets/player_card.dart';
+import 'widgets/transaction_card.dart';
 import 'widgets/transaction_modal_bottom_sheet.dart';
 
 class GameView extends StatefulWidget {
@@ -49,7 +50,7 @@ class _GameViewState extends State<GameView> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
 
     return Stack(
       children: [
@@ -57,8 +58,8 @@ class _GameViewState extends State<GameView> {
           padding: const EdgeInsets.all(8.0),
           children: [
             const SizedBox(height: 15),
-            AnimatedBalanceText(
-              balance: widget.game.getPlayer(user.id).balance,
+            AnimatedMoneyBalanceText(
+              moneyBalance: widget.game.getPlayer(user.id).balance,
               textStyle:
                   const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
             ),
@@ -107,7 +108,7 @@ class _PayArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
     final otherNonBankruptPlayers = game.otherNonBankruptPlayers(user.id);
 
     return Column(
@@ -135,7 +136,7 @@ class _PayArea extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: otherNonBankruptPlayers
                     .map(
-                      (player) => _PlayerCard(
+                      (player) => PlayerCard(
                         game: game,
                         player: player,
                       ),
@@ -176,34 +177,6 @@ class _PayArea extends StatelessWidget {
           ],
         )
       ],
-    );
-  }
-}
-
-class _PlayerCard extends StatelessWidget {
-  const _PlayerCard({
-    Key? key,
-    required this.game,
-    required this.player,
-  }) : super(key: key);
-
-  final Game game;
-  final Player player;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTileCard(
-      icon: FontAwesomeIcons.solidUser,
-      text: player.name,
-      moneyBalance: player.balance,
-      customColor: player.color,
-      onTap: () => context.showTransactionModalBottomSheet(
-        TransactionForm(
-          game: game,
-          transactionType: TransactionType.toPlayer,
-          toUserId: player.userId,
-        ),
-      ),
     );
   }
 }
@@ -322,88 +295,10 @@ class _TransactionHistory extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: transactions.length,
                 shrinkWrap: true,
-                itemBuilder: (context, index) => _TransactionCard(
+                itemBuilder: (context, index) => TransactionCard(
                     transaction: transactions[index], game: game),
               ),
       ],
-    );
-  }
-}
-
-class _TransactionCard extends StatelessWidget {
-  const _TransactionCard({
-    Key? key,
-    required this.transaction,
-    required this.game,
-  }) : super(key: key);
-
-  final Transaction transaction;
-  final Game game;
-
-  @override
-  Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
-    final transactionConcernsMe =
-        transaction.fromUserId == user.id || transaction.toUserId == user.id;
-
-    String getText() {
-      String toUserNameOrYou() => transaction.toUserId == user.id
-          ? 'you'
-          : game.getPlayer(transaction.toUserId!).name;
-      String fromUserNameOrYou() => transaction.fromUserId == user.id
-          ? 'you'
-          : game.getPlayer(transaction.fromUserId!).name;
-      final amount = context.formatBalance(transaction.amount);
-
-      switch (transaction.type) {
-        case TransactionType.fromBank:
-          return '${toUserNameOrYou()} received $amount from the bank.'
-              .capitalize();
-        case TransactionType.toBank:
-          return '${fromUserNameOrYou()} payed $amount to the bank.'
-              .capitalize();
-        case TransactionType.toPlayer:
-          return '${fromUserNameOrYou()} payed ${toUserNameOrYou()} $amount.'
-              .capitalize();
-        case TransactionType.toFreeParking:
-          return '${fromUserNameOrYou()} payed $amount to free parking.'
-              .capitalize();
-        case TransactionType.fromFreeParking:
-          return '${toUserNameOrYou()} received the free parking money ($amount).'
-              .capitalize();
-        case TransactionType.fromSalary:
-          final involvedInTransaction = transaction.fromUserId == user.id ||
-              transaction.toUserId == user.id;
-          final yourOrHis = involvedInTransaction ? 'your' : 'his';
-          return '${toUserNameOrYou()} received $yourOrHis salary ($amount).'
-              .capitalize();
-      }
-    }
-
-    return Card(
-      shape: transactionConcernsMe
-          ? RoundedRectangleBorder(
-              side: const BorderSide(color: Colors.grey, width: 1),
-              borderRadius: BorderRadius.circular(5),
-            )
-          : null,
-      child: ListTile(
-        title: Text(
-          getText(),
-          style: TextStyle(
-            fontWeight:
-                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
-          ),
-        ),
-        trailing: Text(
-          transaction.timestamp.format('Hms'),
-          style: TextStyle(
-            color: Colors.grey,
-            fontWeight:
-                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
-          ),
-        ),
-      ),
     );
   }
 }

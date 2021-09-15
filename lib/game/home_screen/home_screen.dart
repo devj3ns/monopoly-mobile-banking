@@ -3,8 +3,8 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/cubit/app_cubit.dart';
 import '../../app_info_screen.dart';
+import '../../authentication/cubit/auth_cubit.dart';
 import '../../shared_widgets.dart';
 import 'cubit/join_game_cubit.dart';
 import 'view/home_view.dart';
@@ -51,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                   context.pushPage(const AppInfoScreen());
                   break;
                 case 1:
-                  context.read<AppCubit>().signOut();
+                  context.read<AuthCubit>().signOut();
                   break;
                 default:
                   break;

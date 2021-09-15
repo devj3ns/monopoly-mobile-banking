@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../../extensions.dart';
 
-class AnimatedBalanceText extends StatelessWidget {
-  const AnimatedBalanceText({
+class AnimatedMoneyBalanceText extends StatelessWidget {
+  const AnimatedMoneyBalanceText({
     Key? key,
-    required this.balance,
+    required this.moneyBalance,
     this.textStyle,
   }) : super(key: key);
 
-  final int balance;
+  final int moneyBalance;
   final TextStyle? textStyle;
 
   @override
@@ -23,8 +23,8 @@ class AnimatedBalanceText extends StatelessWidget {
         );
       },
       child: Text(
-        context.formatBalance(balance),
-        key: ValueKey(context.formatBalance(balance)),
+        context.formatMoneyBalance(moneyBalance),
+        key: ValueKey(context.formatMoneyBalance(moneyBalance)),
         style: textStyle,
       ),
     );

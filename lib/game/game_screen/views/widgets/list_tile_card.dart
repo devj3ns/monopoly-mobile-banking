@@ -59,8 +59,8 @@ class ListTileCard extends StatelessWidget {
               ),
             ),
             if (showMoneyBalanceText)
-              AnimatedBalanceText(
-                balance: moneyBalance!,
+              AnimatedMoneyBalanceText(
+                moneyBalance: moneyBalance!,
                 textStyle: TextStyle(
                   fontSize: 17,
                   color: moneyBalanceColor,

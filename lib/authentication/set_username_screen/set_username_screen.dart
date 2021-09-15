@@ -7,8 +7,8 @@ import '../../shared_widgets.dart';
 import 'cubit/set_username_cubit.dart';
 import 'view/set_username_view.dart';
 
-class SetUsernamePage extends StatelessWidget {
-  const SetUsernamePage({Key? key, required this.editUsername})
+class SetUsernameScreen extends StatelessWidget {
+  const SetUsernameScreen({Key? key, required this.editUsername})
       : super(key: key);
   final bool editUsername;
 

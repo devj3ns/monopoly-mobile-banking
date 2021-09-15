@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:user_repository/user_repository.dart';
 
-import 'app/app.dart';
+import 'app.dart';
 
 void main() async {
   setPathUrlStrategy();

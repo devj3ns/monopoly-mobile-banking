@@ -10,8 +10,8 @@ extension ContextExtensions on BuildContext {
   /// NOTE: Only call this when there is an ancestor provider of type BankingRepository!
   BankingRepository bankingRepository() => read<BankingRepository>();
 
-  /// Returns the correctly formatted balance based on the current locale.
-  String formatBalance(int balance) {
+  /// Returns the correctly formatted money balance based on the current locale.
+  String formatMoneyBalance(int moneyBalance) {
     final locale = Localizations.localeOf(this);
     final numberFormat = NumberFormat.currency(
       locale: locale.toLanguageTag(),
@@ -19,7 +19,7 @@ extension ContextExtensions on BuildContext {
       decimalDigits: 0,
     );
 
-    return numberFormat.format(balance);
+    return numberFormat.format(moneyBalance);
   }
 
   /// Whether the overall theme brightness is dark.

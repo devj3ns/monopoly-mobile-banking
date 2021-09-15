@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:monopoly_banking/shared_widgets.dart';
 
-import '../../../../app/cubit/app_cubit.dart';
+import '../../../../authentication/cubit/auth_cubit.dart';
 
 extension ShowTransactionModalBottomSheet on BuildContext {
   /// Shows the given [TransactionForm].
@@ -115,7 +115,7 @@ class _MoneyAmountInput extends HookWidget {
     final amountController = useTextEditingController();
     final amount = useState(0);
 
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
     final myMoneyBalance = game.getPlayer(user.id).balance;
 
     final checkIfEnoughMoney = transactionType == TransactionType.toBank ||
@@ -144,6 +144,7 @@ class _MoneyAmountInput extends HookWidget {
     }
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [

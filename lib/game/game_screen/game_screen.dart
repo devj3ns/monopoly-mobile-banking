@@ -3,7 +3,7 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/cubit/app_cubit.dart';
+import '../../authentication/cubit/auth_cubit.dart';
 import '../../extensions.dart';
 import '../../shared_widgets.dart';
 import 'views/game_view.dart';
@@ -13,16 +13,13 @@ class GameScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppCubit>().state.user;
+    final user = context.read<AuthCubit>().state.user;
     assert(user.currentGameId != null);
 
     return EasyStreamBuilder<Game?>(
       stream: context.bankingRepository().streamGame(user.currentGameId!),
       loadingIndicator: const Center(child: CircularProgressIndicator()),
       dataBuilder: (context, game) {
-        //debugPrint('GAME STREAM BUILDER REBUILDS');
-        //debugPrint(game.toString());
-
         if (game == null) {
           context.bankingRepository().leaveGame();
           throw ('User was disconnected from any game, because the current one does not exist anymore.');
