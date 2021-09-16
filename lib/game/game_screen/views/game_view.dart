@@ -121,7 +121,7 @@ class _PayArea extends StatelessWidget {
           gap: 7,
           text: Text(
             'Pay',
-            style: TextStyle(fontSize: 17),
+            style: TextStyle(fontSize: 18),
           ),
         ),
         const SizedBox(height: 5),
@@ -203,7 +203,7 @@ class _ReceiveArea extends StatelessWidget {
           gap: 7,
           text: Text(
             'Receive',
-            style: TextStyle(fontSize: 17),
+            style: TextStyle(fontSize: 18),
           ),
         ),
         const SizedBox(height: 6),
@@ -283,13 +283,23 @@ class _TransactionHistory extends StatelessWidget {
           gap: 7,
           text: Text(
             'Transaction History',
-            style: TextStyle(fontSize: 17),
+            style: TextStyle(fontSize: 18),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         transactions.isEmpty
-            ? const Center(
-                child: Text('There are no transactions yet.'),
+            ? Center(
+                child: Column(
+                  children: const [
+                    FaIcon(Icons.swap_horiz_rounded),
+                    Text(
+                      'There are no transactions yet.\n'
+                      'Use the buttons in the pay or receive area above to make a transaction.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ],
+                ),
               )
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),

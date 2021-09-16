@@ -2,6 +2,7 @@ import 'package:banking_repository/banking_repository.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../authentication/cubit/auth_cubit.dart';
 import '../../../../extensions.dart';
@@ -22,7 +23,9 @@ class TransactionCard extends StatelessWidget {
     final transactionConcernsMe =
         transaction.fromUserId == user.id || transaction.toUserId == user.id;
 
-    String getText() {
+    List<TextSpan> getTextSpans() {
+      Player toPlayer() => game.getPlayer(transaction.toUserId!);
+      Player fromPlayer() => game.getPlayer(transaction.fromUserId!);
       String toUserNameOrYou() => transaction.toUserId == user.id
           ? 'you'
           : game.getPlayer(transaction.toUserId!).name;
@@ -31,28 +34,70 @@ class TransactionCard extends StatelessWidget {
           : game.getPlayer(transaction.fromUserId!).name;
       final amount = context.formatMoneyBalance(transaction.amount);
 
+      TextSpan toUserNameOrYouTextSpan({bool capitalize = false}) => TextSpan(
+            text:
+                capitalize ? toUserNameOrYou().capitalize() : toUserNameOrYou(),
+            style: TextStyle(color: toPlayer().color),
+          );
+
+      TextSpan fromUserNameOrYouTextSpan({bool capitalize = false}) => TextSpan(
+            text: capitalize
+                ? fromUserNameOrYou().capitalize()
+                : fromUserNameOrYou(),
+            style: TextStyle(color: fromPlayer().color),
+          );
+
       switch (transaction.type) {
         case TransactionType.fromBank:
-          return '${toUserNameOrYou()} received $amount from the bank.'
-              .capitalize();
+          return [
+            toUserNameOrYouTextSpan(capitalize: true),
+            TextSpan(text: ' received $amount from the bank.')
+          ];
         case TransactionType.toBank:
-          return '${fromUserNameOrYou()} payed $amount to the bank.'
-              .capitalize();
+          return [
+            fromUserNameOrYouTextSpan(capitalize: true),
+            TextSpan(text: ' payed $amount to the bank.')
+          ];
         case TransactionType.toPlayer:
-          return '${fromUserNameOrYou()} payed ${toUserNameOrYou()} $amount.'
-              .capitalize();
+          return [
+            fromUserNameOrYouTextSpan(capitalize: true),
+            const TextSpan(text: ' payed '),
+            toUserNameOrYouTextSpan(capitalize: false),
+            TextSpan(text: ' $amount.'),
+          ];
         case TransactionType.toFreeParking:
-          return '${fromUserNameOrYou()} payed $amount to free parking.'
-              .capitalize();
+          return [
+            fromUserNameOrYouTextSpan(capitalize: true),
+            TextSpan(text: ' payed $amount to free parking.'),
+          ];
         case TransactionType.fromFreeParking:
-          return '${toUserNameOrYou()} received the free parking money ($amount).'
-              .capitalize();
+          return [
+            toUserNameOrYouTextSpan(capitalize: true),
+            TextSpan(text: ' received the free parking money ($amount).'),
+          ];
         case TransactionType.fromSalary:
           final involvedInTransaction = transaction.fromUserId == user.id ||
               transaction.toUserId == user.id;
           final yourOrHis = involvedInTransaction ? 'your' : 'his';
-          return '${toUserNameOrYou()} received $yourOrHis salary ($amount).'
-              .capitalize();
+          return [
+            toUserNameOrYouTextSpan(capitalize: true),
+            TextSpan(text: ' received $yourOrHis salary ($amount).'),
+          ];
+      }
+    }
+
+    IconData getIcon() {
+      switch (transaction.type) {
+        case TransactionType.fromBank:
+        case TransactionType.toBank:
+          return FontAwesomeIcons.solidBuilding;
+        case TransactionType.toPlayer:
+          return FontAwesomeIcons.userFriends;
+        case TransactionType.toFreeParking:
+        case TransactionType.fromFreeParking:
+          return FontAwesomeIcons.carAlt;
+        case TransactionType.fromSalary:
+          return Icons.work_rounded;
       }
     }
 
@@ -64,20 +109,39 @@ class TransactionCard extends StatelessWidget {
             )
           : null,
       child: ListTile(
-        title: Text(
-          getText(),
-          style: TextStyle(
-            fontWeight:
-                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
-          ),
+        title: Row(
+          children: [
+            SizedBox(
+              height: 20,
+              width: 20,
+              child: FaIcon(
+                getIcon(),
+                size: getIcon().fontPackage == 'font_awesome_flutter'
+                    ? 17.0
+                    : 19.0,
+                color: context.isDarkMode ? Colors.white : Colors.black45,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontWeight: transactionConcernsMe
+                        ? FontWeight.w500
+                        : FontWeight.normal,
+                    fontSize: 16,
+                    color: Theme.of(context).textTheme.bodyText2!.color,
+                  ),
+                  children: getTextSpans(),
+                ),
+              ),
+            ),
+          ],
         ),
         trailing: Text(
           transaction.timestamp.format('Hms'),
-          style: TextStyle(
-            color: Colors.grey,
-            fontWeight:
-                transactionConcernsMe ? FontWeight.w500 : FontWeight.normal,
-          ),
+          style: const TextStyle(color: Colors.grey),
         ),
       ),
     );

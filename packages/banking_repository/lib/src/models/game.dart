@@ -335,7 +335,7 @@ class Game extends Equatable {
 
     if (!containsUser(user.id)) {
       final colors = [
-        Colors.indigo,
+        Colors.blue,
         Colors.teal,
         Colors.green,
         Colors.yellow,
