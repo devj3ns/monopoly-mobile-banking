@@ -3,7 +3,6 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../authentication/set_username_screen/set_username_screen.dart';
@@ -30,7 +29,7 @@ class HomeView extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         children: [
           const SizedBox(height: 20),
-          const _NameAndWinsSection(),
+          const _UserSection(),
           const SizedBox(height: 50),
           Text(
             'Join game:',
@@ -54,8 +53,8 @@ class HomeView extends StatelessWidget {
   }
 }
 
-class _NameAndWinsSection extends StatelessWidget {
-  const _NameAndWinsSection({Key? key}) : super(key: key);
+class _UserSection extends StatelessWidget {
+  const _UserSection({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +62,11 @@ class _NameAndWinsSection extends StatelessWidget {
 
     return Column(
       children: [
+        if (user.photoURL != null)
+          ProfilePicture(
+            photoURL: user.photoURL!,
+            radius: 20,
+          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -78,14 +82,12 @@ class _NameAndWinsSection extends StatelessWidget {
             ),
           ],
         ),
-        if (user.wins > 0) ...[
-          const SizedBox(height: 5),
-          Text(
-            'You won ${user.wins} ${Intl.plural(user.wins, one: 'game', other: 'games')}!',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ],
+        Text(
+          'Statistics:\n'
+          'Games played: ${user.playedGamesIds.length}\n'
+          'Games won: ${user.gamesWon}\n',
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }

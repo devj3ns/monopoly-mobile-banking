@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:fleasy/fleasy.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A Scaffold with a pre-defined max width and padding.
@@ -143,5 +145,37 @@ class MoneyBalanceFormField extends StatelessWidget {
       textInputAction: TextInputAction.done,
       autofocus: autofocus,
     );
+  }
+}
+
+/// A cached profile picture widget which also works on the web.
+class ProfilePicture extends StatelessWidget {
+  const ProfilePicture({
+    Key? key,
+    required this.photoURL,
+    required this.radius,
+  }) : super(key: key);
+
+  final String photoURL;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return kIsWeb
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Image.network(
+              photoURL,
+              width: radius * 2,
+              height: radius * 2,
+              filterQuality: FilterQuality.medium,
+              fit: BoxFit.cover,
+            ),
+          )
+        : CircleAvatar(
+            radius: radius,
+            backgroundImage: CachedNetworkImageProvider(photoURL),
+            backgroundColor: Colors.transparent,
+          );
   }
 }

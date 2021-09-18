@@ -37,10 +37,13 @@ class UserRepository {
   static final _googleSignIn = GoogleSignIn.standard();
 
   // ### Firestore collections: ###
-  final usernamesCollection = _firebaseFirestore.collection('usernames');
-  final usersCollection = _firebaseFirestore.collection('users');
-  DocumentReference<Map<String, dynamic>> userDocument(String userId) =>
-      usersCollection.doc(userId);
+  final _usernamesCollection = _firebaseFirestore.collection('usernames');
+  final _usersCollection =
+      _firebaseFirestore.collection('users').withConverter<User>(
+            fromFirestore: (snap, _) =>
+                User.fromJson(snap.data()!, snapshotId: snap.id),
+            toFirestore: (model, _) => model.toJson(),
+          );
 
   // ### User variables and getters: ###
   /// A stream of the currently authenticated user that provides synchronous access to the last emitted user object.
@@ -64,7 +67,7 @@ class UserRepository {
   Future<SetUsernameResult> setUsername(String username) async {
     try {
       // Create ref to usernames doc (usernames are case insensitive!)
-      final usernamesDoc = usernamesCollection.doc(username.toLowerCase());
+      final usernamesDoc = _usernamesCollection.doc(username.toLowerCase());
 
       // Check if username is already taken or not:
       final usernameIsTaken = (await usernamesDoc.get()).exists;
@@ -75,7 +78,7 @@ class UserRepository {
       // Delete old username doc if the username should be changed
       if (user.hasUsername) {
         final oldUsernameDoc =
-            usernamesCollection.doc(_user.value.name.toLowerCase());
+            _usernamesCollection.doc(_user.value.name.toLowerCase());
         await oldUsernameDoc.delete();
       }
 
@@ -84,7 +87,7 @@ class UserRepository {
 
       // Update username in the user data doc:
       final updatedUser = _user.value.copyWith(name: username);
-      await _updateUserData(updatedUser);
+      await _setUserData(updatedUser);
 
       return SetUsernameResult.success;
     } on FirebaseException catch (e) {
@@ -137,29 +140,34 @@ class UserRepository {
       final firebaseUser = userCredential.user!;
 
       // Check if its the first time the user signs in with google
-      final firstLogin = !(await userDocument(firebaseUser.uid).get()).exists;
+      final firstLogin =
+          !(await _usersCollection.doc(firebaseUser.uid).get()).exists;
 
       if (firstLogin) {
         // Check if google username is already taken or not:
-        final googleUsernameIsTaken = (await usernamesCollection
+        final googleUsernameIsTaken = (await _usernamesCollection
                 .doc(firebaseUser.displayName!.toLowerCase())
                 .get())
             .exists;
 
         if (googleUsernameIsTaken) {
-          // Create user with empty username in database
-          // When the username is blank the 'choose username screen' is shown automatically
-          final user = User(id: firebaseUser.uid, name: '', wins: 0);
+          // Create user with empty username in database.
+          // When the username is blank the 'choose username screen' is shown automatically.
+          final user = User.none.copyWith(id: firebaseUser.uid);
 
-          await _updateUserData(user);
+          await _setUserData(user);
         } else {
           // Create user with username in the users collection:
-          final user = User(
-              id: firebaseUser.uid, name: firebaseUser.displayName!, wins: 0);
-          await _updateUserData(user);
+          final user = User.none.copyWith(
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName!,
+            photoURL: firebaseUser.photoURL,
+          );
+
+          await _setUserData(user);
 
           // Create a document in the usernames collection:
-          await usernamesCollection
+          await _usernamesCollection
               .doc(firebaseUser.displayName!.toLowerCase())
               .set(<String, dynamic>{'userId': firebaseUser.uid});
         }
@@ -199,8 +207,8 @@ class UserRepository {
 
       // Create user with empty username in database when its the first login_screen
       // The username gets set later!
-      final user = User(id: firebaseUser.uid, name: '', wins: 0);
-      await _updateUserData(user);
+      final user = User.none.copyWith(id: firebaseUser.uid);
+      await _setUserData(user);
 
       return SignInResult.success;
     } on FirebaseException catch (e) {
@@ -225,8 +233,8 @@ class UserRepository {
   Future<void> signOut() async {
     if (_firebaseAuth.currentUser!.isAnonymous) {
       // Its important that it is done in this order:
-      await usernamesCollection.doc(user.name).delete();
-      await userDocument(user.id).delete();
+      await _usernamesCollection.doc(user.name.toLowerCase()).delete();
+      await _usersCollection.doc(user.id).delete();
       await _firebaseAuth.currentUser!.delete();
     }
 
@@ -252,21 +260,36 @@ class UserRepository {
           return;
         }
 
-        yield* userDocument(firebaseUser.uid).snapshots().map(
-              (snapshot) => snapshot.exists
-                  ? User.fromJson(snapshot.data()!, snapshotId: snapshot.id)
-                  : User.none,
+        yield* _usersCollection.doc(firebaseUser.uid).snapshots().map(
+              (snapshot) => snapshot.exists ? snapshot.data()! : User.none,
             );
       },
     ).shareValue();
   }
 
+  /// Sets the currentGameId property of the user to the given id.
   Future<void> setCurrentGameId(String? currentGameId) {
-    return _updateUserData(user.copyWith(currentGameId: () => currentGameId));
+    return _setUserData(user.copyWith(currentGameId: () => currentGameId));
   }
 
-  Future<void> _updateUserData(User user) async {
-    return userDocument(user.id).set(user.toJson(), SetOptions(merge: true));
+  /// Increments the gamesWon property of the user.
+  Future<void> incrementGamesWon() {
+    return _setUserData(user.copyWith(gamesWon: user.gamesWon + 1));
+  }
+
+  /// Adds the given game id to the playedGamesIds property of the user.
+  Future<void> addGameId(String gameId) async {
+    final playedGamesIds = List<String>.from(user.playedGamesIds)..add(gameId);
+    final updatedUser = user.copyWith(playedGamesIds: playedGamesIds);
+
+    return await _setUserData(updatedUser);
+  }
+
+  /// Sets the users data to the given use data.
+  Future<void> _setUserData(User user) async {
+    return await _usersCollection
+        .doc(user.id)
+        .set(user, SetOptions(merge: true));
   }
 }
 

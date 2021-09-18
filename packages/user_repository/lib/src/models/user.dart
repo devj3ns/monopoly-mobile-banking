@@ -6,19 +6,37 @@ class User extends Equatable {
   const User({
     required this.id,
     required this.name,
+    required this.playedGamesIds,
+    required this.gamesWon,
+    this.photoURL,
     this.currentGameId,
-    required this.wins,
   }) : assert(currentGameId != '');
 
   final String id;
   final String name;
+  final List<String> playedGamesIds;
+  final int gamesWon;
+  final String? photoURL;
   final String? currentGameId;
-  final int wins;
 
-  static const none = User(id: '', name: '', wins: 0);
+  static const none = User(
+    id: '',
+    name: '',
+    playedGamesIds: [],
+    gamesWon: 0,
+    photoURL: null,
+    currentGameId: null,
+  );
 
   @override
-  List<Object?> get props => [id, name, currentGameId, wins];
+  List<Object?> get props => [
+        id,
+        name,
+        playedGamesIds,
+        gamesWon,
+        photoURL,
+        currentGameId,
+      ];
 
   static User fromJson(
     Map<String, dynamic> json, {
@@ -27,27 +45,37 @@ class User extends Equatable {
       User(
         id: snapshotId,
         name: pick(json, 'name').asStringOrThrow(),
+        playedGamesIds: pick(json, 'playedGamesIds')
+            .asListOrThrow((gameId) => gameId.asStringOrThrow()),
+        gamesWon: pick(json, 'gamesWon').asIntOrThrow(),
+        photoURL: pick(json, 'photoURL').asStringOrNull(),
         currentGameId: pick(json, 'currentGameId').asStringOrNull(),
-        wins: pick(json, 'wins').asIntOrThrow(),
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
+        'playedGamesIds': playedGamesIds,
+        'gamesWon': gamesWon,
+        'photoURL': photoURL,
         'currentGameId': currentGameId,
-        'wins': wins,
       };
 
   User copyWith({
+    String? id,
     String? name,
+    List<String>? playedGamesIds,
+    int? gamesWon,
+    String? photoURL,
     String? Function()? currentGameId,
-    int? wins,
   }) {
     return User(
-      id: id,
+      id: id ?? this.id,
       name: name ?? this.name,
+      playedGamesIds: playedGamesIds ?? this.playedGamesIds,
+      gamesWon: gamesWon ?? this.gamesWon,
+      photoURL: photoURL ?? this.photoURL,
       currentGameId:
           currentGameId != null ? currentGameId() : this.currentGameId,
-      wins: wins ?? this.wins,
     );
   }
 }

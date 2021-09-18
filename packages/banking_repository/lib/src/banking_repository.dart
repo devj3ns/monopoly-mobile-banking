@@ -21,11 +21,11 @@ enum JoinGameResult {
 }
 
 class BankingRepository {
-  const BankingRepository({required this.userRepository});
+  BankingRepository({required this.userRepository});
   final UserRepository userRepository;
 
   // #### Firebase Collection references:
-  static CollectionReference<Game> get _gamesCollection =>
+  final _gamesCollection =
       FirebaseFirestore.instance.collection('games').withConverter<Game>(
             fromFirestore: (snap, _) => Game.fromSnapshot(snap),
             toFirestore: (model, _) => model.toDocument(),
@@ -38,7 +38,17 @@ class BankingRepository {
     return _gamesCollection
         .doc(currentGameId)
         .snapshots(includeMetadataChanges: true)
-        .map((doc) => doc.data());
+        .map(
+      (doc) {
+        final game = doc.data();
+
+        if (game != null && game.hasWinner) {
+          updateStats(game);
+        }
+
+        return game;
+      },
+    );
   }
 
   /// Disconnects from any game.
@@ -233,17 +243,39 @@ class BankingRepository {
 
     await _gamesCollection.doc(game.id).set(updatedGame);
 
-    // Check if game has a winner after the transaction:
-    if (updatedGame.winner != null) {
-      await _incrementWinsOfUser(updatedGame.winner!.userId);
+    /* // ### Update stats of players if necessary:
+
+    final currentUserIsBankruptNow =
+        updatedGame.getPlayer(userRepository.user.id).isBankrupt;
+
+    if (currentUserIsBankruptNow) {
+      await userRepository.incrementGamesPlayed();
     }
+
+    final otherUserIsWinnerNow = toUserId != null && updatedGame.winner != null
+        ? updatedGame.winner!.userId == toUserId
+        : false;
+
+    if (otherUserIsWinnerNow) {
+      assert(updatedGame.winner != null);
+
+      await userRepository.incrementGamesWon(updatedGame.winner!.userId);
+    }*/
   }
 
-  /// Increments the win field of a user in firestore.
-  Future<void> _incrementWinsOfUser(String userId) async {
-    await userRepository.usersCollection
-        .doc(userId)
-        .update({'wins': FieldValue.increment(1)});
+  /// Update the users stats if they are not already.s
+  Future<void> updateStats(Game game) async {
+    assert(game.hasWinner);
+
+    final alreadyUpdated = userRepository.user.playedGamesIds.contains(game.id);
+
+    if (!alreadyUpdated) {
+      if (game.winner!.userId == userRepository.user.id) {
+        await userRepository.incrementGamesWon();
+      }
+
+      await userRepository.addGameId(game.id);
+    }
   }
 }
 

@@ -26,6 +26,7 @@ dependencies:
   package_info_plus: ^1.0.6
   url_launcher: ^6.0.10
   share_plus: ^2.1.4
+  cached_network_image: ^3.1.0
 
   user_repository:
     path: packages/user_repository
