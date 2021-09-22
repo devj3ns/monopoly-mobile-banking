@@ -1,13 +1,11 @@
-import 'package:banking_repository/banking_repository.dart';
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:user_repository/user_repository.dart';
 
-import '../../app_info_screen.dart';
 import '../../authentication/cubit/auth_cubit.dart';
 import '../../shared_widgets.dart';
-import 'cubit/join_game_cubit.dart';
 import 'view/home_view.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -44,9 +42,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BasicScaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: const Text('Monopoly Banking'),
+        title: const Text('Monopoly Mobile Banking'),
         actions: [
           PopupMenuButton(
             icon: const Icon(
@@ -78,7 +76,7 @@ class HomeScreen extends StatelessWidget {
             onSelected: (int selected) {
               switch (selected) {
                 case 0:
-                  context.pushPage(const AppInfoScreen());
+                  Routemaster.of(context).push('/about');
                   break;
                 case 1:
                   if (context
@@ -98,42 +96,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      applyPadding: false,
-      body: BlocProvider<JoinGameCubit>(
-        create: (_) => JoinGameCubit(
-          bankingRepository: context.read<BankingRepository>(),
-        ),
-        child: BlocListener<JoinGameCubit, JoinGameState>(
-            listenWhen: (previous, current) =>
-                previous.joinGameResult != current.joinGameResult &&
-                current.joinGameResult != JoinGameResult.none &&
-                current.joinGameResult != JoinGameResult.success,
-            listener: (context, state) {
-              switch (state.joinGameResult) {
-                case JoinGameResult.noConnection:
-                  context.showNoConnectionFlashbar();
-                  break;
-                case JoinGameResult.gameNotFound:
-                  context.showErrorFlashbar(
-                      message: 'There is no game with this ID.');
-                  break;
-                case JoinGameResult.hasAlreadyStarted:
-                  context.showErrorFlashbar(
-                      message: 'This game has already started.');
-                  break;
-                case JoinGameResult.tooManyPlayers:
-                  context.showErrorFlashbar(
-                      message: 'A game is limited to a maximum of 6 players.');
-                  break;
-                default:
-                  context.showErrorFlashbar();
-                  break;
-              }
-
-              context.read<JoinGameCubit>().resetJoinGameResult();
-            },
-            child: const HomeView()),
-      ),
+      body: const HomeView(),
     );
   }
 }

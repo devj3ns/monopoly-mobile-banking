@@ -14,7 +14,8 @@ class User extends Equatable {
 
   final String id;
   final String name;
-  final List<String> playedGamesIds;
+  final List<String>
+      playedGamesIds; //todo: use Set<String> instead of List<String?!
   final int gamesWon;
   final String? photoURL;
   final String? currentGameId;

@@ -23,19 +23,19 @@ class CreateGameCubit extends Cubit<CreateGameState> {
     emit(state.copyWith(startingCapital: startingCapital));
   }
 
-  Future<void> onFormSubmitted() async {
-    emit(state.copyWith(isSubmitting: true));
+  void onFormSubmitted() async {
+    emit(state.copyWith(isSubmitting: true, joiningFailed: false));
 
-    final result = await _bankingRepository.createNewGameAndJoin(
+    final gameId = await _bankingRepository.createNewGameAndJoin(
       enableFreeParkingMoney: state.enableFreeParkingMoney,
       salary: state.salary,
       startingCapital: state.startingCapital,
     );
 
-    emit(state.copyWith(isSubmitting: false, createNewGameResult: result));
-  }
-
-  void resetCreateGameResult() {
-    emit(state.copyWith(createNewGameResult: CreateNewGameResult.none));
+    emit(state.copyWith(
+      isSubmitting: false,
+      gameId: () => gameId,
+      joiningFailed: gameId == null ? true : false,
+    ));
   }
 }

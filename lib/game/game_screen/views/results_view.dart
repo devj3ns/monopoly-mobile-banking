@@ -47,8 +47,8 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
 
     String getShareText() {
       final firstSentence = thisPlayerIsWinner
-          ? 'I just won a Monopoly round I played with the Monopoly Banking App.'
-          : 'I just played Monopoly with the Monopoly Banking App.';
+          ? 'I just won a Monopoly round I played with the Monopoly Mobile Banking App.'
+          : 'I just played Monopoly with the Monopoly Mobile Banking.';
       const appDescription =
           "\n\nEvery player can see his money balance on his phone and make transactions through the app easily. Therefore, you don't need the play money anymore."
           '\n\nYou can try it out here: https://monopoly-banking.web.app';

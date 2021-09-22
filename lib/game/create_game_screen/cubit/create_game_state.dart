@@ -6,22 +6,25 @@ class CreateGameState extends Equatable {
     this.enableFreeParkingMoney = false,
     this.salary = 200,
     this.startingCapital = 1500,
-    this.createNewGameResult = CreateNewGameResult.none,
+    this.gameId,
+    this.joiningFailed = false,
   });
 
   final bool isSubmitting;
   final bool enableFreeParkingMoney;
   final int salary;
   final int startingCapital;
-  final CreateNewGameResult createNewGameResult;
+  final String? gameId;
+  final bool joiningFailed;
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         isSubmitting,
         enableFreeParkingMoney,
         salary,
         startingCapital,
-        createNewGameResult,
+        gameId,
+        joiningFailed,
       ];
 
   CreateGameState copyWith({
@@ -29,7 +32,8 @@ class CreateGameState extends Equatable {
     bool? enableFreeParkingMoney,
     int? salary,
     int? startingCapital,
-    CreateNewGameResult? createNewGameResult,
+    String? Function()? gameId,
+    bool? joiningFailed,
   }) {
     return CreateGameState(
       isSubmitting: isSubmitting ?? this.isSubmitting,
@@ -37,7 +41,8 @@ class CreateGameState extends Equatable {
           enableFreeParkingMoney ?? this.enableFreeParkingMoney,
       salary: salary ?? this.salary,
       startingCapital: startingCapital ?? this.startingCapital,
-      createNewGameResult: createNewGameResult ?? this.createNewGameResult,
+      gameId: gameId != null ? gameId() : this.gameId,
+      joiningFailed: joiningFailed ?? this.joiningFailed,
     );
   }
 }

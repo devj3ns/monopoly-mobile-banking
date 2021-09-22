@@ -3,51 +3,104 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:routemaster/routemaster.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
-import '../../../authentication/set_username_screen/set_username_screen.dart';
 import '../../../shared_widgets.dart';
-import '../../create_game_screen/create_game_screen.dart';
-import '../cubit/join_game_cubit.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({Key? key}) : super(key: key);
 
-  static final formKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthCubit>().state.user;
+
+    return Stack(
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.all(8.0),
+                children: [
+                  const SizedBox(height: 20),
+                  const _UserSection(),
+                  const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Join game:',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  const SizedBox(height: 10),
+                  _JoinGameForm(),
+                  const Divider(height: 25),
+                  Text(
+                    'Create game:',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  const SizedBox(height: 10),
+                  const _CreateGameButton(),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (user.currentGameId != null) const _JoinRunningGameModal(),
+      ],
+    );
+  }
+}
+
+class _JoinRunningGameModal extends HookWidget {
+  const _JoinRunningGameModal({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    void submitJoinGameForm() {
-      if (formKey.currentState!.validate()) {
-        context.read<JoinGameCubit>().onFormSubmitted();
-      }
-    }
+    final user = context.watch<AuthCubit>().state.user;
+    assert(user.currentGameId != null);
 
-    return Form(
-      key: formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(8.0),
-        children: [
-          const SizedBox(height: 20),
-          const _UserSection(),
-          const SizedBox(height: 50),
-          Text(
-            'Join game:',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headline6,
+    final isSubmitting = useState(false);
+
+    return ColoredBox(
+      color: Colors.black87.withOpacity(0.6),
+      child: AlertDialog(
+        title: const Center(
+          child: FaIcon(
+            Icons.nearby_error_rounded,
+            size: 35,
           ),
-          const SizedBox(height: 10),
-          _GameIdInput(submitJoinGameForm),
-          _JoinGameButton(submitJoinGameForm),
-          const Divider(height: 25),
-          Text(
-            'Create game:',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headline6,
-          ),
-          const SizedBox(height: 10),
-          const _CreateGameButton(),
-        ],
+        ),
+        content: Text(
+          'You are still connected to a running game (Game #${user.currentGameId!}).',
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actionsPadding: const EdgeInsets.only(bottom: 10),
+        actions: isSubmitting.value
+            ? <Widget>[
+                const CircularProgressIndicator(),
+              ]
+            : <Widget>[
+                ElevatedButton(
+                  onPressed: () => Routemaster.of(context)
+                      .push('/game/${user.currentGameId!}'),
+                  child: const Text('Join back'),
+                ),
+                OutlinedButton(
+                  child: const Text('Quit (go bankrupt)'),
+                  onPressed: () async {
+                    isSubmitting.value = true;
+                    await context
+                        .read<BankingRepository>()
+                        .quitGame(user.currentGameId!);
+                    //isSubmitting.value = false;
+                  },
+                ),
+              ],
       ),
     );
   }
@@ -76,10 +129,9 @@ class _UserSection extends StatelessWidget {
               style: Theme.of(context).textTheme.headline5,
             ),
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () =>
-                  context.pushPage(const SetUsernameScreen(editUsername: true)),
-            ),
+                icon: const Icon(Icons.edit),
+                onPressed: () =>
+                    Routemaster.of(context).push('/edit-username')),
           ],
         ),
         Text(
@@ -93,58 +145,53 @@ class _UserSection extends StatelessWidget {
   }
 }
 
-class _GameIdInput extends StatelessWidget {
-  const _GameIdInput(this.submitForm, {Key? key}) : super(key: key);
-  final VoidCallback submitForm;
+class _JoinGameForm extends HookWidget {
+  _JoinGameForm({Key? key}) : super(key: key);
+
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      decoration: const InputDecoration(
-        hintText: 'Game ID',
-        prefix: Text('#'),
-      ),
-      textCapitalization: TextCapitalization.characters,
-      onChanged: (v) => context.read<JoinGameCubit>().gameIdChanged(v),
-      onEditingComplete: submitForm,
-      textInputAction: TextInputAction.go,
-      validator: (v) => v.isBlank
-          ? 'Please enter a game ID.'
-          : v!.length < 4
-              ? 'The game ID must be 4 characters long.'
-              : null,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]+')),
-        LengthLimitingTextInputFormatter(4),
-      ],
-    );
-  }
-}
+    final gameId = useState('');
 
-class _JoinGameButton extends StatelessWidget {
-  const _JoinGameButton(this.submitForm, {Key? key}) : super(key: key);
-  final VoidCallback submitForm;
+    void submitForm() {
+      if (formKey.currentState!.validate()) {
+        Routemaster.of(context).push('/game/${gameId.value}');
+      }
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(top: Insets.m),
-        child: BlocBuilder<JoinGameCubit, JoinGameState>(
-          buildWhen: (previous, current) =>
-              previous.isSubmitting != current.isSubmitting,
-          builder: (context, state) {
-            return state.isSubmitting
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    child: const IconText(
-                      text: Text('Join'),
-                      icon: Icon(Icons.login_rounded),
-                    ),
-                    onPressed: submitForm,
-                  );
-          },
-        ),
+    return Form(
+      key: formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(
+              hintText: 'Game ID',
+              prefix: Text('#'),
+            ),
+            textCapitalization: TextCapitalization.characters,
+            onChanged: (id) => gameId.value = id,
+            onEditingComplete: submitForm,
+            textInputAction: TextInputAction.go,
+            validator: (v) => v.isBlank
+                ? 'Please enter a game ID.'
+                : v!.length < 4
+                    ? 'The game ID must be 4 characters long.'
+                    : null,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]+')),
+              LengthLimitingTextInputFormatter(4),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            child: const IconText(
+              text: Text('Join'),
+              icon: Icon(Icons.login_rounded),
+            ),
+            onPressed: submitForm,
+          )
+        ],
       ),
     );
   }
@@ -161,10 +208,7 @@ class _CreateGameButton extends StatelessWidget {
           text: Text('Create game'),
           icon: Icon(Icons.add_rounded),
         ),
-        onPressed: () => context.pushPage(
-          CreateGameScreen(
-              bankingRepository: context.read<BankingRepository>()),
-        ),
+        onPressed: () => Routemaster.of(context).push('/create-game'),
       ),
     );
   }

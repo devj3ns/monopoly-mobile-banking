@@ -8,8 +8,6 @@ import 'package:user_repository/user_repository.dart';
 
 import 'models/models.dart';
 
-enum CreateNewGameResult { none, success, noConnection, failure }
-
 enum JoinGameResult {
   none,
   success,
@@ -43,7 +41,7 @@ class BankingRepository {
         final game = doc.data();
 
         if (game != null && game.hasWinner) {
-          updateStats(game);
+          _updateStats(game);
         }
 
         return game;
@@ -51,11 +49,9 @@ class BankingRepository {
     );
   }
 
-  /// Disconnects from any game.
-  Future<void> leaveGame() async {
-    await userRepository.setCurrentGameId(null);
-  }
-
+  /// Joins the game with the given id.
+  ///
+  /// If successful this updates the users currentGameId in the database.
   Future<JoinGameResult> joinGame(String gameId) async {
     gameId = gameId.toUpperCase();
 
@@ -66,18 +62,16 @@ class BankingRepository {
 
       final game = gameSnapshot.data()!;
 
-      final wasAlreadyConnectedToGame = game.players
-          .asList()
-          .where((player) => player.userId == userRepository.user.id)
-          .isNotEmpty;
+      final containsPlayer = game.containsPlayerWithId(userRepository.user.id);
 
-      // Only allow a connection when the game is not started or the player was already connected to the game.
-      if (game.hasStarted && !wasAlreadyConnectedToGame) {
-        return JoinGameResult.hasAlreadyStarted;
-      }
+      if (!containsPlayer) {
+        if (game.hasStarted) {
+          return JoinGameResult.hasAlreadyStarted;
+        }
 
-      if (game.players.size >= 6 && !wasAlreadyConnectedToGame) {
-        return JoinGameResult.tooManyPlayers;
+        if (game.players.size >= 6) {
+          return JoinGameResult.tooManyPlayers;
+        }
       }
 
       // Join the game:
@@ -102,8 +96,45 @@ class BankingRepository {
     }
   }
 
-  /// Creates a new game lobby and returns itself.
-  Future<CreateNewGameResult> createNewGameAndJoin({
+  /// Quits the game (goes bankrupt) and sets the users currentGameId to null.
+  ///
+  /// On top of that it also deletes the game if the player is the game creator and
+  ///    - it has not yet started
+  ///    - nobody else joined
+  Future<void> quitGame(String gameId) async {
+    final gameSnapshot = await _gamesCollection.doc(gameId).get();
+
+    if (gameSnapshot.exists && gameSnapshot.data() != null) {
+      final game = gameSnapshot.data()!;
+
+      if (game.containsPlayerWithId(userRepository.user.id)) {
+        if (game.gameCreator.userId == userRepository.user.id) {
+          if (game.players.size == 1 || !game.hasStarted) {
+            // Delete the game.
+            await _gamesCollection.doc(gameId).delete();
+          }
+        } else if (!game.hasWinner) {
+          final player = game.getPlayer(userRepository.user.id);
+
+          if (!player.isBankrupt) {
+            // Make player bankrupt by transferring all his money to the bank.
+            await makeTransaction(
+              game: game,
+              transactionType: TransactionType.toBank,
+              amount: player.balance,
+            );
+          }
+        }
+      }
+    }
+
+    await userRepository.setCurrentGameId(null);
+  }
+
+  /// Creates a new game and returns its id if successful.
+  ///
+  /// Also updates the users currentGameId in the database if successful.
+  Future<String?> createNewGameAndJoin({
     required int startingCapital,
     required int salary,
     required bool enableFreeParkingMoney,
@@ -130,25 +161,16 @@ class BankingRepository {
       await _gamesCollection.doc(game.id).set(updatedGame);
       await userRepository.setCurrentGameId(game.id);
 
-      return CreateNewGameResult.success;
-    } on FirebaseException catch (e) {
-      log('FirebaseException in createNewGameAndJoin(): $e');
-
-      switch (e.code) {
-        case 'unavailable':
-          return CreateNewGameResult.noConnection;
-        default:
-          return CreateNewGameResult.failure;
-      }
+      return game.id;
     } catch (e) {
       log('Unknown exception in createNewGameAndJoin(): $e');
 
-      return CreateNewGameResult.failure;
+      return null;
     }
   }
 
   /// Gets a random game id until it is unique.
-  // todo: avoid waiting forever when all ids are taken.
+  // todo: Check how many game ids can be created until there are no new combinations anymore.
   Future<String> _uniqueGameId() async {
     final id = _randomGameId();
 
@@ -172,8 +194,7 @@ class BankingRepository {
 
   /// Sets the starting timestamp to the current server time which starts the game.
   Future<void> startGame(Game game) async {
-    await FirebaseFirestore.instance
-        .collection('games')
+    await _gamesCollection
         .doc(game.id)
         .update({'startingTimestamp': FieldValue.serverTimestamp()});
   }
@@ -185,7 +206,7 @@ class BankingRepository {
     int? amount,
     String? toUserId,
   }) async {
-    // todo: Find a better solution for this
+    // todo: Find a better solution for this. FieldValue.serverTimestamp() would be ideal but seems a bit complicated because the data is nested.
     // When using the web app and cellular network running NTP.now() fails.
     // This ist just a temporary fix:
     var timestamp = DateTime.now();
@@ -242,29 +263,10 @@ class BankingRepository {
     final updatedGame = await game.makeTransaction(transaction);
 
     await _gamesCollection.doc(game.id).set(updatedGame);
-
-    /* // ### Update stats of players if necessary:
-
-    final currentUserIsBankruptNow =
-        updatedGame.getPlayer(userRepository.user.id).isBankrupt;
-
-    if (currentUserIsBankruptNow) {
-      await userRepository.incrementGamesPlayed();
-    }
-
-    final otherUserIsWinnerNow = toUserId != null && updatedGame.winner != null
-        ? updatedGame.winner!.userId == toUserId
-        : false;
-
-    if (otherUserIsWinnerNow) {
-      assert(updatedGame.winner != null);
-
-      await userRepository.incrementGamesWon(updatedGame.winner!.userId);
-    }*/
   }
 
-  /// Update the users stats if they are not already.s
-  Future<void> updateStats(Game game) async {
+  /// Updates the users stats if they are not already.
+  Future<void> _updateStats(Game game) async {
     assert(game.hasWinner);
 
     final alreadyUpdated = userRepository.user.playedGamesIds.contains(game.id);

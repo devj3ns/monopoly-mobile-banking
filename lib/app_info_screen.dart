@@ -27,7 +27,7 @@ class AppInfoScreen extends HookWidget {
               style: Theme.of(context).textTheme.bodyText2,
               children: [
                 const TextSpan(
-                  text: 'Monopoly Banking\n',
+                  text: 'Monopoly Mobile Banking\n',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 TextSpan(
@@ -74,7 +74,7 @@ class AppInfoScreen extends HookWidget {
                   ),
                 ),
                 onPressed: () => launch(
-                    'mailto:info@jensbecker.dev?subject=[Help] Monopoly Banking App'),
+                    'mailto:info@jensbecker.dev?subject=[Help] Monopoly Mobile Banking App'),
               ),
               const SizedBox(width: 15),
               ElevatedButton(
@@ -87,7 +87,7 @@ class AppInfoScreen extends HookWidget {
                   ),
                 ),
                 onPressed: () => launch(
-                    'mailto:info@jensbecker.dev?subject=[Feedback] Monopoly Banking App'),
+                    'mailto:info@jensbecker.dev?subject=[Feedback] Monopoly Mobile Banking App'),
               ),
             ],
           ),

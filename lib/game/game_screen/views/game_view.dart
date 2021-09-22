@@ -109,7 +109,10 @@ class _PayArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.read<AuthCubit>().state.user;
-    final otherNonBankruptPlayers = game.otherNonBankruptPlayers(user.id);
+    final otherNonBankruptPlayers = game.nonBankruptPlayers
+        .asList()
+        .where((player) => player.userId != user.id)
+        .toList();
 
     return Column(
       children: [

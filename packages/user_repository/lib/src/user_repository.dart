@@ -227,15 +227,20 @@ class UserRepository {
     }
   }
 
+  /// Deletes the users account and all its data in the database.
+  Future<void> _deleteUser(User user) async {
+    // It's important that it is done in this order:
+    await _usernamesCollection.doc(user.name.toLowerCase()).delete();
+    await _usersCollection.doc(user.id).delete();
+    await _firebaseAuth.currentUser!.delete();
+  }
+
   /// Signs out the user which updates [_authUserChanges].
   ///
   /// If the users singed in anonymous his account gets deleted.
   Future<void> signOut() async {
     if (_firebaseAuth.currentUser!.isAnonymous) {
-      // Its important that it is done in this order:
-      await _usernamesCollection.doc(user.name.toLowerCase()).delete();
-      await _usersCollection.doc(user.id).delete();
-      await _firebaseAuth.currentUser!.delete();
+      await _deleteUser(user);
     }
 
     await Future.wait([

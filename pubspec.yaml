@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.0.10
   share_plus: ^2.1.4
   cached_network_image: ^3.1.0
+  routemaster: ^0.9.5
 
   user_repository:
     path: packages/user_repository

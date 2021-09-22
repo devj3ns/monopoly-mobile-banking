@@ -20,7 +20,10 @@ class Game extends Equatable {
     required this.salary,
     required this.isFromCache,
     required this.startingTimestamp,
-  }) : assert(players.size <= 6);
+  })  : assert(players.size <= 6),
+        assert(id.toUpperCase() == id);
+
+  // #### Attributes (are stored in the database): ####
 
   /// The unique id of the game.
   final String id;
@@ -54,7 +57,26 @@ class Game extends Equatable {
   /// The date and time when the game started.
   final DateTime? startingTimestamp;
 
+  // #### Props used for equality: ####
+
+  @override
+  List<Object?> get props => [
+        id,
+        players,
+        startingCapital,
+        transactionHistory,
+        enableFreeParkingMoney,
+        freeParkingMoney,
+        salary,
+        isFromCache,
+        startingTimestamp,
+      ];
+
+  // #### Helper getters: ####
+
   /// Whether the game has already started.
+  ///
+  /// When the game is started only players who are already in the players list can join.
   bool get hasStarted => startingTimestamp != null;
 
   /// Returns a list of all non-bankrupt players.
@@ -80,8 +102,12 @@ class Game extends Equatable {
     }
   }
 
-  /// Whether the game is still running (nobody won yet).
+  /// Whether the game has a winner.
   bool get hasWinner => winner != null;
+
+  /// Returns the player who created the game.
+  Player get gameCreator =>
+      players.asList().firstWhere((player) => player.isGameCreator);
 
   /// How long it took until one player won the game.
   ///
@@ -96,21 +122,21 @@ class Game extends Equatable {
         .difference(startingTimestamp!);
   }
 
-  @override
-  List<Object?> get props => [
-        id,
-        players,
-        nonBankruptPlayers,
-        bankruptPlayers,
-        transactionHistory,
-        enableFreeParkingMoney,
-        freeParkingMoney,
-        salary,
-        winner,
-        duration,
-        isFromCache,
-        startingTimestamp,
-      ];
+  // #### Helper functions: ####
+
+  /// Whether the user was already connected to this game.
+  bool containsPlayerWithId(String userId) {
+    return players.indexOfFirst((player) => player.userId == userId) != -1;
+  }
+
+  /// Returns the player with the given user id.
+  Player getPlayer(String userId) {
+    assert(containsPlayerWithId(userId));
+
+    return players[players.indexOfFirst((player) => player.userId == userId)];
+  }
+
+  // #### Other methods: ####
 
   static Game newOne({
     required String id,
@@ -200,39 +226,6 @@ class Game extends Equatable {
     );
   }
 
-  /// Whether the user was already connected to this game.
-  bool containsUser(String userId) {
-    return players.indexOfFirst((player) => player.userId == userId) != -1;
-  }
-
-  /// Returns the player with the given id.
-  Player getPlayer(String userId) {
-    assert(containsUser(userId));
-
-    return players[players.indexOfFirst((player) => player.userId == userId)];
-  }
-
-  /// Returns the player who created the game.
-  Player gameCreator() {
-    return players.asList().firstWhere((player) => player.isGameCreator);
-  }
-
-  /// Returns all players except of the one with the given id, sorted by balance.
-  List<Player> otherNonBankruptPlayers(String userId) {
-    return nonBankruptPlayers
-        .asList()
-        .where((player) => player.userId != userId)
-        .toList();
-  }
-
-  /// Returns all players except of the one with the given id, sorted by balance.
-  List<Player> otherBankruptPlayers(String userId) {
-    return bankruptPlayers
-        .asList()
-        .where((player) => player.userId != userId)
-        .toList();
-  }
-
   /// Returns a new instance which represents the game after the transaction.
   ///
   /// Use custom constructors for the transaction object:
@@ -306,14 +299,15 @@ class Game extends Equatable {
     final _transactionHistory = transactionHistory.toMutableList().asList()
       ..add(transaction);
 
-    // Update the players bankrupt timestamp if necessary
-    // todo: Find a better solution for this
+    // todo: Find a better solution for this. FieldValue.serverTimestamp() would be ideal but seems a bit complicated because the data is nested.
     // When using the web app and cellular network running NTP.now() fails.
     // This ist just a temporary fix:
     var timestamp = DateTime.now();
     try {
       timestamp = await NTP.now();
     } catch (_) {}
+
+    // Update the players bankrupt timestamp if necessary
     _players = _players.map((player) {
       return player.isBankrupt && player.bankruptTimestamp == null
           ? player.copyWith(bankruptTimestamp: timestamp)
@@ -333,7 +327,7 @@ class Game extends Equatable {
   Game addPlayer(User user, {bool isGameCreator = false}) {
     final _players = players.toMutableList();
 
-    if (!containsUser(user.id)) {
+    if (!containsPlayerWithId(user.id)) {
       final colors = [
         Colors.blue,
         Colors.teal,

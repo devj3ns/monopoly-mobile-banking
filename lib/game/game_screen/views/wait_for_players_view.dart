@@ -2,6 +2,7 @@ import 'package:banking_repository/banking_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../shared_widgets.dart';
@@ -44,6 +45,20 @@ class WaitForPlayersView extends StatelessWidget {
               if (player.isGameCreator) ...[
                 ElevatedButton(
                   child: const IconText(
+                    icon: Icon(
+                      Icons.share_rounded,
+                      size: 18,
+                    ),
+                    text: Text('Share game link'),
+                  ),
+                  onPressed: () => Share.share(
+                    'https://monopoly-banking.web.app/game/${game.id}',
+                    subject: 'Monopoly Mobile Banking Game Link',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  child: const IconText(
                     text: Text('Start game'),
                     gap: 12,
                     icon: FaIcon(
@@ -63,7 +78,7 @@ class WaitForPlayersView extends StatelessWidget {
                 ),
               ] else ...[
                 Text(
-                  'Wait for ${game.gameCreator().name} to start the game.',
+                  'Wait for ${game.gameCreator.name} to start the game.',
                   style: const TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 )

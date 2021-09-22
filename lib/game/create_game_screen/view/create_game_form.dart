@@ -13,9 +13,9 @@ class CreateGameForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void submitForm() async {
+    void submitForm() {
       if (formKey.currentState!.validate()) {
-        await context.read<CreateGameCubit>().onFormSubmitted();
+        context.read<CreateGameCubit>().onFormSubmitted();
       }
     }
 
