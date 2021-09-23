@@ -23,7 +23,7 @@ extension ShowTransactionModalBottomSheet on BuildContext {
 /// A modal bottom sheet for transactions.
 ///
 /// Use context.show(TransactionModalBottomSheet(...)) to open it.
-class TransactionForm extends HookWidget {
+class TransactionForm extends StatelessWidget {
   const TransactionForm({
     Key? key,
     required this.game,

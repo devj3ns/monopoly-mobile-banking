@@ -1,7 +1,6 @@
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../shared_widgets.dart';
 import '../cubit/create_game_cubit.dart';
@@ -65,7 +64,7 @@ class _SalaryInput extends StatelessWidget {
   }
 }
 
-class _FreeParkingSwitch extends HookWidget {
+class _FreeParkingSwitch extends StatelessWidget {
   const _FreeParkingSwitch({Key? key}) : super(key: key);
 
   @override
