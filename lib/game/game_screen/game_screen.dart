@@ -126,13 +126,7 @@ class _JoinedGameScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.logout),
                   tooltip: 'Leave game',
-                  onPressed: () {
-                    if (game.hasWinner) {
-                      context.read<UserRepository>().setCurrentGameId(null);
-                    }
-
-                    Routemaster.of(context).push('/');
-                  },
+                  onPressed: () => Routemaster.of(context).push('/'),
                 ),
               ],
             ),

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:user_repository/user_repository.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../shared_widgets.dart';
@@ -16,6 +17,13 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthCubit>().state.user;
+
+    // Not ideal but we have to set the currentGameId to null if a finished game which is is left.
+    if (Routemaster.of(context).currentRoute.path == '/' &&
+        user.currentGameId != null &&
+        user.playedGamesIds.contains(user.currentGameId)) {
+      context.read<UserRepository>().setCurrentGameId(null);
+    }
 
     return Stack(
       children: [
@@ -50,14 +58,16 @@ class HomeView extends StatelessWidget {
             ),
           ),
         ),
-        if (user.currentGameId != null) const _JoinRunningGameModal(),
+        if (user.currentGameId != null &&
+            !user.playedGamesIds.contains(user.currentGameId))
+          const _RunningGameInfoModal(),
       ],
     );
   }
 }
 
-class _JoinRunningGameModal extends HookWidget {
-  const _JoinRunningGameModal({Key? key}) : super(key: key);
+class _RunningGameInfoModal extends HookWidget {
+  const _RunningGameInfoModal({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
