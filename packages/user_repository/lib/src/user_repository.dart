@@ -284,7 +284,7 @@ class UserRepository {
 
   /// Adds the given game id to the playedGamesIds property of the user.
   Future<void> addGameId(String gameId) async {
-    final playedGamesIds = List<String>.from(user.playedGamesIds)..add(gameId);
+    final playedGamesIds = Set<String>.from(user.playedGamesIds)..add(gameId);
     final updatedUser = user.copyWith(playedGamesIds: playedGamesIds);
 
     return await _setUserData(updatedUser);

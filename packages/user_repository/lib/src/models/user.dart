@@ -14,8 +14,7 @@ class User extends Equatable {
 
   final String id;
   final String name;
-  final List<String>
-      playedGamesIds; //todo: use Set<String> instead of List<String?!
+  final Set<String> playedGamesIds;
   final int gamesWon;
   final String? photoURL;
   final String? currentGameId;
@@ -23,7 +22,7 @@ class User extends Equatable {
   static const none = User(
     id: '',
     name: '',
-    playedGamesIds: [],
+    playedGamesIds: {},
     gamesWon: 0,
     photoURL: null,
     currentGameId: null,
@@ -47,7 +46,8 @@ class User extends Equatable {
         id: snapshotId,
         name: pick(json, 'name').asStringOrThrow(),
         playedGamesIds: pick(json, 'playedGamesIds')
-            .asListOrThrow((gameId) => gameId.asStringOrThrow()),
+            .asListOrThrow((gameId) => gameId.asStringOrThrow())
+            .toSet(),
         gamesWon: pick(json, 'gamesWon').asIntOrThrow(),
         photoURL: pick(json, 'photoURL').asStringOrNull(),
         currentGameId: pick(json, 'currentGameId').asStringOrNull(),
@@ -55,7 +55,7 @@ class User extends Equatable {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'name': name,
-        'playedGamesIds': playedGamesIds,
+        'playedGamesIds': playedGamesIds.toList(),
         'gamesWon': gamesWon,
         'photoURL': photoURL,
         'currentGameId': currentGameId,
@@ -64,7 +64,7 @@ class User extends Equatable {
   User copyWith({
     String? id,
     String? name,
-    List<String>? playedGamesIds,
+    Set<String>? playedGamesIds,
     int? gamesWon,
     String? photoURL,
     String? Function()? currentGameId,
