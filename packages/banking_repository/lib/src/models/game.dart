@@ -122,6 +122,9 @@ class Game extends Equatable {
         .difference(startingTimestamp!);
   }
 
+  /// Returns the link to this game.
+  String get link => 'https://monopoly-banking.web.app/game/$id';
+
   // #### Helper functions: ####
 
   /// Whether the user was already connected to this game.
