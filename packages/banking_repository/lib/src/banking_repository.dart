@@ -19,12 +19,23 @@ enum JoinGameResult {
 }
 
 class BankingRepository {
-  BankingRepository({required this.userRepository});
+  BankingRepository({
+    required this.useFirebaseEmulator,
+    required this.userRepository,
+  }) {
+    if (useFirebaseEmulator) {
+      _firebaseFirestore.useFirestoreEmulator('localhost', 8080);
+    }
+  }
+
+  final bool useFirebaseEmulator;
   final UserRepository userRepository;
 
   // #### Firebase Collection references:
+  static final _firebaseFirestore = FirebaseFirestore.instance;
+
   final _gamesCollection =
-      FirebaseFirestore.instance.collection('games').withConverter<Game>(
+      _firebaseFirestore.collection('games').withConverter<Game>(
             fromFirestore: (snap, _) => Game.fromSnapshot(snap),
             toFirestore: (model, _) => model.toDocument(),
           );

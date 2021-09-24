@@ -26,13 +26,19 @@ enum SetUsernameResult {
 }
 
 class UserRepository {
-  UserRepository() {
+  UserRepository({required this.useFirebaseEmulator}) {
     _user = _authUserChanges();
+
+    if (useFirebaseEmulator) {
+      _firebaseFirestore.useFirestoreEmulator('localhost', 8080);
+      _firebaseAuth.useAuthEmulator('localhost', 9099);
+    }
   }
+
+  final bool useFirebaseEmulator;
 
   // ### Firebase instances: ###
   static final _firebaseAuth = FirebaseAuth.instance;
-  final firebaseAuth = _firebaseAuth;
   static final _firebaseFirestore = FirebaseFirestore.instance;
   static final _googleSignIn = GoogleSignIn.standard();
 
@@ -54,6 +60,13 @@ class UserRepository {
 
   /// A stream of the currently authenticated user and his data or [User.none] if unauthenticated.
   Stream<User> get watchUser => _user.asBroadcastStream();
+
+  /// Weather the currently logged in user is signed in anonymous.
+  bool get currentUserIsAnonymous {
+    assert(_firebaseAuth.currentUser != null);
+
+    return _firebaseAuth.currentUser!.isAnonymous;
+  }
 
   // ### Methods: ###
   /// Returns the first element of the [watchUser] stream.

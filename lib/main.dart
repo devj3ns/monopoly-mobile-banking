@@ -12,6 +12,8 @@ import 'package:user_repository/user_repository.dart';
 import 'app.dart';
 import 'authentication/cubit/auth_cubit.dart';
 
+bool kUseFirebaseEmulator = kDebugMode;
+
 void main() async {
   Routemaster.setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +29,9 @@ void main() async {
     ),
   );
 
-  final userRepository = UserRepository();
+  final userRepository = UserRepository(
+    useFirebaseEmulator: kUseFirebaseEmulator,
+  );
   await userRepository.getOpeningUser();
 
   runApp(_Providers(userRepository: userRepository));
@@ -46,6 +50,7 @@ class _Providers extends StatelessWidget {
         child: RepositoryProvider(
           create: (_) => BankingRepository(
             userRepository: userRepository,
+            useFirebaseEmulator: kUseFirebaseEmulator,
           ),
           child: const App(),
         ),

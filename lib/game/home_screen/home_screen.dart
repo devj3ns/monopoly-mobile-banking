@@ -79,11 +79,7 @@ class HomeScreen extends StatelessWidget {
                   Routemaster.of(context).push('/about');
                   break;
                 case 1:
-                  if (context
-                      .read<UserRepository>()
-                      .firebaseAuth
-                      .currentUser!
-                      .isAnonymous) {
+                  if (context.read<UserRepository>().currentUserIsAnonymous) {
                     showAnonymousLogoutWarning(context);
                   } else {
                     context.read<AuthCubit>().signOut();

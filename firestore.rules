@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+        match /users/{userId}{
+            allow create: if true;
+            allow read, write, update: if isAuthenticatedWithId(userId);
+        }
+
+        match /usernames/{username}{
+            allow read: if true;
+            allow write: if isAuthenticated();
+        }
+
+        match /games/{gameId}{
+            allow read, create, write, update: if isAuthenticated();
+        }
+
+        // ------------------------------------------------------------
+
+        // Whether the user is authenticated.
+        function isAuthenticated(){
+            return request.auth != null;
+        }
+
+        // Whether the authenticated user has the given user id.
+        function isAuthenticatedWithId(userId){
+            return request.auth.uid == userId;
+        }
+    }
+}
