@@ -1,11 +1,11 @@
 import 'package:banking_repository/banking_repository.dart';
+import 'package:fleasy/fleasy.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:fleasy/fleasy.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../extensions.dart';
@@ -41,7 +41,7 @@ class WaitForPlayersView extends StatelessWidget {
             children: [
               if (player.isGameCreator) ...[
                 Flexible(
-                  child: Container(
+                  child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: qrCodeMaxWidth),
                     child: QrImage(
                       data: game.link,

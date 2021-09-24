@@ -5,7 +5,7 @@ class NoConnectionOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
       child: Center(
         child: Column(

@@ -80,7 +80,7 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
 
     return Stack(
       children: [
-        Container(
+        ColoredBox(
           color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
           child: Center(
             child: Column(

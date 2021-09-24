@@ -19,14 +19,9 @@ class GameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AuthCubit>().state.user;
 
-    return RepositoryProvider(
-      create: (_) => BankingRepository(
-        userRepository: context.read<UserRepository>(),
-      ),
-      child: user.currentGameId != null && user.currentGameId == gameId
-          ? _JoinedGameScreen(gameId: gameId)
-          : _JoiningGameScreen(gameId: gameId),
-    );
+    return user.currentGameId != null && user.currentGameId == gameId
+        ? _JoinedGameScreen(gameId: gameId)
+        : _JoiningGameScreen(gameId: gameId);
   }
 }
 
