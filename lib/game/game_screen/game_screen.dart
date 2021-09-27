@@ -112,7 +112,7 @@ class _JoinedGameScreen extends StatelessWidget {
 
         if (game == null) {
           context.read<UserRepository>().setCurrentGameId(null);
-          throw ('CurrentGameId was set to null, because streaming the game #$gameId failed.');
+          throw ('CurrentGameId was set to null, because streaming game #$gameId failed.');
         } else {
           return BasicScaffold(
             appBar: AppBar(

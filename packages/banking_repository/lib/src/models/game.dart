@@ -6,8 +6,7 @@ import 'package:kt_dart/kt.dart';
 import 'package:ntp/ntp.dart';
 import 'package:user_repository/user_repository.dart';
 
-import '../../banking_repository.dart';
-import 'player.dart';
+import 'models.dart';
 
 class Game extends Equatable {
   Game({
@@ -126,6 +125,24 @@ class Game extends Equatable {
   String get link => 'https://monopoly-banking.web.app/game/$id';
 
   // #### Helper functions: ####
+
+  /// Converts the data of this game to a [GameResult] object.
+  GameResult toGameResult() {
+    assert(hasWinner);
+    assert(startingTimestamp != null);
+
+    final places = <String, int>{};
+    players.asList().forEach((player) =>
+        places.addAll(<String, int>{player.name: player.place(this)}));
+
+    return GameResult(
+      gameId: id,
+      winnerId: winner!.userId,
+      startingTimestamp: startingTimestamp!,
+      duration: duration,
+      places: places,
+    );
+  }
 
   /// Whether the user was already connected to this game.
   bool containsPlayerWithId(String userId) {

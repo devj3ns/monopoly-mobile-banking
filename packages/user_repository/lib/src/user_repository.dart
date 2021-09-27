@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deep_pick/deep_pick.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:user_repository/src/models/game_result.dart';
 
-import 'models/user.dart';
+import 'models/models.dart';
 
 enum SignInResult {
   none,
@@ -290,15 +292,16 @@ class UserRepository {
     return _setUserData(user.copyWith(currentGameId: () => currentGameId));
   }
 
-  /// Increments the gamesWon property of the user.
-  Future<void> incrementGamesWon() {
-    return _setUserData(user.copyWith(gamesWon: user.gamesWon + 1));
-  }
+  /// Adds the given [GameResult] to the playedGames property of the user.
+  Future<void> addGameResult(GameResult gameResult) async {
+    final gameResultAlreadyAdded =
+        user.playedGameResultsContainsGameWithId(gameResult.gameId);
 
-  /// Adds the given game id to the playedGamesIds property of the user.
-  Future<void> addGameId(String gameId) async {
-    final playedGamesIds = Set<String>.from(user.playedGamesIds)..add(gameId);
-    final updatedUser = user.copyWith(playedGamesIds: playedGamesIds);
+    assert(!gameResultAlreadyAdded);
+
+    final playedGameResults = List<GameResult>.from(user.playedGameResults)
+      ..add(gameResult);
+    final updatedUser = user.copyWith(playedGameResults: playedGameResults);
 
     return await _setUserData(updatedUser);
   }
@@ -322,5 +325,28 @@ extension StreamExtensions<T> on Stream<T> {
         },
       ),
     );
+  }
+}
+
+extension TimestampPick on Pick {
+  Timestamp asFirestoreTimeStampOrThrow() {
+    final value = required().value;
+    if (value is Timestamp) {
+      return value;
+    }
+    if (value is int) {
+      return Timestamp.fromMillisecondsSinceEpoch(value);
+    }
+    throw PickException(
+        "value $value at $debugParsingExit can't be casted to Timestamp");
+  }
+
+  Timestamp? asFirestoreTimeStampOrNull() {
+    if (value == null) return null;
+    try {
+      return asFirestoreTimeStampOrThrow();
+    } catch (_) {
+      return null;
+    }
   }
 }

@@ -42,42 +42,47 @@ final _setUsernameRoutes = RouteMap(
   },
 );
 
-final _loggedInRoutes = RouteMap(
-  routes: {
-    '/': (routeData) {
-      final gameId = routeData.queryParameters['joingame'];
+RouteMap _loggedInRoutes(User user) => RouteMap(
+      routes: {
+        '/': (routeData) {
+          final gameId = routeData.queryParameters['joingame'];
 
-      return gameId != null
-          ? Redirect(
-              '/game/$gameId',
-            )
-          : const MaterialPage<void>(
-              key: ValueKey('home'), child: HomeScreen());
-    },
-    '/game/:gameId': (routeData) {
-      final gameId = routeData.pathParameters['gameId']!.toUpperCase();
+          return gameId != null
+              ? Redirect('/game/$gameId')
+              : const MaterialPage<void>(
+                  key: ValueKey('home'),
+                  child: HomeScreen(),
+                );
+        },
+        '/game/:gameId': (routeData) {
+          final gameId = routeData.pathParameters['gameId']!.toUpperCase();
 
-      return MaterialPage<Widget>(
-        key: ValueKey('game-$gameId'),
-        child: GameScreen(
-          gameId: gameId,
-        ),
-      );
-    },
-    '/about': (routeData) => const MaterialPage<Widget>(
-          key: ValueKey('about'),
-          child: AppInfoScreen(),
-        ),
-    '/edit-username': (routeData) => const MaterialPage<Widget>(
-          key: ValueKey('edit-username'),
-          child: SetUsernameScreen(editUsername: true),
-        ),
-    '/create-game': (routeData) => const MaterialPage<Widget>(
-          key: ValueKey('create-game'),
-          child: CreateGameScreen(),
-        ),
-  },
-);
+          // Redirect to home if the user is currently connected to a game but wants to join another one:
+          if (user.currentGameId != null && user.currentGameId != gameId) {
+            return const Redirect('/');
+          }
+
+          return MaterialPage<Widget>(
+            key: ValueKey('game-$gameId'),
+            child: GameScreen(
+              gameId: gameId,
+            ),
+          );
+        },
+        '/about': (routeData) => const MaterialPage<Widget>(
+              key: ValueKey('about'),
+              child: AppInfoScreen(),
+            ),
+        '/edit-username': (routeData) => const MaterialPage<Widget>(
+              key: ValueKey('edit-username'),
+              child: SetUsernameScreen(editUsername: true),
+            ),
+        '/create-game': (routeData) => const MaterialPage<Widget>(
+              key: ValueKey('create-game'),
+              child: CreateGameScreen(),
+            ),
+      },
+    );
 
 final RoutemasterDelegate _routemaster = RoutemasterDelegate(
   routesBuilder: (context) {
@@ -85,7 +90,7 @@ final RoutemasterDelegate _routemaster = RoutemasterDelegate(
 
     return authState.isAuthenticated
         ? authState.user.hasUsername
-            ? _loggedInRoutes
+            ? _loggedInRoutes(authState.user)
             : _setUsernameRoutes
         : _loggedOutRoutes;
   },

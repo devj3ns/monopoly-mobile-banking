@@ -50,3 +50,23 @@ extension DurationExtensions on Duration {
     }
   }
 }
+
+extension DateTimeExtensions on DateTime {
+  /// Example outputs with time: Today 9:00, Yesterday 17:00 or 18.02.21 10:00
+  /// Example outputs without time: Today, Yesterday or 18.02.21
+  String formatTimestamp({bool withTime = true}) {
+    final date = isToday
+        ? 'Today'
+        : isYesterday
+            ? 'Yesterday'
+            : format('dd.MM.yy');
+
+    if (withTime) {
+      final time = format('HH:mm');
+
+      return '$date, $time';
+    } else {
+      return date;
+    }
+  }
+}

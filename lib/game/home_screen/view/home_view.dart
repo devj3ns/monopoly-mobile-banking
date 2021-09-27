@@ -9,6 +9,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:user_repository/user_repository.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
+import '../../../extensions.dart';
 import '../../../shared_widgets.dart';
 
 class HomeView extends StatelessWidget {
@@ -18,10 +19,11 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AuthCubit>().state.user;
 
-    // Not ideal but we have to set the currentGameId to null if a finished game which is is left.
+    // Not ideal but we have to set the currentGameId to null if the game is over but the currentGameId is not null yet.
+    // todo: Create cloud function which updates the currentGameId and adds the game result object to each user when the game has a winner?!
     if (Routemaster.of(context).currentRoute.path == '/' &&
         user.currentGameId != null &&
-        user.playedGamesIds.contains(user.currentGameId)) {
+        user.playedGameResultsContainsGameWithId(user.currentGameId!)) {
       context.read<UserRepository>().setCurrentGameId(null);
     }
 
@@ -34,10 +36,11 @@ class HomeView extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(8.0),
                 children: [
-                  const SizedBox(height: 20),
-                  const _UserSection(),
-                  const SizedBox(height: 20),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
+                  const _UsernameSection(),
+                  const SizedBox(height: 15),
+                  const Divider(height: 1),
+                  const SizedBox(height: 15),
                   Text(
                     'Join game:',
                     textAlign: TextAlign.center,
@@ -53,13 +56,21 @@ class HomeView extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   const _CreateGameButton(),
+                  const Divider(height: 25),
+                  Text(
+                    'Played games:',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  const SizedBox(height: 10),
+                  const _PlayedGamesResultsList(),
                 ],
               ),
             ),
           ),
         ),
         if (user.currentGameId != null &&
-            !user.playedGamesIds.contains(user.currentGameId))
+            !user.playedGameResultsContainsGameWithId(user.currentGameId!))
           const _RunningGameInfoModal(),
       ],
     );
@@ -116,8 +127,8 @@ class _RunningGameInfoModal extends HookWidget {
   }
 }
 
-class _UserSection extends StatelessWidget {
-  const _UserSection({Key? key}) : super(key: key);
+class _UsernameSection extends StatelessWidget {
+  const _UsernameSection({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +154,6 @@ class _UserSection extends StatelessWidget {
                 onPressed: () =>
                     Routemaster.of(context).push('/edit-username')),
           ],
-        ),
-        Text(
-          'Statistics:\n'
-          'Games played: ${user.playedGamesIds.length}\n'
-          'Games won: ${user.gamesWon}\n',
-          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -219,6 +224,135 @@ class _CreateGameButton extends StatelessWidget {
           icon: Icon(Icons.add_rounded),
         ),
         onPressed: () => Routemaster.of(context).push('/create-game'),
+      ),
+    );
+  }
+}
+
+class _PlayedGamesResultsList extends HookWidget {
+  const _PlayedGamesResultsList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthCubit>().state.user;
+
+    return Column(
+      children: [
+        Text(
+          'Games played: ${user.gamesPlayed} • Games won: ${user.gamesWon}',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 5),
+        ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: user.playedGameResults.length,
+          itemBuilder: (BuildContext context, int index) => _GameResultCard(
+            gameResult: user.playedGameResults[index],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GameResultCard extends HookWidget {
+  const _GameResultCard({Key? key, required this.gameResult}) : super(key: key);
+  final GameResult gameResult;
+
+  IconData getIconByPlace(int place) {
+    switch (place) {
+      case 1:
+        return Icons.emoji_events_rounded;
+      case 2:
+        return Icons.looks_two_rounded;
+      case 3:
+        return Icons.looks_3_rounded;
+      case 4:
+        return Icons.looks_4_rounded;
+      case 5:
+        return Icons.looks_5_rounded;
+      case 6:
+        return Icons.looks_6_rounded;
+      default:
+        return Icons.error;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthCubit>().state.user;
+    final isExpanded = useState(false);
+
+    final places = gameResult.places.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    return Card(
+      child: ExpansionPanelList(
+        expandedHeaderPadding: EdgeInsets.zero,
+        expansionCallback: (index, expanded) =>
+            isExpanded.value = !isExpanded.value,
+        children: [
+          ExpansionPanel(
+            isExpanded: isExpanded.value,
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) => Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Game #${gameResult.gameId}',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  Text(
+                    gameResult.startingTimestamp.formatTimestamp(),
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  IconText(
+                    text: Text(
+                      'Duration ${gameResult.duration.format()}',
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                    gap: 7,
+                    icon: const FaIcon(
+                      FontAwesomeIcons.solidClock,
+                      size: 18,
+                    ),
+                    iconAfterText: false,
+                  ),
+                  Column(
+                    children: places.map((playerWithPlace) {
+                      final name = playerWithPlace.key;
+                      final place = playerWithPlace.value;
+
+                      // This is not ideal because the username could be different now! It would be better to store the users id too.
+                      final nameOrYou = name == user.name ? 'You' : name;
+
+                      return Row(
+                        children: [
+                          Icon(getIconByPlace(place)),
+                          const SizedBox(width: 5),
+                          Text(
+                            nameOrYou,
+                            style: const TextStyle(fontSize: 17),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

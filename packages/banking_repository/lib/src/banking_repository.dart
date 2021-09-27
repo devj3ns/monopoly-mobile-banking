@@ -52,7 +52,7 @@ class BankingRepository {
         final game = doc.data();
 
         if (game != null && game.hasWinner) {
-          _updateStats(game);
+          _addGameResult(game);
         }
 
         return game;
@@ -135,6 +135,8 @@ class BankingRepository {
               amount: player.balance,
             );
           }
+        } else if (game.hasWinner) {
+          await _addGameResult(game);
         }
       }
     }
@@ -276,18 +278,18 @@ class BankingRepository {
     await _gamesCollection.doc(game.id).set(updatedGame);
   }
 
-  /// Updates the users stats if they are not already.
-  Future<void> _updateStats(Game game) async {
+  /// Creates a [GameResult] object from the game and adds it to the users playedGameResults list IF it isn't already!
+  Future<void> _addGameResult(Game game) async {
     assert(game.hasWinner);
 
-    final alreadyUpdated = userRepository.user.playedGamesIds.contains(game.id);
+    final alreadyAdded = userRepository.user.playedGameResults
+        .where((gameResult) => gameResult.gameId == game.id)
+        .isNotEmpty;
 
-    if (!alreadyUpdated) {
-      if (game.winner!.userId == userRepository.user.id) {
-        await userRepository.incrementGamesWon();
-      }
+    if (!alreadyAdded) {
+      final gameResult = game.toGameResult();
 
-      await userRepository.addGameId(game.id);
+      await userRepository.addGameResult(gameResult);
     }
   }
 }
