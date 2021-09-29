@@ -52,7 +52,7 @@ class BankingRepository {
         final game = doc.data();
 
         if (game != null && game.hasWinner) {
-          _addGameResult(game);
+          _addGameResult(gameId: game.id);
         }
 
         return game;
@@ -107,11 +107,9 @@ class BankingRepository {
     }
   }
 
-  /// Quits the game (goes bankrupt) and sets the users currentGameId to null.
+  /// Quits the game (goes bankrupt), calls [_addGameResult()] if the game has a winner and sets the users currentGameId to null.
   ///
-  /// On top of that it also deletes the game if the player is the game creator and
-  ///    - it has not yet started
-  ///    - nobody else joined
+  /// On top of that it also deletes the game if there is no other player in the game.
   Future<void> quitGame(String gameId) async {
     final gameSnapshot = await _gamesCollection.doc(gameId).get();
 
@@ -119,24 +117,28 @@ class BankingRepository {
       final game = gameSnapshot.data()!;
 
       if (game.containsPlayerWithId(userRepository.user.id)) {
-        if (game.gameCreator.userId == userRepository.user.id) {
-          if (game.players.size == 1 || !game.hasStarted) {
-            // Delete the game.
-            await _gamesCollection.doc(gameId).delete();
-          }
+        if (game.players.size == 1) {
+          await _gamesCollection.doc(gameId).delete();
         } else if (!game.hasWinner) {
           final player = game.getPlayer(userRepository.user.id);
 
           if (!player.isBankrupt) {
             // Make player bankrupt by transferring all his money to the bank.
             await makeTransaction(
-              game: game,
+              gameId: game.id,
               transactionType: TransactionType.toBank,
               amount: player.balance,
             );
+
+            final updatedGame =
+                (await _gamesCollection.doc(gameId).get()).data()!;
+
+            if (updatedGame.hasWinner) {
+              await _addGameResult(gameId: gameId);
+            }
           }
         } else if (game.hasWinner) {
-          await _addGameResult(game);
+          await _addGameResult(gameId: gameId);
         }
       }
     }
@@ -214,7 +216,7 @@ class BankingRepository {
 
   /// Transfers money.
   Future<void> makeTransaction({
-    required Game game,
+    required String gameId,
     required TransactionType transactionType,
     int? amount,
     String? toUserId,
@@ -226,6 +228,8 @@ class BankingRepository {
     try {
       timestamp = await NTP.now();
     } catch (_) {}
+
+    final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
     late final Transaction transaction;
     switch (transactionType) {
@@ -279,12 +283,15 @@ class BankingRepository {
   }
 
   /// Creates a [GameResult] object from the game and adds it to the users playedGameResults list IF it isn't already!
-  Future<void> _addGameResult(Game game) async {
+  ///
+  /// Only call this if the game already has a winner!
+  Future<void> _addGameResult({required String gameId}) async {
+    final game = (await _gamesCollection.doc(gameId).get()).data()!;
+
     assert(game.hasWinner);
 
-    final alreadyAdded = userRepository.user.playedGameResults
-        .where((gameResult) => gameResult.gameId == game.id)
-        .isNotEmpty;
+    final alreadyAdded =
+        userRepository.user.playedGameResultsContainsGameWithId(gameId);
 
     if (!alreadyAdded) {
       final gameResult = game.toGameResult();

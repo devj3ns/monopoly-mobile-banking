@@ -130,7 +130,7 @@ class _MoneyAmountInput extends HookWidget {
     void submitForm() {
       if (_formKey.currentState!.validate()) {
         context.read<BankingRepository>().makeTransaction(
-              game: game,
+              gameId: game.id,
               transactionType: transactionType,
               amount: amount.value,
               toUserId: toUserId,
@@ -207,7 +207,7 @@ class _TextWithConfirmButton extends StatelessWidget {
   Widget build(BuildContext context) {
     void submitForm() {
       context.read<BankingRepository>().makeTransaction(
-            game: game,
+            gameId: game.id,
             transactionType: transactionType,
             toUserId: toUserId,
           );
