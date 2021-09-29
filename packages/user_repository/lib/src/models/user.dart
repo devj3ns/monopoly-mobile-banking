@@ -36,6 +36,17 @@ class User extends Equatable {
   /// How many games the player player played and finished.
   int get gamesPlayed => playedGameResults.length;
 
+  /// The summarized  duration of all games the user played.
+  Duration get totalPlayingTime {
+    var duration = const Duration();
+
+    for (final gameResult in playedGameResults) {
+      duration += gameResult.duration;
+    }
+
+    return duration;
+  }
+
   /// Whether the user has a [GameResult] with the given id in his [playedGameResults] list.
   ///
   /// This is usually the case if the user finished the game (bankrupt or won it).
