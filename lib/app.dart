@@ -4,13 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:user_repository/user_repository.dart';
 
-import 'app_info_screen.dart';
 import 'authentication/cubit/auth_cubit.dart';
 import 'authentication/login_screen/login_page.dart';
 import 'authentication/set_username_screen/set_username_screen.dart';
-import 'game/create_game_screen/create_game_screen.dart';
 import 'game/game_screen/game_screen.dart';
-import 'game/home_screen/home_screen.dart';
+import 'home/app_info_screen/app_info_screen.dart';
+import 'home/home_screen/home_screen.dart';
+import 'shared/theme.dart';
 
 final _loggedOutRoutes = RouteMap(
   routes: {
@@ -31,15 +31,17 @@ final _loggedOutRoutes = RouteMap(
           child: AppInfoScreen(),
         ),
   },
+  onUnknownRoute: (_) => const Redirect('/'),
 );
 
 final _setUsernameRoutes = RouteMap(
   routes: {
     '/': (route) => const MaterialPage<void>(
           key: ValueKey('set-username'),
-          child: SetUsernameScreen(editUsername: false),
+          child: SetUsernameScreen(),
         ),
   },
+  onUnknownRoute: (_) => const Redirect('/'),
 );
 
 RouteMap _loggedInRoutes(User user) => RouteMap(
@@ -73,15 +75,12 @@ RouteMap _loggedInRoutes(User user) => RouteMap(
               key: ValueKey('about'),
               child: AppInfoScreen(),
             ),
-        '/edit-username': (routeData) => const MaterialPage<Widget>(
-              key: ValueKey('edit-username'),
-              child: SetUsernameScreen(editUsername: true),
-            ),
-        '/create-game': (routeData) => const MaterialPage<Widget>(
-              key: ValueKey('create-game'),
-              child: CreateGameScreen(),
+        '/change-username': (routeData) => const MaterialPage<Widget>(
+              key: ValueKey('change-username'),
+              child: SetUsernameScreen(),
             ),
       },
+      onUnknownRoute: (_) => const Redirect('/'),
     );
 
 final RoutemasterDelegate _routemaster = RoutemasterDelegate(
@@ -103,8 +102,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Monopoly Mobile Banking',
-      theme: ThemeData(brightness: Brightness.light),
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

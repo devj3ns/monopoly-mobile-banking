@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../authentication/cubit/auth_cubit.dart';
-import '../../../../extensions.dart';
+import '../../../../shared/extensions.dart';
+import '../../../../shared/theme.dart';
 
 class TransactionCard extends StatelessWidget {
   const TransactionCard({
@@ -104,8 +105,8 @@ class TransactionCard extends StatelessWidget {
     return Card(
       shape: transactionConcernsMe
           ? RoundedRectangleBorder(
-              side: const BorderSide(color: Colors.grey, width: 1),
-              borderRadius: BorderRadius.circular(5),
+              side: BorderSide(color: Colors.grey.withOpacity(0.8), width: 1),
+              borderRadius: borderRadius,
             )
           : null,
       child: ListTile(
@@ -114,25 +115,25 @@ class TransactionCard extends StatelessWidget {
             SizedBox(
               height: 20,
               width: 20,
-              child: FaIcon(
-                getIcon(),
-                size: getIcon().fontPackage == 'font_awesome_flutter'
-                    ? 17.0
-                    : 19.0,
-                color: context.isDarkMode ? Colors.white : Colors.black45,
+              child: Center(
+                child: FaIcon(
+                  getIcon(),
+                  size: getIcon().fontPackage == 'font_awesome_flutter'
+                      ? 17.0
+                      : 19.0,
+                  color: context.isDarkMode ? Colors.white : Colors.black45,
+                ),
               ),
             ),
             const SizedBox(width: 10),
             Flexible(
               child: RichText(
                 text: TextSpan(
-                  style: TextStyle(
-                    fontWeight: transactionConcernsMe
-                        ? FontWeight.w500
-                        : FontWeight.normal,
-                    fontSize: 16,
-                    color: Theme.of(context).textTheme.bodyText2!.color,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                        fontWeight: transactionConcernsMe
+                            ? FontWeight.w500
+                            : FontWeight.normal,
+                      ),
                   children: getTextSpans(),
                 ),
               ),
@@ -141,7 +142,11 @@ class TransactionCard extends StatelessWidget {
         ),
         trailing: Text(
           transaction.timestamp.format('Hms'),
-          style: const TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: context.isDarkMode
+                ? Colors.white.withOpacity(0.6)
+                : Colors.black54,
+          ),
         ),
       ),
     );

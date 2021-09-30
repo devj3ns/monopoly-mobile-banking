@@ -3,6 +3,9 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import 'widgets.dart';
 
 extension ContextExtensions on BuildContext {
   /// Reads the BankingRepository.
@@ -27,6 +30,20 @@ extension ContextExtensions on BuildContext {
 
   /// Whether the overall theme brightness is light.
   bool get isLightMode => Theme.of(this).brightness == Brightness.light;
+
+  /// Shows a modal bottom sheet.
+  Future<void> showModalBottomSheet({
+    required Widget child,
+    bool showHandle = true,
+  }) {
+    return showCupertinoModalBottomSheet<Widget>(
+      context: this,
+      builder: (context) => MyModalBottomSheet(
+        showHandle: showHandle,
+        child: child,
+      ),
+    );
+  }
 }
 
 extension StringExtensions on String {

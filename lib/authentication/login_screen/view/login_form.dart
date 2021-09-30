@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
-import '../../../shared_widgets.dart';
+import '../../../shared/theme.dart';
+import '../../../shared/widgets.dart';
 import '../cubit/login_cubit.dart';
 
 class LoginForm extends StatelessWidget {
@@ -23,7 +24,7 @@ class LoginForm extends StatelessWidget {
         ),
         const SizedBox(height: 25),
         Text(
-          'Monopoly Banking',
+          'Monopoly Mobile Banking',
           style: Theme.of(context).textTheme.headline4,
           textAlign: TextAlign.center,
         ),
@@ -52,7 +53,7 @@ class _SignInAnonymouslyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(top: Insets.m),
+        padding: const EdgeInsets.only(top: Insets.s),
         child: ElevatedButton(
           child: const IconText(
             text: Text('Sign in anonymously'),
@@ -71,10 +72,11 @@ class _SignInWithGoogleButton extends StatelessWidget {
     return Center(
       //ignore: avoid-wrapping-in-padding
       child: Padding(
-        padding: const EdgeInsets.only(top: Insets.m),
+        padding: const EdgeInsets.only(top: Insets.s),
         child: SignInButton(
           Buttons.Google,
           text: 'Sign in with Google',
+          shape: RoundedRectangleBorder(borderRadius: borderRadius),
           onPressed: () => context.read<LoginCubit>().signInWithGoogle(),
         ),
       ),

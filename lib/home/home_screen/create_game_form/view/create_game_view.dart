@@ -2,11 +2,11 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../shared_widgets.dart';
+import '../../../../shared/widgets.dart';
 import '../cubit/create_game_cubit.dart';
 
-class CreateGameForm extends StatelessWidget {
-  const CreateGameForm({Key? key}) : super(key: key);
+class CreateGameView extends StatelessWidget {
+  const CreateGameView({Key? key}) : super(key: key);
 
   static final formKey = GlobalKey<FormState>();
 
@@ -20,10 +20,8 @@ class CreateGameForm extends StatelessWidget {
 
     return Form(
       key: formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(8.0),
+      child: Column(
         children: [
-          SizedBox(height: context.screenHeight * 0.3),
           const _StartingCapitalInput(),
           const _SalaryInput(),
           const _FreeParkingSwitch(),

@@ -8,8 +8,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
-import '../../../extensions.dart';
-import '../../../shared_widgets.dart';
+import '../../../shared/extensions.dart';
+import '../../../shared/widgets.dart';
 import 'widgets/list_tile_card.dart';
 
 class WaitForPlayersView extends StatelessWidget {

@@ -4,25 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:monopoly_banking/shared_widgets.dart';
+import 'package:monopoly_banking/shared/widgets.dart';
 
 import '../../../../authentication/cubit/auth_cubit.dart';
 
-extension ShowTransactionModalBottomSheet on BuildContext {
-  /// Shows the given [TransactionForm].
-  void showTransactionModalBottomSheet(Widget transactionModalBottomSheet) {
-    showCupertinoModalBottomSheet<Widget>(
-      context: this,
-      builder: (_) => RepositoryProvider.value(
-          value: read<BankingRepository>(), child: transactionModalBottomSheet),
-    );
-  }
-}
-
 /// A modal bottom sheet for transactions.
 ///
-/// Use context.show(TransactionModalBottomSheet(...)) to open it.
+/// Use context.showModalBottomSheet to open it.
 class TransactionForm extends StatelessWidget {
   const TransactionForm({
     Key? key,
@@ -61,37 +49,26 @@ class TransactionForm extends StatelessWidget {
       }
     }
 
-    return Material(
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 0),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          getTitle(),
+          style: const TextStyle(fontSize: 20),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                getTitle(),
-                style: const TextStyle(fontSize: 20),
+        showMoneyAmountInputField
+            ? _MoneyAmountInput(
+                game: game,
+                toUserId: toUserId,
+                transactionType: transactionType,
+              )
+            : _TextWithConfirmButton(
+                game: game,
+                toUserId: toUserId,
+                transactionType: transactionType,
+                showConfetti: showConfetti,
               ),
-              showMoneyAmountInputField
-                  ? _MoneyAmountInput(
-                      game: game,
-                      toUserId: toUserId,
-                      transactionType: transactionType,
-                    )
-                  : _TextWithConfirmButton(
-                      game: game,
-                      toUserId: toUserId,
-                      transactionType: transactionType,
-                      showConfetti: showConfetti,
-                    ),
-            ],
-          ),
-        ),
-      ),
+      ],
     );
   }
 }

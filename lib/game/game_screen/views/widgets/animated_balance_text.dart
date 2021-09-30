@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../extensions.dart';
+import '../../../../shared/extensions.dart';
 
 class AnimatedMoneyBalanceText extends StatelessWidget {
   const AnimatedMoneyBalanceText({
@@ -16,12 +16,10 @@ class AnimatedMoneyBalanceText extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return ScaleTransition(
-          child: child,
-          scale: CurveTween(curve: Curves.easeInOut).animate(animation),
-        );
-      },
+      transitionBuilder: (child, animation) => ScaleTransition(
+        child: child,
+        scale: CurveTween(curve: Curves.easeInOut).animate(animation),
+      ),
       child: Text(
         context.formatMoneyBalance(moneyBalance),
         key: ValueKey(context.formatMoneyBalance(moneyBalance)),

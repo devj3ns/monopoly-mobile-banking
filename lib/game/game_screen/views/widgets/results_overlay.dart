@@ -7,9 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../authentication/cubit/auth_cubit.dart';
-import '../../../extensions.dart';
-import '../../../shared_widgets.dart';
+import '../../../../authentication/cubit/auth_cubit.dart';
+import '../../../../shared/extensions.dart';
+import '../../../../shared/widgets.dart';
 
 class ResultsOverlay extends StatefulWidget {
   const ResultsOverlay({Key? key, required this.game}) : super(key: key);
@@ -94,6 +94,7 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                 Text(
                   '$winnerNameOrYou won the game!',
                   style: Theme.of(context).textTheme.headline5,
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 5),
                 Column(
@@ -111,7 +112,6 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                         const SizedBox(width: 5),
                         Text(
                           '$nameOrYou (Bankrupt after ${bankruptTime.format()})',
-                          style: const TextStyle(fontSize: 17),
                         ),
                       ],
                     );
@@ -121,7 +121,6 @@ class _ResultsOverlayState extends State<ResultsOverlay> {
                 IconText(
                   text: Text(
                     'Duration of the game: ${gameDuration.format()}',
-                    style: const TextStyle(fontSize: 17),
                   ),
                   gap: 7,
                   icon: const FaIcon(

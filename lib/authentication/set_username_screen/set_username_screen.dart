@@ -3,21 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 
-import '../../shared_widgets.dart';
+import '../../shared/widgets.dart';
+import '../cubit/auth_cubit.dart';
 import 'cubit/set_username_cubit.dart';
 import 'view/set_username_view.dart';
 
 class SetUsernameScreen extends StatelessWidget {
-  const SetUsernameScreen({Key? key, required this.editUsername})
-      : super(key: key);
-  final bool editUsername;
+  const SetUsernameScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final changeUsername = context.read<AuthCubit>().state.user.hasUsername;
+
     return BasicScaffold(
-      appBar: editUsername
+      appBar: changeUsername
           ? AppBar(
-              title: Text(editUsername ? 'Edit username' : 'Choose username'),
+              title: Text(
+                changeUsername ? 'Change username' : 'Choose username',
+              ),
             )
           : null,
       body: BlocProvider(
@@ -31,7 +34,7 @@ class SetUsernameScreen extends StatelessWidget {
           listener: (context, state) {
             switch (state.chooseUsernameResult) {
               case SetUsernameResult.success:
-                if (editUsername) {
+                if (changeUsername) {
                   context.popPage();
                 }
                 break;
@@ -51,7 +54,7 @@ class SetUsernameScreen extends StatelessWidget {
             context.read<SetUsernameCubit>().resetSignInResult();
           },
           child: SetUsernameView(
-            editUsername: editUsername,
+            changeUsername: changeUsername,
           ),
         ),
       ),

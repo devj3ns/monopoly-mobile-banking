@@ -5,13 +5,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
-import '../../../shared_widgets.dart';
+import '../../../shared/widgets.dart';
 import '../cubit/set_username_cubit.dart';
 
 class SetUsernameView extends StatelessWidget {
-  const SetUsernameView({Key? key, required this.editUsername})
-      : super(key: key);
-  final bool editUsername;
+  const SetUsernameView({
+    Key? key,
+    required this.changeUsername,
+  }) : super(key: key);
+
+  final bool changeUsername;
 
   static final formKey = GlobalKey<FormState>();
 
@@ -33,13 +36,15 @@ class SetUsernameView extends StatelessWidget {
           SizedBox(height: context.screenHeight * 0.2),
           Center(
             child: FaIcon(
-              editUsername ? FontAwesomeIcons.userEdit : FontAwesomeIcons.user,
+              changeUsername
+                  ? FontAwesomeIcons.userEdit
+                  : FontAwesomeIcons.user,
               size: 50,
             ),
           ),
           const SizedBox(height: 15),
           Text(
-            editUsername ? 'Edit username' : 'Choose a username',
+            changeUsername ? 'Change username' : 'Choose a username',
             style: Theme.of(context).textTheme.headline5,
             textAlign: TextAlign.center,
           ),
@@ -49,7 +54,7 @@ class SetUsernameView extends StatelessWidget {
           ),
           _SubmitFormButton(
             submitForm,
-            editUsername: editUsername,
+            changeUsername: changeUsername,
           ),
         ],
       ),
@@ -88,9 +93,9 @@ class _UsernameInput extends StatelessWidget {
 }
 
 class _SubmitFormButton extends StatelessWidget {
-  const _SubmitFormButton(this.submitForm, {required this.editUsername});
+  const _SubmitFormButton(this.submitForm, {required this.changeUsername});
   final VoidCallback submitForm;
-  final bool editUsername;
+  final bool changeUsername;
 
   @override
   Widget build(BuildContext context) {
@@ -108,9 +113,11 @@ class _SubmitFormButton extends StatelessWidget {
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
                     child: IconText(
-                      text: Text(editUsername ? 'Save' : 'Sign in'),
+                      text: Text(changeUsername ? 'Save' : 'Sign in'),
                       icon: Icon(
-                        editUsername ? Icons.save_rounded : Icons.login_rounded,
+                        changeUsername
+                            ? Icons.save_rounded
+                            : Icons.login_rounded,
                         size: 21,
                       ),
                     ),

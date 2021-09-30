@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../../extensions.dart';
-import '../../../../shared_widgets.dart';
+import '../../../../shared/extensions.dart';
+import '../../../../shared/widgets.dart';
 import 'animated_balance_text.dart';
 
 class ListTileCard extends StatelessWidget {
@@ -26,19 +26,14 @@ class ListTileCard extends StatelessWidget {
     final iconColor =
         customColor ?? (context.isDarkMode ? Colors.white : Colors.black45);
 
-    final textColor = customColor ??
-        (context.isDarkMode
-            ? Colors.white
-            : Theme.of(context).textTheme.bodyText2!.color!);
-
-    final moneyBalanceColor = context.isDarkMode ? Colors.grey : Colors.black54;
-
-    final showMoneyBalanceText = moneyBalance != null;
+    final moneyBalanceColor =
+        context.isDarkMode ? Colors.white.withOpacity(0.6) : Colors.black54;
 
     final iconSize = icon.fontPackage == 'font_awesome_flutter' ? 16.0 : 18.0;
 
     return Card(
       child: ListTile(
+        shape: Theme.of(context).cardTheme.shape,
         title: Row(
           children: [
             Expanded(
@@ -52,17 +47,16 @@ class ListTileCard extends StatelessWidget {
                 gap: 10,
                 text: Text(
                   text,
-                  overflow: showMoneyBalanceText ? TextOverflow.ellipsis : null,
-                  style: TextStyle(fontSize: 16, color: textColor),
+                  overflow: moneyBalance != null ? TextOverflow.ellipsis : null,
+                  style: TextStyle(color: customColor),
                 ),
                 iconAfterText: false,
               ),
             ),
-            if (showMoneyBalanceText)
+            if (moneyBalance != null)
               AnimatedMoneyBalanceText(
                 moneyBalance: moneyBalance!,
                 textStyle: TextStyle(
-                  fontSize: 17,
                   color: moneyBalanceColor,
                 ),
               ),

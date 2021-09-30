@@ -8,16 +8,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../authentication/cubit/auth_cubit.dart';
-import '../../../shared_widgets.dart';
-import 'bankrupt_view.dart';
-import 'no_connection_view.dart';
-import 'results_view.dart';
-import 'wait_for_players_view.dart';
+import '../../../shared/extensions.dart';
+import '../../../shared/widgets.dart';
 import 'widgets/animated_balance_text.dart';
+import 'widgets/bankrupt_overlay.dart';
 import 'widgets/list_tile_card.dart';
+import 'widgets/no_connection_overlay.dart';
 import 'widgets/player_card.dart';
+import 'widgets/results_overlay.dart';
 import 'widgets/transaction_card.dart';
-import 'widgets/transaction_modal_bottom_sheet.dart';
+import 'widgets/transaction_form.dart';
 
 class GameView extends StatefulWidget {
   const GameView({Key? key, required this.game}) : super(key: key);
@@ -51,6 +51,7 @@ class _GameViewState extends State<GameView> {
   @override
   Widget build(BuildContext context) {
     final user = context.read<AuthCubit>().state.user;
+    final player = widget.game.getPlayer(user.id);
 
     return Stack(
       children: [
@@ -58,27 +59,21 @@ class _GameViewState extends State<GameView> {
           padding: const EdgeInsets.all(8.0),
           children: [
             const SizedBox(height: 15),
-            AnimatedMoneyBalanceText(
-              moneyBalance: widget.game.getPlayer(user.id).balance,
-              textStyle:
-                  const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
-            ),
+            _MyMoneyBalanceSection(game: widget.game),
             const Divider(height: 30),
-            _PayArea(game: widget.game),
+            _PaySection(game: widget.game),
             const Divider(height: 30),
-            _ReceiveArea(
+            _ReceiveSection(
               game: widget.game,
               showConfetti: showConfetti,
             ),
             const Divider(height: 30),
-            _TransactionHistory(game: widget.game),
+            _TransactionHistorySection(game: widget.game),
           ],
         ),
-        if (!widget.game.hasStarted || widget.game.players.size < 2) ...[
-          WaitForPlayersView(game: widget.game),
-        ] else if (widget.game.winner != null) ...[
+        if (widget.game.winner != null) ...[
           ResultsOverlay(game: widget.game)
-        ] else if (widget.game.getPlayer(user.id).isBankrupt) ...[
+        ] else if (player.isBankrupt) ...[
           BankruptOverlay(game: widget.game)
         ] else if (widget.game.isFromCache) ...[
           const NoConnectionOverlay(),
@@ -98,8 +93,27 @@ class _GameViewState extends State<GameView> {
   }
 }
 
-class _PayArea extends StatelessWidget {
-  const _PayArea({
+class _MyMoneyBalanceSection extends StatelessWidget {
+  const _MyMoneyBalanceSection({
+    Key? key,
+    required this.game,
+  }) : super(key: key);
+
+  final Game game;
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.read<AuthCubit>().state.user;
+
+    return AnimatedMoneyBalanceText(
+      moneyBalance: game.getPlayer(user.id).balance,
+      textStyle: const TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
+    );
+  }
+}
+
+class _PaySection extends StatelessWidget {
+  const _PaySection({
     Key? key,
     required this.game,
   }) : super(key: key);
@@ -154,8 +168,8 @@ class _PayArea extends StatelessWidget {
               child: ListTileCard(
                 icon: FontAwesomeIcons.solidBuilding,
                 text: 'Bank',
-                onTap: () => context.showTransactionModalBottomSheet(
-                  TransactionForm(
+                onTap: () => context.showModalBottomSheet(
+                  child: TransactionForm(
                     game: game,
                     transactionType: TransactionType.toBank,
                   ),
@@ -169,8 +183,8 @@ class _PayArea extends StatelessWidget {
                   icon: FontAwesomeIcons.carAlt,
                   text: 'Free Parking',
                   moneyBalance: game.freeParkingMoney,
-                  onTap: () => context.showTransactionModalBottomSheet(
-                    TransactionForm(
+                  onTap: () => context.showModalBottomSheet(
+                    child: TransactionForm(
                       game: game,
                       transactionType: TransactionType.toFreeParking,
                     ),
@@ -184,8 +198,8 @@ class _PayArea extends StatelessWidget {
   }
 }
 
-class _ReceiveArea extends StatelessWidget {
-  const _ReceiveArea({
+class _ReceiveSection extends StatelessWidget {
+  const _ReceiveSection({
     Key? key,
     required this.game,
     required this.showConfetti,
@@ -217,8 +231,8 @@ class _ReceiveArea extends StatelessWidget {
               child: ListTileCard(
                 icon: FontAwesomeIcons.solidBuilding,
                 text: 'Bank',
-                onTap: () => context.showTransactionModalBottomSheet(
-                  TransactionForm(
+                onTap: () => context.showModalBottomSheet(
+                  child: TransactionForm(
                     game: game,
                     transactionType: TransactionType.fromBank,
                   ),
@@ -229,8 +243,8 @@ class _ReceiveArea extends StatelessWidget {
               child: ListTileCard(
                 icon: Icons.work_rounded,
                 text: 'Salary',
-                onTap: () => context.showTransactionModalBottomSheet(
-                  TransactionForm(
+                onTap: () => context.showModalBottomSheet(
+                  child: TransactionForm(
                     game: game,
                     transactionType: TransactionType.fromSalary,
                   ),
@@ -248,8 +262,8 @@ class _ReceiveArea extends StatelessWidget {
                                 'Sorry, at the moment there is no free parking money.',
                             duration: 2,
                           )
-                      : () => context.showTransactionModalBottomSheet(
-                            TransactionForm(
+                      : () => context.showModalBottomSheet(
+                            child: TransactionForm(
                               game: game,
                               transactionType: TransactionType.fromFreeParking,
                               showConfetti: showConfetti,
@@ -264,8 +278,8 @@ class _ReceiveArea extends StatelessWidget {
   }
 }
 
-class _TransactionHistory extends StatelessWidget {
-  const _TransactionHistory({
+class _TransactionHistorySection extends StatelessWidget {
+  const _TransactionHistorySection({
     Key? key,
     required this.game,
   }) : super(key: key);
@@ -294,12 +308,12 @@ class _TransactionHistory extends StatelessWidget {
             ? Center(
                 child: Column(
                   children: const [
+                    SizedBox(height: 10),
                     FaIcon(Icons.swap_horiz_rounded),
                     Text(
-                      'There are no transactions yet.\n'
-                      'Use the buttons in the pay or receive area above to make a transaction.',
+                      'There are no transactions yet.\n\n'
+                      'Use the buttons in the pay or receive section above to make a transaction.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 15),
                     ),
                   ],
                 ),
@@ -309,7 +323,9 @@ class _TransactionHistory extends StatelessWidget {
                 itemCount: transactions.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) => TransactionCard(
-                    transaction: transactions[index], game: game),
+                  transaction: transactions[index],
+                  game: game,
+                ),
               ),
       ],
     );

@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'shared_widgets.dart';
+import '../../shared/widgets.dart';
 
 class AppInfoScreen extends HookWidget {
   const AppInfoScreen({Key? key}) : super(key: key);
@@ -28,17 +28,16 @@ class AppInfoScreen extends HookWidget {
               children: [
                 const TextSpan(
                   text: 'Monopoly Mobile Banking\n',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text: 'Version $appVersion\n\n'
                       'Made by Jens Becker\n',
-                  style: Theme.of(context).textTheme.bodyText2,
                 ),
                 TextSpan(
                   text: 'jensbecker.dev',
                   style:
-                      TextStyle(color: Theme.of(context).colorScheme.secondary),
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => launch('https://jensbecker.dev'),
                 ),
@@ -92,7 +91,7 @@ class AppInfoScreen extends HookWidget {
             ],
           ),
           const Expanded(child: SizedBox()),
-          TextButton(
+          OutlinedButton(
             child: const Text('Licences'),
             onPressed: () => showLicensePage(
               context: context,

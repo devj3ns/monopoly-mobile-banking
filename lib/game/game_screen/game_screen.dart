@@ -7,9 +7,10 @@ import 'package:routemaster/routemaster.dart';
 import 'package:user_repository/user_repository.dart';
 
 import '../../authentication/cubit/auth_cubit.dart';
-import '../../extensions.dart';
-import '../../shared_widgets.dart';
+import '../../shared/extensions.dart';
+import '../../shared/widgets.dart';
 import 'views/game_view.dart';
+import 'views/wait_for_players_view.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({Key? key, required this.gameId}) : super(key: key);
@@ -21,12 +22,12 @@ class GameScreen extends StatelessWidget {
 
     return user.currentGameId != null && user.currentGameId == gameId
         ? _JoinedGameScreen(gameId: gameId)
-        : _JoiningGameScreen(gameId: gameId);
+        : _JoinGameScreen(gameId: gameId);
   }
 }
 
-class _JoiningGameScreen extends StatelessWidget {
-  const _JoiningGameScreen({Key? key, required this.gameId}) : super(key: key);
+class _JoinGameScreen extends StatelessWidget {
+  const _JoinGameScreen({Key? key, required this.gameId}) : super(key: key);
   final String gameId;
 
   @override
@@ -126,7 +127,9 @@ class _JoinedGameScreen extends StatelessWidget {
               ],
             ),
             applyPadding: false,
-            body: GameView(game: game),
+            body: !game.hasStarted || game.players.size < 2
+                ? WaitForPlayersView(game: game)
+                : GameView(game: game),
           );
         }
       },

@@ -3,6 +3,9 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+import 'theme.dart';
 
 /// A Scaffold with a pre-defined max width and padding.
 class BasicScaffold extends StatelessWidget {
@@ -177,5 +180,173 @@ class ProfilePicture extends StatelessWidget {
             backgroundImage: CachedNetworkImageProvider(photoURL),
             backgroundColor: Colors.transparent,
           );
+  }
+}
+
+/// Use context.showModalBottomSheet to show it.
+class MyModalBottomSheet extends StatelessWidget {
+  const MyModalBottomSheet({
+    Key? key,
+    this.showHandle = true,
+    required this.child,
+  }) : super(key: key);
+
+  final bool showHandle;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).dialogBackgroundColor,
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 0),
+        padding: EdgeInsets.only(
+          left: 8,
+          right: 8,
+          top: 8,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 8,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showHandle)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 8),
+                child: Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    width: 45,
+                    height: 4,
+                  ),
+                ),
+              ),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ExpansionCard extends HookWidget {
+  const ExpansionCard({
+    Key? key,
+    required this.header,
+    this.headerPadding = const EdgeInsets.all(8),
+    required this.body,
+    this.bodyPadding = const EdgeInsets.all(8),
+  }) : super(key: key);
+
+  final Widget header;
+  final EdgeInsets headerPadding;
+  final Widget body;
+  final EdgeInsets bodyPadding;
+
+  @override
+  Widget build(BuildContext context) {
+    final isExpanded = useState(false);
+
+    return Card(
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: borderRadius,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: headerPadding,
+                    child: header,
+                  ),
+                ),
+                ExpandIcon(
+                  isExpanded: isExpanded.value,
+                  onPressed: (_) => isExpanded.value = !isExpanded.value,
+                ),
+              ],
+            ),
+            onTap: () => isExpanded.value = !isExpanded.value,
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox(height: 0.0),
+            secondChild: Padding(
+              padding: bodyPadding,
+              child: body,
+            ),
+            firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
+            secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
+            sizeCurve: Curves.fastOutSlowIn,
+            crossFadeState: isExpanded.value
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BigGradientButton extends StatelessWidget {
+  const BigGradientButton({
+    Key? key,
+    required this.gradientColors,
+    required this.label,
+    required this.onTap,
+    required this.icon,
+  }) : super(key: key);
+
+  final List<Color> gradientColors;
+  final String label;
+  final VoidCallback onTap;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(9),
+        gradient: LinearGradient(
+          colors: gradientColors,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(9),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .scaffoldBackgroundColor
+                        .withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Icon(icon),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
