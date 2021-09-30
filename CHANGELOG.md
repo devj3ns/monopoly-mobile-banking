@@ -1,3 +1,12 @@
+# 0.8.0
+- Improve UI & UX
+- Web: Fix Sign in with Google
+- Show confetti when getting free parking money
+- Add ability to change the username
+- Delete user account when signing out of anonymous account
+- Create QR Code for joining the game
+- Save results of all played games
+
 # 0.7.0
 - Improve app info screen (Help & feedback button, explanation of the app, and link to my website)
 - Add workaround for network time error
