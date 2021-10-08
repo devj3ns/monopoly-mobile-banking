@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="dev.jensbecker.monopoly_banking">
    <application
-        android:label="Monopoly Banking"
+        android:label="Monopoly Mobile Banking"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -1,11 +1,11 @@
 {
-    "name": "Monopoly Banking",
-    "short_name": "Monopoly Banking",
+    "name": "Monopoly Mobile Banking",
+    "short_name": "Monopoly Mobile Banking",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A cloudbased monopoly banking app.",
+    "description": "A cloud-based monopoly mobile banking app which replaces the play money of every Monopoly board game.",
     "prefer_related_applications": false,
     "icons": [
         {
