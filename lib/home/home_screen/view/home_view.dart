@@ -236,7 +236,7 @@ class _PlayedGamesSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'Games Played: ${user.gamesPlayed} • Games Won: ${user.gamesWon}\n Total playing time: ${user.totalPlayingTime.format()}',
+          'Played: ${user.gamesPlayed} • Won: ${user.gamesWon}\n Total Playtime: ${user.totalPlayingTime.format()}',
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 5),
