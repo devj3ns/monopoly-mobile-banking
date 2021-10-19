@@ -1,0 +1,17 @@
+name: shared
+description: Package whith shared helpers (extensions etc.).
+version: 1.0.0
+
+publish_to: none
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  fleasy: ^0.6.0
+  firebase_core: ^1.7.0
+  cloud_firestore: ^2.5.3
+  deep_pick: ^0.9.0

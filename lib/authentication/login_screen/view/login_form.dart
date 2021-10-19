@@ -76,7 +76,7 @@ class _SignInWithGoogleButton extends StatelessWidget {
         child: SignInButton(
           Buttons.Google,
           text: 'Sign in with Google',
-          shape: RoundedRectangleBorder(borderRadius: borderRadius),
+          shape: const RoundedRectangleBorder(borderRadius: borderRadius),
           onPressed: () => context.read<LoginCubit>().signInWithGoogle(),
         ),
       ),

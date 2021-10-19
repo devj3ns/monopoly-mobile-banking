@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../shared/extensions.dart';
 import '../../../../shared/widgets.dart';
-import 'animated_balance_text.dart';
+import 'animated_money_balance_text.dart';
 
 class ListTileCard extends StatelessWidget {
   const ListTileCard({

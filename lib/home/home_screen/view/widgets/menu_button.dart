@@ -14,8 +14,13 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void onTap() {
+      Navigator.of(context).pop();
+      onPressed();
+    }
+
     return InkWell(
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: const BorderRadius.all(Radius.circular(5)),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
@@ -26,10 +31,7 @@ class MenuButton extends StatelessWidget {
           ],
         ),
       ),
-      onTap: () {
-        Navigator.of(context).pop();
-        onPressed();
-      },
+      onTap: onTap,
     );
   }
 }

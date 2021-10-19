@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  fleasy: ^0.5.0
+  fleasy: ^0.6.0
   firebase_core: ^1.7.0
   cloud_firestore: ^2.5.3
   equatable: ^2.0.3
@@ -21,3 +21,6 @@ dependencies:
 
   user_repository:
     path: ../user_repository
+
+  shared:
+    path: ../shared

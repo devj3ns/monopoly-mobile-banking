@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:math' hide log;
 
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:deep_pick/deep_pick.dart';
 import 'package:ntp/ntp.dart';
 import 'package:user_repository/user_repository.dart';
 
@@ -39,6 +38,9 @@ class BankingRepository {
             fromFirestore: (snap, _) => Game.fromSnapshot(snap),
             toFirestore: (model, _) => model.toDocument(),
           );
+
+  // ### Constants:
+  static const maxPlayersPerGame = 6;
 
   // #### Public methods:
 
@@ -80,7 +82,7 @@ class BankingRepository {
           return JoinGameResult.hasAlreadyStarted;
         }
 
-        if (game.players.size >= 6) {
+        if (game.players.size >= maxPlayersPerGame) {
           return JoinGameResult.tooManyPlayers;
         }
       }
@@ -297,29 +299,6 @@ class BankingRepository {
       final gameResult = game.toGameResult();
 
       await userRepository.addGameResult(gameResult);
-    }
-  }
-}
-
-extension TimestampPick on Pick {
-  Timestamp asFirestoreTimeStampOrThrow() {
-    final value = required().value;
-    if (value is Timestamp) {
-      return value;
-    }
-    if (value is int) {
-      return Timestamp.fromMillisecondsSinceEpoch(value);
-    }
-    throw PickException(
-        "value $value at $debugParsingExit can't be casted to Timestamp");
-  }
-
-  Timestamp? asFirestoreTimeStampOrNull() {
-    if (value == null) return null;
-    try {
-      return asFirestoreTimeStampOrThrow();
-    } catch (_) {
-      return null;
     }
   }
 }

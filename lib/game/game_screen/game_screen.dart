@@ -53,7 +53,8 @@ class _JoinGameScreen extends StatelessWidget {
               icon = Icons.wifi_off_rounded;
               break;
             case JoinGameResult.tooManyPlayers:
-              infoText = 'There are already 6 players connected to this game.';
+              infoText =
+                  'There are already ${BankingRepository.maxPlayersPerGame} players connected to this game.';
               icon = FontAwesomeIcons.usersSlash;
               break;
             case JoinGameResult.hasAlreadyStarted:

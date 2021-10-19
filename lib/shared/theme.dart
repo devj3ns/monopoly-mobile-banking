@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-final borderRadius = BorderRadius.circular(7);
+const borderRadius = BorderRadius.all(Radius.circular(7));
 
 final _buttonShape = MaterialStateProperty.all<RoundedRectangleBorder>(
-    RoundedRectangleBorder(borderRadius: borderRadius));
-final _cardShape = RoundedRectangleBorder(borderRadius: borderRadius);
+    const RoundedRectangleBorder(borderRadius: borderRadius));
+const _cardShape = RoundedRectangleBorder(borderRadius: borderRadius);
 
 const _lightPrimaryColor = Colors.blueAccent;
 const _lightSecondaryColor = Color(0xff4e82bf);
@@ -22,10 +22,10 @@ final lightTheme = ThemeData(
   appBarTheme: const AppBarTheme(backgroundColor: _lightPrimaryColor),
 
   /// #### Dialog & Card shape: ####
-  dialogTheme: DialogTheme(
+  dialogTheme: const DialogTheme(
     shape: _cardShape,
   ),
-  cardTheme: CardTheme(
+  cardTheme: const CardTheme(
     shape: _cardShape,
   ),
 
@@ -70,10 +70,10 @@ final darkTheme = ThemeData(
   appBarTheme: const AppBarTheme(backgroundColor: _darkPrimaryColor),
 
   /// #### Dialog & Card shape: ####
-  dialogTheme: DialogTheme(
+  dialogTheme: const DialogTheme(
     shape: _cardShape,
   ),
-  cardTheme: CardTheme(
+  cardTheme: const CardTheme(
     shape: _cardShape,
   ),
 

@@ -10,7 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../authentication/cubit/auth_cubit.dart';
 import '../../../shared/extensions.dart';
 import '../../../shared/widgets.dart';
-import 'widgets/animated_balance_text.dart';
+import 'widgets/animated_money_balance_text.dart';
 import 'widgets/bankrupt_overlay.dart';
 import 'widgets/list_tile_card.dart';
 import 'widgets/no_connection_overlay.dart';
@@ -260,7 +260,7 @@ class _ReceiveSection extends StatelessWidget {
                       ? () => context.showInfoFlashbar(
                             message:
                                 'Sorry, at the moment there is no free parking money.',
-                            duration: 2,
+                            duration: const Duration(seconds: 2),
                           )
                       : () => context.showModalBottomSheet(
                             child: TransactionForm(

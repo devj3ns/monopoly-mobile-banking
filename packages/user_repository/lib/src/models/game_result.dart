@@ -1,6 +1,6 @@
 import 'package:deep_pick/deep_pick.dart';
 import 'package:equatable/equatable.dart';
-import 'package:user_repository/src/user_repository.dart';
+import 'package:shared/shared.dart';
 
 /// The summarized result of a game.
 class GameResult extends Equatable {

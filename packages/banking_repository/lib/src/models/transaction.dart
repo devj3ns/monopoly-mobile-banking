@@ -1,7 +1,6 @@
 import 'package:deep_pick/deep_pick.dart';
 import 'package:equatable/equatable.dart';
-
-import '../banking_repository.dart';
+import 'package:shared/shared.dart';
 
 enum TransactionType {
   fromBank,

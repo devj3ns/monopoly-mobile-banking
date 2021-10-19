@@ -216,7 +216,7 @@ class MyModalBottomSheet extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: const BorderRadius.all(Radius.circular(25)),
                     ),
                     width: 45,
                     height: 4,
@@ -308,7 +308,7 @@ class BigGradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: const BorderRadius.all(Radius.circular(9)),
         gradient: LinearGradient(
           colors: gradientColors,
         ),
@@ -317,7 +317,7 @@ class BigGradientButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: const BorderRadius.all(Radius.circular(9)),
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Row(
@@ -338,7 +338,7 @@ class BigGradientButton extends StatelessWidget {
                     color: Theme.of(context)
                         .scaffoldBackgroundColor
                         .withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius: const BorderRadius.all(Radius.circular(9)),
                   ),
                   child: Icon(icon),
                 ),
