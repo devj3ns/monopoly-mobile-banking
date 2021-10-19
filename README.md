@@ -3,7 +3,7 @@
 
 This app replaces the play money of every Monopoly board game. Every player can see his money balance on his phone and make transactions through the app easily.
 
-![Showcase GIF](https://user-images.githubusercontent.com/20878653/132872571-40720d23-28cc-4cae-a87b-c7e7e1bc531d.gif)
+![App Showcase Image](https://user-images.githubusercontent.com/20878653/137903004-fd057f36-bee9-48ce-84a8-1923a55ce6ef.png)
 
 A demo is available on [monopoly-banking.web.app](https://monopoly-banking.web.app/).
 
