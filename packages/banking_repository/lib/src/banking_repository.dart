@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:math' hide log;
 
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:ntp/ntp.dart';
+import 'package:shared/shared.dart';
 import 'package:user_repository/user_repository.dart';
 
 import 'models/models.dart';
@@ -16,6 +16,8 @@ enum JoinGameResult {
   hasAlreadyStarted,
   failure
 }
+
+enum MakeTransactionResult { none, success, failure }
 
 class BankingRepository {
   BankingRepository({
@@ -217,71 +219,73 @@ class BankingRepository {
   }
 
   /// Transfers money.
-  Future<void> makeTransaction({
+  Future<MakeTransactionResult> makeTransaction({
     required String gameId,
     required TransactionType transactionType,
     int? amount,
     String? toUserId,
   }) async {
-    // todo: Find a better solution for this. FieldValue.serverTimestamp() would be ideal but seems a bit complicated because the data is nested.
-    // When using the web app and cellular network running NTP.now() fails.
-    // This ist just a temporary fix:
-    var timestamp = DateTime.now();
     try {
-      timestamp = await NTP.now();
-    } catch (_) {}
+      final networkTime = await getNetworkTime();
 
-    final game = (await _gamesCollection.doc(gameId).get()).data()!;
+      final game = (await _gamesCollection.doc(gameId).get()).data()!;
 
-    late final Transaction transaction;
-    switch (transactionType) {
-      case TransactionType.fromBank:
-        assert(amount != null);
-        transaction = Transaction.fromBank(
-            toUserId: userRepository.user.id,
-            amount: amount!,
-            timestamp: timestamp);
-        break;
-      case TransactionType.toBank:
-        assert(amount != null);
-        transaction = Transaction.toBank(
-            fromUserId: userRepository.user.id,
-            amount: amount!,
-            timestamp: timestamp);
-        break;
-      case TransactionType.toPlayer:
-        assert(toUserId != null);
-        assert(amount != null);
-        transaction = Transaction.toPlayer(
-            fromUserId: userRepository.user.id,
-            toUserId: toUserId!,
-            amount: amount!,
-            timestamp: timestamp);
-        break;
-      case TransactionType.toFreeParking:
-        assert(amount != null);
-        transaction = Transaction.toFreeParking(
-            fromUserId: userRepository.user.id,
-            amount: amount!,
-            timestamp: timestamp);
-        break;
-      case TransactionType.fromFreeParking:
-        transaction = Transaction.fromFreeParking(
-            toUserId: userRepository.user.id,
-            freeParkingMoney: game.freeParkingMoney,
-            timestamp: timestamp);
-        break;
-      case TransactionType.fromSalary:
-        transaction = Transaction.fromSalary(
-            toUserId: userRepository.user.id,
-            salary: game.salary,
-            timestamp: timestamp);
-        break;
+      late final Transaction transaction;
+      switch (transactionType) {
+        case TransactionType.fromBank:
+          assert(amount != null);
+          transaction = Transaction.fromBank(
+              toUserId: userRepository.user.id,
+              amount: amount!,
+              timestamp: networkTime);
+          break;
+        case TransactionType.toBank:
+          assert(amount != null);
+          transaction = Transaction.toBank(
+              fromUserId: userRepository.user.id,
+              amount: amount!,
+              timestamp: networkTime);
+          break;
+        case TransactionType.toPlayer:
+          assert(toUserId != null);
+          assert(amount != null);
+          transaction = Transaction.toPlayer(
+              fromUserId: userRepository.user.id,
+              toUserId: toUserId!,
+              amount: amount!,
+              timestamp: networkTime);
+          break;
+        case TransactionType.toFreeParking:
+          assert(amount != null);
+          transaction = Transaction.toFreeParking(
+              fromUserId: userRepository.user.id,
+              amount: amount!,
+              timestamp: networkTime);
+          break;
+        case TransactionType.fromFreeParking:
+          transaction = Transaction.fromFreeParking(
+              toUserId: userRepository.user.id,
+              freeParkingMoney: game.freeParkingMoney,
+              timestamp: networkTime);
+          break;
+        case TransactionType.fromSalary:
+          transaction = Transaction.fromSalary(
+              toUserId: userRepository.user.id,
+              salary: game.salary,
+              timestamp: networkTime);
+          break;
+      }
+
+      final updatedGame = await game.makeTransaction(transaction);
+
+      await _gamesCollection.doc(game.id).set(updatedGame);
+
+      return MakeTransactionResult.success;
+    } catch (e) {
+      log('Unknown exception in makeTransaction(): $e');
+
+      return MakeTransactionResult.failure;
     }
-
-    final updatedGame = await game.makeTransaction(transaction);
-
-    await _gamesCollection.doc(game.id).set(updatedGame);
   }
 
   /// Creates a [GameResult] object from the game and adds it to the users playedGameResults list IF it isn't already!

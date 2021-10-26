@@ -104,19 +104,23 @@ class _MoneyAmountInput extends HookWidget {
             transactionType == TransactionType.toPlayer ||
             transactionType == TransactionType.toFreeParking);
 
-    void submitForm() {
+    void submitForm() async {
       if (_formKey.currentState!.validate()) {
-        context.read<BankingRepository>().makeTransaction(
+        amountController.clear();
+        amount.value = 0;
+
+        context.popPage();
+
+        final result = await context.read<BankingRepository>().makeTransaction(
               gameId: game.id,
               transactionType: transactionType,
               amount: amount.value,
               toUserId: toUserId,
             );
 
-        amountController.clear();
-        amount.value = 0;
-
-        context.popPage();
+        if (result == MakeTransactionResult.failure) {
+          await context.showErrorFlashbar(message: 'Transaction failed.');
+        }
       }
     }
 
@@ -182,16 +186,20 @@ class _TextWithConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void submitForm() {
-      context.read<BankingRepository>().makeTransaction(
+    void submitForm() async {
+      context.popPage();
+
+      showConfetti?.call();
+
+      final result = await context.read<BankingRepository>().makeTransaction(
             gameId: game.id,
             transactionType: transactionType,
             toUserId: toUserId,
           );
 
-      context.popPage();
-
-      showConfetti?.call();
+      if (result == MakeTransactionResult.failure) {
+        await context.showErrorFlashbar(message: 'Transaction failed.');
+      }
     }
 
     String getConfirmationText() {

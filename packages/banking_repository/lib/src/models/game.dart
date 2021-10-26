@@ -4,7 +4,6 @@ import 'package:deep_pick/deep_pick.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:kt_dart/kt.dart';
-import 'package:ntp/ntp.dart';
 import 'package:shared/shared.dart';
 import 'package:user_repository/user_repository.dart';
 
@@ -321,18 +320,12 @@ class Game extends Equatable {
     final _transactionHistory = transactionHistory.toMutableList().asList()
       ..add(transaction);
 
-    // todo: Find a better solution for this. FieldValue.serverTimestamp() would be ideal but seems a bit complicated because the data is nested.
-    // When using the web app and cellular network running NTP.now() fails.
-    // This ist just a temporary fix:
-    var timestamp = DateTime.now();
-    try {
-      timestamp = await NTP.now();
-    } catch (_) {}
+    final networkTime = await getNetworkTime();
 
     // Update the players bankrupt timestamp if necessary
     _players = _players.map((player) {
       return player.isBankrupt && player.bankruptTimestamp == null
-          ? player.copyWith(bankruptTimestamp: timestamp)
+          ? player.copyWith(bankruptTimestamp: networkTime)
           : player;
     }).toList();
 
