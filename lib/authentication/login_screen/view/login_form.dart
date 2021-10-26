@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:routemaster/routemaster.dart';
 
+import '../../../shared/extensions.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/widgets.dart';
 import '../cubit/login_cubit.dart';
@@ -42,6 +44,22 @@ class LoginForm extends StatelessWidget {
                     ],
                   );
           },
+        ),
+        const Expanded(child: SizedBox()),
+        TextButton(
+          child: IconText(
+            icon: Icon(
+              Icons.info_outline_rounded,
+              color: context.isDarkMode ? Colors.white70 : Colors.black54,
+              size: 21,
+            ),
+            text: Text(
+              'About the app',
+              style: TextStyle(
+                  color: context.isDarkMode ? Colors.white70 : Colors.black54),
+            ),
+          ),
+          onPressed: () => Routemaster.of(context).push('/about'),
         ),
       ],
     );

@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../shared/extensions.dart';
 import '../../shared/widgets.dart';
 
 class AppInfoScreen extends HookWidget {
@@ -51,15 +52,15 @@ class AppInfoScreen extends HookWidget {
             '\n\n'
             'How to use this app:\n'
             ' 1. All players have to install the app on their phone.\n'
-            ' 2. One player creates a new game/lobby.\n'
-            ' 3. All players connect to this game/lobby.\n'
-            ' 4. Now all transactions can be done via the app, e.g. sending a player money or getting money from the bank.\n'
+            ' 2. One player creates a new game.\n'
+            ' 3. All players connect to this game.\n'
+            ' 4. Now all transactions can be done via the app.\n'
             ' 5. Have fun :)\n'
             '\n\n'
             'NOTE: This project is still in early stages. If you have ideas, find bugs or have suggestions use the buttons below:',
             textAlign: TextAlign.justify,
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -91,14 +92,26 @@ class AppInfoScreen extends HookWidget {
             ],
           ),
           const Expanded(child: SizedBox()),
-          OutlinedButton(
-            child: const Text('Licences'),
+          TextButton(
+            child: IconText(
+              icon: Icon(
+                Icons.description_outlined,
+                color: context.isDarkMode ? Colors.white70 : Colors.black54,
+                size: 21,
+              ),
+              text: Text(
+                'Licences',
+                style: TextStyle(
+                    color:
+                        context.isDarkMode ? Colors.white70 : Colors.black54),
+              ),
+            ),
             onPressed: () => showLicensePage(
               context: context,
               applicationVersion: 'Version $appVersion',
               applicationLegalese: 'Made by Jens Becker',
             ),
-          )
+          ),
         ],
       ),
     );
