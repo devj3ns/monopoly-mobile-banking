@@ -44,7 +44,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "dev.jensbecker.monopoly_banking"
+        applicationId "dev.jensbecker.monopoly_mobile_banking"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
