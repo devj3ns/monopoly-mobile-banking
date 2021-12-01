@@ -27,8 +27,7 @@ class CreateGameForm extends StatelessWidget {
           } else {
             context
               ..showErrorFlashbar()
-              ..read<CreateGameCubit>()
-                  .emit(state.copyWith(joiningFailed: false));
+              ..read<CreateGameCubit>().resetJoiningFailed();
           }
         },
         child: const CreateGameView(),

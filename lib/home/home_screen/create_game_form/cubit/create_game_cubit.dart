@@ -23,6 +23,10 @@ class CreateGameCubit extends Cubit<CreateGameState> {
     emit(state.copyWith(startingCapital: startingCapital));
   }
 
+  void resetJoiningFailed() {
+    emit(state.copyWith(joiningFailed: false));
+  }
+
   void onFormSubmitted() async {
     emit(state.copyWith(isSubmitting: true, joiningFailed: false));
 

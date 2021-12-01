@@ -10,15 +10,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cloud_firestore: ^2.5.4
-  firebase_auth: ^3.1.4
-  firebase_core: ^1.8.0
-  google_sign_in: ^5.2.0
+  cloud_firestore: ^3.1.0
+  firebase_auth: ^3.2.0
+  firebase_core: ^1.10.0
+  google_sign_in: ^5.2.1
   equatable: ^2.0.3
-  rxdart: ^0.27.2
+  rxdart: ^0.27.3
   fleasy: ^0.6.0
-  deep_pick: ^0.9.0
-  kt_dart: ^0.9.1
+  deep_pick: ^0.10.0
+  kt_dart: ^0.10.0
 
   shared:
     path: ../shared

@@ -29,6 +29,6 @@ class LoginCubit extends Cubit<LoginState> {
 
     final result = await _userRepository.signInAnonymously();
 
-    emit(state.copyWith(isSubmitting: false, signInResult: result));
+    //emit(state.copyWith(isSubmitting: false, signInResult: result));
   }
 }

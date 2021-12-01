@@ -19,8 +19,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  if (kDebugMode) Bloc.observer = _AppBlocObserver();
-
   // Make background of gesture navigation bar transparent:
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -34,7 +32,10 @@ void main() async {
   );
   await userRepository.getOpeningUser();
 
-  runApp(_Providers(userRepository: userRepository));
+  BlocOverrides.runZoned(
+    () => runApp(_Providers(userRepository: userRepository)),
+    blocObserver: kDebugMode ? _AppBlocObserver() : null,
+  );
 }
 
 class _Providers extends StatelessWidget {
