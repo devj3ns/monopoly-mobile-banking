@@ -1,4 +1,3 @@
-import 'package:banking_repository/banking_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
 import 'package:deep_pick/deep_pick.dart';
 import 'package:equatable/equatable.dart';
@@ -7,6 +6,7 @@ import 'package:kt_dart/kt.dart';
 import 'package:shared/shared.dart';
 import 'package:user_repository/user_repository.dart';
 
+import '../banking_repository.dart';
 import 'models.dart';
 
 class Game extends Equatable {

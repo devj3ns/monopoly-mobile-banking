@@ -7,7 +7,6 @@ import 'package:fleasy/fleasy.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:user_repository/src/models/game_result.dart';
 
 import 'models/models.dart';
 
