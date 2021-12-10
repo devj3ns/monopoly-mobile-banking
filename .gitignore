@@ -94,4 +94,4 @@ app.*.symbols
 *.lock
 lib/generated_plugin_registrant.dart
 .firebase/
-android/app/google-services.json
+google-services.json

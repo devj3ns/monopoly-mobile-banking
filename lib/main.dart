@@ -12,8 +12,6 @@ import 'package:user_repository/user_repository.dart';
 import 'app.dart';
 import 'authentication/cubit/auth_cubit.dart';
 
-bool kUseFirebaseEmulator = kDebugMode;
-
 void main() async {
   Routemaster.setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +25,7 @@ void main() async {
     ),
   );
 
-  final userRepository = UserRepository(
-    useFirebaseEmulator: kUseFirebaseEmulator,
-  );
+  final userRepository = UserRepository();
   await userRepository.getOpeningUser();
 
   BlocOverrides.runZoned(
@@ -49,10 +45,7 @@ class _Providers extends StatelessWidget {
       child: BlocProvider(
         create: (_) => AuthCubit(userRepository: userRepository),
         child: RepositoryProvider(
-          create: (_) => BankingRepository(
-            userRepository: userRepository,
-            useFirebaseEmulator: kUseFirebaseEmulator,
-          ),
+          create: (_) => BankingRepository(userRepository: userRepository),
           child: const App(),
         ),
       ),

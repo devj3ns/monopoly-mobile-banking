@@ -21,15 +21,9 @@ enum MakeTransactionResult { none, success, failure }
 
 class BankingRepository {
   BankingRepository({
-    required this.useFirebaseEmulator,
     required this.userRepository,
-  }) {
-    if (useFirebaseEmulator) {
-      _firebaseFirestore.useFirestoreEmulator('localhost', 8080);
-    }
-  }
+  });
 
-  final bool useFirebaseEmulator;
   final UserRepository userRepository;
 
   // #### Firebase Collection references:

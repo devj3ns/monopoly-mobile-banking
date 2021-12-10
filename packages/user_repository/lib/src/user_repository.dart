@@ -26,16 +26,9 @@ enum SetUsernameResult {
 }
 
 class UserRepository {
-  UserRepository({required this.useFirebaseEmulator}) {
+  UserRepository() {
     _user = _authUserChanges();
-
-    if (useFirebaseEmulator) {
-      _firebaseFirestore.useFirestoreEmulator('localhost', 8080);
-      _firebaseAuth.useAuthEmulator('localhost', 9099);
-    }
   }
-
-  final bool useFirebaseEmulator;
 
   // ### Firebase instances: ###
   static final _firebaseAuth = FirebaseAuth.instance;
@@ -122,6 +115,8 @@ class UserRepository {
   ///
   /// If it's the first login, the user is also created in the database.
   /// For its username the displayName of the google account is used. If that is already forgiven, he has to choose another name.
+  ///
+  /// Note: This does not work with the staging Firebase project.
   Future<SignInResult> signInWithGoogle() async {
     try {
       late UserCredential userCredential;

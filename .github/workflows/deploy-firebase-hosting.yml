@@ -1,4 +1,4 @@
-name: Build and deploys app to Firebase Hosting when a release is published.
+name: Build and deploys app to Firebase Hosting (https://monopoly-banking.web.app/) when a release is published.
 
 on:
   release:

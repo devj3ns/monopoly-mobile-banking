@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "monopoly-banking"
-  }
+    "default": "monopoly-banking-staging",
+    "production": "monopoly-banking"
+  },
+  "targets": {}
 }
