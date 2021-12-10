@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
 
   fleasy: ^0.6.0
-  firebase_core: ^1.10.0
-  cloud_firestore: ^3.1.0
+  firebase_core: ^1.10.5
+  cloud_firestore: ^3.1.4
   equatable: ^2.0.3
   kt_dart: ^0.10.0
   deep_pick: ^0.10.0
