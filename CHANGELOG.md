@@ -1,3 +1,10 @@
+# 0.8.1
+- Change app name to "Monopoly Mobile Banking"
+- Change app id to dev.jensbecker.monopoly_mobile_banking
+- Login screen: Add button to app info screen
+- Always use network time & show flashbar when a transaction fails
+- Improve text in statistics section
+
 # 0.8.0
 - Improve UI & UX
 - Web: Fix Sign in with Google

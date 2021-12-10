@@ -1,8 +1,8 @@
 name: monopoly_banking
-description: A cloud-based monopoly banking app.
+description: A cloud-based monopoly mobile banking app.
 publish_to: 'none'
 
-version: 0.8.0+11
+version: 0.8.1+12
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
