@@ -1,0 +1,24 @@
+name: Build & deploy to Firebase Hosting (production) on new release.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build web
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING }}'
+          channelId: live
+          projectId: monopoly-banking
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels

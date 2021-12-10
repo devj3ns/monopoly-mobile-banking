@@ -1,4 +1,4 @@
-name: Build and deploys app to Firebase Hosting (https://monopoly-banking.web.app/) when a release is published.
+name: Build & deploy to Firebase Hosting (staging) on new release.
 
 on:
   release:
@@ -17,8 +17,8 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING_STAGING }}'
           channelId: live
-          projectId: monopoly-banking
+          projectId: monopoly-banking-staging
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
