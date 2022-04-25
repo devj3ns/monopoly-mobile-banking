@@ -27,7 +27,7 @@ dependencies:
   url_launcher: ^6.0.17
   share_plus: ^4.0.3
   cached_network_image: ^3.2.0
-  routemaster: ^0.9.5
+  routemaster: ^1.0.0
   qr_flutter: ^4.0.0
 
   user_repository:
