@@ -24,6 +24,9 @@ class App extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routerDelegate: routemasterDelegate,
       routeInformationParser: const RoutemasterParser(),
+      scrollBehavior: const ScrollBehavior(
+        androidOverscrollIndicator: AndroidOverscrollIndicator.stretch,
+      ),
     );
   }
 }
