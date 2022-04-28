@@ -1,11 +1,9 @@
 import 'package:fleasy/fleasy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:routemaster/routemaster.dart';
 
 import '../../../shared/extensions.dart';
-import '../../../shared/theme.dart';
 import '../../../shared/widgets.dart';
 import '../cubit/login_cubit.dart';
 
@@ -86,13 +84,24 @@ class _SignInWithGoogleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      //ignore: avoid-wrapping-in-padding
       child: Padding(
         padding: const EdgeInsets.only(top: Insets.s),
-        child: SignInButton(
-          Buttons.Google,
-          text: 'Sign in with Google',
-          shape: const RoundedRectangleBorder(borderRadius: borderRadius),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(primary: Colors.white),
+          child: const IconText(
+            text: Text(
+              'Sign in with Google',
+              style: TextStyle(color: Colors.black54),
+            ),
+            gap: 8,
+            icon: Image(
+              image: AssetImage(
+                'assets/google_logo.png',
+              ),
+              height: 17,
+              width: 17,
+            ),
+          ),
           onPressed: () => context.read<LoginCubit>().signInWithGoogle(),
         ),
       ),
