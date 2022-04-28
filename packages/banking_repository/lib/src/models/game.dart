@@ -100,6 +100,8 @@ class Game extends Equatable {
     if (nonBankruptPlayers.size == 1 && players.size > 1) {
       return nonBankruptPlayers[0];
     }
+
+    return null;
   }
 
   /// Whether the game has a winner.

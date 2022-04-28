@@ -40,7 +40,8 @@ class AppInfoScreen extends HookWidget {
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.primary),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => launch('https://jensbecker.dev'),
+                    ..onTap =
+                        () => launchUrl(Uri.parse('https://jensbecker.dev')),
                 ),
               ],
             ),
@@ -69,12 +70,12 @@ class AppInfoScreen extends HookWidget {
                   text: Text('Get help'),
                   gap: 7,
                   icon: FaIcon(
-                    FontAwesomeIcons.questionCircle,
+                    FontAwesomeIcons.circleQuestion,
                     size: 17,
                   ),
                 ),
-                onPressed: () => launch(
-                    'mailto:info@jensbecker.dev?subject=[Help] Monopoly Mobile Banking App'),
+                onPressed: () => launchUrl(Uri.parse(
+                    'mailto:info@jensbecker.dev?subject=[Help] Monopoly Mobile Banking App')),
               ),
               const SizedBox(width: 15),
               ElevatedButton(
@@ -86,8 +87,10 @@ class AppInfoScreen extends HookWidget {
                     size: 17,
                   ),
                 ),
-                onPressed: () => launch(
-                    'mailto:info@jensbecker.dev?subject=[Feedback] Monopoly Mobile Banking App'),
+                onPressed: () => launchUrl(
+                  Uri.parse(
+                      'mailto:info@jensbecker.dev?subject=[Feedback] Monopoly Mobile Banking App'),
+                ),
               ),
             ],
           ),

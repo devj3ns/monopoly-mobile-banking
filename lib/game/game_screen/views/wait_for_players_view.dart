@@ -72,8 +72,8 @@ class WaitForPlayersView extends StatelessWidget {
                     .map(
                       (player) => ListTileCard(
                         icon: player.isGameCreator
-                            ? FontAwesomeIcons.userCog
-                            : FontAwesomeIcons.userAlt,
+                            ? FontAwesomeIcons.userGear
+                            : FontAwesomeIcons.userLarge,
                         text: player.userId == user.id
                             ? '${player.name} (You)'
                             : player.name,

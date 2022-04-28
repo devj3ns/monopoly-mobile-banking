@@ -132,7 +132,7 @@ class _PaySection extends StatelessWidget {
       children: [
         const IconText(
           icon: FaIcon(
-            FontAwesomeIcons.handHoldingUsd,
+            FontAwesomeIcons.handHoldingDollar,
             size: 14,
           ),
           gap: 7,
@@ -180,7 +180,7 @@ class _PaySection extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: ListTileCard(
-                  icon: FontAwesomeIcons.carAlt,
+                  icon: FontAwesomeIcons.carRear,
                   text: 'Free Parking',
                   moneyBalance: game.freeParkingMoney,
                   onTap: () => context.showModalBottomSheet(
@@ -254,7 +254,7 @@ class _ReceiveSection extends StatelessWidget {
             if (game.enableFreeParkingMoney)
               Expanded(
                 child: ListTileCard(
-                  icon: FontAwesomeIcons.carAlt,
+                  icon: FontAwesomeIcons.carRear,
                   text: 'Free Parking',
                   onTap: game.freeParkingMoney <= 0
                       ? () => context.showInfoFlashbar(

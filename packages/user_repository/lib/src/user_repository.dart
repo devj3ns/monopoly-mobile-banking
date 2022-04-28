@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
-import 'package:fleasy/fleasy.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
@@ -120,7 +120,7 @@ class UserRepository {
   Future<SignInResult> signInWithGoogle() async {
     try {
       late UserCredential userCredential;
-      if (DeviceType.isWeb) {
+      if (kIsWeb) {
         // Use signInWithPopup instead of signInWithRedirect, because it's easier to implement
         userCredential =
             await _firebaseAuth.signInWithPopup(GoogleAuthProvider());

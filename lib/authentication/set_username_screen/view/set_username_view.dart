@@ -35,9 +35,7 @@ class SetUsernameView extends StatelessWidget {
           SizedBox(height: context.screenHeight * 0.2),
           Center(
             child: FaIcon(
-              changeUsername
-                  ? FontAwesomeIcons.userEdit
-                  : FontAwesomeIcons.user,
+              changeUsername ? FontAwesomeIcons.userPen : FontAwesomeIcons.user,
               size: 50,
             ),
           ),

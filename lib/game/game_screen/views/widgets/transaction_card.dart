@@ -93,10 +93,10 @@ class TransactionCard extends StatelessWidget {
         case TransactionType.toBank:
           return FontAwesomeIcons.solidBuilding;
         case TransactionType.toPlayer:
-          return FontAwesomeIcons.userFriends;
+          return FontAwesomeIcons.userGroup;
         case TransactionType.toFreeParking:
         case TransactionType.fromFreeParking:
-          return FontAwesomeIcons.carAlt;
+          return FontAwesomeIcons.carRear;
         case TransactionType.fromSalary:
           return Icons.work_rounded;
       }
