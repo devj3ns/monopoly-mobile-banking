@@ -28,6 +28,7 @@ dependencies:
   cached_network_image: ^3.2.3
   routemaster: ^1.0.1
   qr_flutter: ^4.0.0
+  firebase_core: ^2.4.0
 
   user_repository:
     path: packages/user_repository

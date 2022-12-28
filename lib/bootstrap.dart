@@ -1,22 +1,16 @@
 import 'dart:developer';
 
 import 'package:banking_repository/banking_repository.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:user_repository/user_repository.dart';
 
 import 'app.dart';
 import 'authentication/cubit/auth_cubit.dart';
 
-void main() async {
-  Routemaster.setPathUrlStrategy();
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
+void bootstrap() async {
   // Make background of gesture navigation bar transparent:
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
