@@ -106,17 +106,17 @@ class _MoneyAmountInput extends HookWidget {
 
     void submitForm() async {
       if (_formKey.currentState!.validate()) {
-        amountController.clear();
-        amount.value = 0;
-
-        context.popPage();
-
         final result = await context.read<BankingRepository>().makeTransaction(
               gameId: game.id,
               transactionType: transactionType,
               amount: amount.value,
               toUserId: toUserId,
             );
+
+        amountController.clear();
+        amount.value = 0;
+
+        context.popPage();
 
         if (result == MakeTransactionResult.failure) {
           await context.showErrorFlashbar(message: 'Transaction failed.');
