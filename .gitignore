@@ -92,6 +92,5 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 *.lock
-lib/generated_plugin_registrant.dart
 .firebase/
 google-services.json

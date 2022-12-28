@@ -1,3 +1,9 @@
+# 0.8.2
+- Fix: Transaction amount always 0
+- Use android stretch overscroll
+- Move routes to separate/own file
+- Use latest firebase initialization method
+
 # 0.8.1
 - Change app name to "Monopoly Mobile Banking"
 - Change app id to dev.jensbecker.monopoly_mobile_banking
