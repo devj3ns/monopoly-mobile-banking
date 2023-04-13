@@ -1,22 +1,22 @@
 {
-    "name": "Monopoly Mobile Banking",
-    "short_name": "Monopoly Mobile Banking",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A cloud-based monopoly mobile banking app which replaces the play money of every Monopoly board game.",
-    "prefer_related_applications": false,
-    "icons": [
-        {
-            "src": "icons/pwa-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/pwa-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "Monopoly Mobile Banking",
+  "short_name": "Monopoly Mobile Banking",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0175C2",
+  "theme_color": "#0175C2",
+  "description": "Unofficial banking companion app for monopoly board games.",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }

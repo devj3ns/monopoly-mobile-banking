@@ -1,6 +1,6 @@
 name: monopoly_banking
-description: A cloud-based monopoly mobile banking app.
-publish_to: 'none'
+description: Unofficial banking companion app for monopoly board games
+publish_to: "none"
 
 version: 0.8.2+13
 
@@ -34,7 +34,6 @@ dependencies:
     path: packages/user_repository
   banking_repository:
     path: packages/banking_repository
-
 
 dev_dependencies:
   flutter_launcher_icons: ^0.11.0

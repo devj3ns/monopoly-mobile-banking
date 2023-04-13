@@ -48,7 +48,7 @@ class AppInfoScreen extends HookWidget {
           ),
           const SizedBox(height: 25),
           const Text(
-            'This app replaces the play money of every Monopoly board game. '
+            'Unofficial banking companion app for monopoly board games.\n\n'
             'Every player can see his money balance on his phone and make transactions from and to players or the bank through the app easily.'
             '\n\n'
             'How to use this app:\n'
