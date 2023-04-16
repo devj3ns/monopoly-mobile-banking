@@ -20,7 +20,7 @@ dependencies:
   url_strategy: ^0.2.0
   font_awesome_flutter: ^10.3.0
   currency_text_input_formatter: ^2.1.8
-  modal_bottom_sheet: ^2.1.2
+  modal_bottom_sheet: ^3.0.0-pre
   confetti: ^0.7.0
   package_info_plus: ^3.0.2
   url_launcher: ^6.1.7
