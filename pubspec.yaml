@@ -2,7 +2,7 @@ name: monopoly_banking
 description: Unofficial banking companion app for monopoly board games
 publish_to: "none"
 
-version: 0.8.2+13
+version: 0.8.3+14
 
 environment:
   sdk: ">=2.16.1 <3.0.0"

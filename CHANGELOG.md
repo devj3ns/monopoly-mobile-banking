@@ -1,3 +1,8 @@
+# 0.8.3
+- Fix: use latest modal_bottom_sheet version
+- Fix: temporarily use locale dateTime when request to network time api fails
+- Add subtitle to app ("Unofficial banking companion app for monopoly board games.")
+
 # 0.8.2
 - Fix: Transaction amount always 0
 - Use android stretch overscroll
