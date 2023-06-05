@@ -24,7 +24,7 @@ dependencies:
   confetti: ^0.7.0
   package_info_plus: ^3.0.2
   url_launcher: ^6.1.7
-  share_plus: ^6.3.0
+  share_plus: ^7.0.2
   cached_network_image: ^3.2.3
   routemaster: ^1.0.1
   qr_flutter: ^4.0.0
