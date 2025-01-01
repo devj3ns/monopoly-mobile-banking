@@ -27,7 +27,7 @@ dependencies:
   share_plus: ^6.3.0
   cached_network_image: ^3.2.3
   routemaster: ^1.0.1
-  qr_flutter: ^4.0.0
+  qr_flutter: 4.0.0 # Pinned because Version 4.0.1 has a breaking change
   firebase_core: ^2.4.0
 
   user_repository:
