@@ -1,12 +1,12 @@
 {
   "hosting": {
     "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      {
+        "source": "/",
+        "destination": "https://monopoly-mobile-banking-website.vercel.app"
+      },
       {
         "source": "**",
         "destination": "/index.html"
