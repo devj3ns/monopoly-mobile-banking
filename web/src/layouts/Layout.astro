@@ -1,22 +1,35 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+
+    <!-- iOS meta tags & icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Monopoly Mobile Banking" />
+    <link rel="apple-touch-icon" href="icons/pwa-192x192.png" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/png" href="icons/pwa-192x192.png" />
+
+    <title>Monopoly Mobile Banking</title>
+
+    <meta
+      name="google-site-verification"
+      content="vnaWnecT09gII0SdnMKPjHHNoz6OvaISjmFmqf1JraE"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
 </html>
 
 <style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+  }
 </style>
