@@ -3,6 +3,7 @@ name: Build & deploy to Firebase Hosting (production) on new release.
 on:
   release:
     types: [published]
+  workflow_dispatch:  # This line allows manual triggering of the workflow
 
 jobs:
   build:
@@ -12,6 +13,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: stable
+          flutter-version: 3.7.12
       - run: flutter pub get
       - run: flutter build web -t lib/main_production.dart
       - uses: FirebaseExtended/action-hosting-deploy@v0
