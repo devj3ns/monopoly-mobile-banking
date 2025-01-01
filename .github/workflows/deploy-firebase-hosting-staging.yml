@@ -3,7 +3,7 @@ name: Build & deploy to Firebase Hosting (staging) on new release.
 on:
   release:
     types: [published]
-  workflow_dispatch:  # This line allows manual triggering of the workflow
+  workflow_dispatch: # This line allows manual triggering of the workflow
 
 jobs:
   build:
@@ -14,12 +14,12 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.7.12
-      - run: flutter pub get
-      - run: flutter build web -t lib/main_staging.dart
+      - run: cd app && flutter pub get
+      - run: cd app && flutter build web -t lib/main_staging.dart
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING_STAGING }}'
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING_STAGING }}"
           channelId: live
           projectId: monopoly-banking-staging
         env:
