@@ -22,5 +22,6 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONOPOLY_BANKING_STAGING }}"
           channelId: live
           projectId: monopoly-banking-staging
+          entryPoint: "app" # Added because firebase.json is in the app directory
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
