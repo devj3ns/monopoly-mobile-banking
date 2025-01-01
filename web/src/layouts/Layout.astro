@@ -1,3 +1,15 @@
+---
+type Props = {
+  meta: {
+    title: string;
+    description: string;
+  };
+  class: string;
+};
+
+const { meta, class: className } = Astro.props;
+---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -13,14 +25,15 @@
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/png" href="icons/pwa-192x192.png" />
 
-    <title>Monopoly Mobile Banking</title>
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
 
     <meta
       name="google-site-verification"
       content="vnaWnecT09gII0SdnMKPjHHNoz6OvaISjmFmqf1JraE"
     />
   </head>
-  <body>
+  <body class={className}>
     <slot />
   </body>
 </html>
