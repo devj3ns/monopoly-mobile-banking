@@ -3,6 +3,7 @@ name: Build & deploy to Firebase Hosting (staging) on new release.
 on:
   release:
     types: [published]
+  workflow_dispatch:  # This line allows manual triggering of the workflow
 
 jobs:
   build:
