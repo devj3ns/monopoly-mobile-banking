@@ -1,16 +1,13 @@
 {
-  "hosting": [
-    {
-      "public": "build/web",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "production",
-      "site": "monopoly-banking-app"
-    },
-    {
-      "public": "build/web",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "target": "staging",
-      "site": "monopoly-banking-app-staging"
-    }
-  ]
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "site": "monopoly-banking-app-staging",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }
